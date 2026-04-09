@@ -150,3 +150,60 @@ export const classroomMember = sqliteTable(
         index("classroom_member_classroom_code_idx").on(table.classroomCode),
     ],
 )
+
+export const attendanceSession = sqliteTable(
+    "attendance_session",
+    {
+        id: text("id").primaryKey(),
+        classroomCode: text("classroom_code")
+            .notNull()
+            .references(() => classroom.code, { onDelete: "cascade" }),
+        createdByUserId: text("created_by_user_id")
+            .notNull()
+            .references(() => user.id, { onDelete: "cascade" }),
+        token: text("token").notNull().unique(),
+        createdAt: integer("created_at", { mode: "timestamp_ms" })
+            .$defaultFn(() => new Date())
+            .notNull(),
+        expiresAt: integer("expires_at", { mode: "timestamp_ms" }).notNull(),
+        isClosed: integer("is_closed", { mode: "boolean" })
+            .default(false)
+            .notNull(),
+    },
+    (table) => [
+        index("attendance_session_classroom_code_idx").on(table.classroomCode),
+        index("attendance_session_created_by_user_id_idx").on(
+            table.createdByUserId,
+        ),
+        uniqueIndex("attendance_session_token_unique").on(table.token),
+    ],
+)
+
+export const attendanceRecord = sqliteTable(
+    "attendance_record",
+    {
+        id: text("id").primaryKey(),
+        attendanceSessionId: text("attendance_session_id")
+            .notNull()
+            .references(() => attendanceSession.id, { onDelete: "cascade" }),
+        classroomCode: text("classroom_code")
+            .notNull()
+            .references(() => classroom.code, { onDelete: "cascade" }),
+        userId: text("user_id")
+            .notNull()
+            .references(() => user.id, { onDelete: "cascade" }),
+        markedAt: integer("marked_at", { mode: "timestamp_ms" })
+            .$defaultFn(() => new Date())
+            .notNull(),
+        markMethod: text("mark_method").default("qr").notNull(),
+    },
+    (table) => [
+        index("attendance_record_session_idx").on(table.attendanceSessionId),
+        index("attendance_record_classroom_idx").on(table.classroomCode),
+        index("attendance_record_user_idx").on(table.userId),
+        uniqueIndex("attendance_record_unique_session_member").on(
+            table.attendanceSessionId,
+            table.userId,
+        ),
+    ],
+)
