@@ -1,4 +1,9 @@
-import type { Classroom } from "../types/classroom"
+import type {
+    AttendanceOverview,
+    AttendanceSession,
+    Classroom,
+    MyAttendanceSummary,
+} from "../types/classroom"
 
 const apiBaseUrl =
     import.meta.env.VITE_BETTER_AUTH_URL || "http://localhost:5000"
@@ -85,5 +90,76 @@ export async function leaveClassroom(code: string): Promise<void> {
 export async function deleteClassroom(code: string): Promise<void> {
     await apiRequest<{ deleted: boolean }>(`/api/classroom/${code}`, {
         method: "DELETE",
+    })
+}
+
+export async function createAttendanceSession(input: {
+    classroomCode: string
+    durationMinutes: number
+}): Promise<{
+    attendanceSession: AttendanceSession
+    qrPayload: {
+        token: string
+        classroomCode: string
+        endpoint: string
+    }
+}> {
+    return apiRequest<{
+        attendanceSession: AttendanceSession
+        qrPayload: {
+            token: string
+            classroomCode: string
+            endpoint: string
+        }
+    }>(`/api/classroom/${input.classroomCode}/attendance/session.create`, {
+        method: "POST",
+        body: {
+            durationMinutes: input.durationMinutes,
+        },
+    })
+}
+
+export async function closeAttendanceSession(input: {
+    classroomCode: string
+    attendanceSessionId: string
+}): Promise<void> {
+    await apiRequest<{ closed: boolean }>(
+        `/api/classroom/${input.classroomCode}/attendance/session/${input.attendanceSessionId}/close`,
+        {
+            method: "POST",
+        },
+    )
+}
+
+export async function getClassroomAttendanceOverview(
+    classroomCode: string,
+): Promise<AttendanceOverview> {
+    return apiRequest<AttendanceOverview>(
+        `/api/classroom/${classroomCode}/attendance/overview`,
+    )
+}
+
+export async function getMyClassroomAttendance(
+    classroomCode: string,
+): Promise<MyAttendanceSummary> {
+    return apiRequest<MyAttendanceSummary>(
+        `/api/classroom/${classroomCode}/attendance/me`,
+    )
+}
+
+export async function markAttendanceByToken(token: string): Promise<{
+    marked: boolean
+    alreadyMarked: boolean
+    attendanceSessionId: string
+    classroomCode: string
+}> {
+    return apiRequest<{
+        marked: boolean
+        alreadyMarked: boolean
+        attendanceSessionId: string
+        classroomCode: string
+    }>("/api/attendance/scan", {
+        method: "POST",
+        body: { token },
     })
 }

@@ -9,15 +9,15 @@ const buttonVariants = cva(
         variants: {
             variant: {
                 default:
-                    "bg-slate-900 text-white hover:bg-slate-700 focus-visible:ring-slate-400",
+                    "bg-emerald-700 text-white hover:bg-emerald-600 focus-visible:ring-emerald-500",
                 secondary:
-                    "bg-white/10 text-slate-100 hover:bg-white/20 focus-visible:ring-slate-300",
+                    "bg-slate-800 text-slate-100 hover:bg-slate-700 focus-visible:ring-slate-500",
                 ghost:
-                    "bg-transparent text-slate-200 hover:bg-white/10 focus-visible:ring-slate-300",
+                    "bg-transparent text-slate-300 hover:bg-slate-800/80 focus-visible:ring-slate-500",
                 danger:
-                    "bg-red-600 text-white hover:bg-red-500 focus-visible:ring-red-400",
+                    "bg-red-700 text-white hover:bg-red-600 focus-visible:ring-red-500",
                 outline:
-                    "border border-white/20 bg-white/5 text-slate-100 hover:bg-white/10 focus-visible:ring-slate-400",
+                    "border border-slate-700 bg-slate-900 text-slate-100 hover:bg-slate-800 focus-visible:ring-slate-500",
             },
             size: {
                 default: "h-10 px-4",

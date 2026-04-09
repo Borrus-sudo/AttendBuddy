@@ -80,8 +80,8 @@ export function ToasterProvider({ children }: ToasterProviderProps) {
                         className={cn(
                             "pointer-events-auto rounded-xl border p-3 shadow-2xl backdrop-blur",
                             toast.variant === "success"
-                                ? "border-emerald-300/40 bg-emerald-950/80"
-                                : "border-red-300/40 bg-red-950/80",
+                                ? "border-emerald-400/40 bg-[#102117]"
+                                : "border-red-400/40 bg-[#2a1212]",
                         )}
                         role="status"
                     >

@@ -7,7 +7,8 @@ export default defineHandler((event) => {
     const res = handleCors(event, {
         origin: allowedOrigins,
         credentials: true,
-        // allowHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+        methods: "*",
+        allowHeaders: "*",
         preflight: {
             statusCode: 204,
         },

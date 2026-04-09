@@ -13,6 +13,8 @@ import {
 
 type ClassroomListProps = {
     classrooms: Classroom[]
+    selectedCode: string | null
+    onSelect: (code: string) => void
     onLeave: (code: string) => Promise<void>
     onDelete: (code: string) => Promise<void>
     loadingCode?: string
@@ -20,6 +22,8 @@ type ClassroomListProps = {
 
 export function ClassroomList({
     classrooms,
+    selectedCode,
+    onSelect,
     onLeave,
     onDelete,
     loadingCode,
@@ -43,14 +47,24 @@ export function ClassroomList({
                         {classrooms.map((classroomItem) => (
                             <li
                                 key={classroomItem.code}
-                                className="rounded-xl border border-white/10 bg-white/5 p-4"
+                                className={`rounded-xl border p-4 transition ${
+                                    selectedCode === classroomItem.code
+                                        ? "border-cyan-300/50 bg-cyan-500/10"
+                                        : "border-white/10 bg-white/5"
+                                }`}
                             >
                                 <div className="flex flex-wrap items-start justify-between gap-4">
                                     <div className="space-y-2">
                                         <div className="flex items-center gap-2">
-                                            <p className="font-semibold text-slate-100">
+                                            <button
+                                                type="button"
+                                                className="font-semibold text-slate-100 hover:text-cyan-100"
+                                                onClick={() => {
+                                                    onSelect(classroomItem.code)
+                                                }}
+                                            >
                                                 {classroomItem.name}
-                                            </p>
+                                            </button>
                                             <Badge>{classroomItem.code}</Badge>
                                         </div>
                                         {classroomItem.description ? (
