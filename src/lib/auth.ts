@@ -105,6 +105,7 @@ export const auth = betterAuth({
                     if (!user.emailVerified) {
                         return false
                     }
+                    return true
 
                     const parsedVjtiEmail = isVjtiEmail(user.email)
 

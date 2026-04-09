@@ -97,7 +97,7 @@ Notes:
 
 ## Architecture Notes
 
-- `src/db/client.ts`: Drizzle client wiring for runtime DB access.
+- `src/lib/db.ts`: Drizzle client wiring for runtime DB access.
 - `src/lib/auth.ts`: Better Auth setup and provider configuration.
 - `src/middleware/auth.ts`: API auth/session gatekeeping.
 - `src/error.ts`: centralized Nitro error handling.
