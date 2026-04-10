@@ -1,0 +1,23 @@
+flowchart TD
+    A[Open AttendBuddy] --> B{Signed in?}
+    B -- No --> C[Sign in with Google]
+    B -- Yes --> D[Open Dashboard]
+    C --> D
+
+    D --> E[Header: Create or Join Classroom]
+    E --> F[Classroom appears in left panel]
+    F --> G[Select classroom]
+
+    G --> H{Role in classroom}
+    H -- Teacher --> I[Generate attendance QR/token]
+    H -- Student --> J[Enter token to mark attendance]
+
+    I --> K[Attendance gets recorded]
+    J --> K
+    K --> L[Stats and attendance views refresh]
+
+    G --> M[Leave or Delete classroom]
+    M --> F
+
+    D --> N[Sign out]
+    N --> A

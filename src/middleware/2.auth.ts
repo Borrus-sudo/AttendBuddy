@@ -19,10 +19,10 @@ export default defineHandler(async (event) => {
     if (!path.startsWith("/api/") || path.startsWith("/api/auth")) {
         return
     }
-    // we have positioned CORS ahead
-    // if (event.req.method === "OPTIONS") {
-    //     return
-    // }
+
+    if (event.req.method === "OPTIONS") {
+        return
+    }
 
     const session = await auth.api.getSession({
         headers: event.req.headers,

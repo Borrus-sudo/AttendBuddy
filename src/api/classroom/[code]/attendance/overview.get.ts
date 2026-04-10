@@ -80,7 +80,11 @@ export default defineHandler(async (event) => {
         attendanceTotals.map((row) => [row.userId, row.marksCount]),
     )
 
-    const students = memberRows.map((member) => {
+    const studentRows = memberRows.filter(
+        (member) => member.userId !== classroomRecord.creatorId,
+    )
+
+    const students = studentRows.map((member) => {
         const attendanceMarkedCount = attendanceByUserId.get(member.userId) ?? 0
         const attendancePercentage =
             totalSessions > 0
