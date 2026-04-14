@@ -1,38 +1,38 @@
-import { HTTPError } from "h3"
-import { defineHandler } from "nitro"
+import { HTTPError } from "h3";
+import { defineHandler } from "nitro";
 
-import { auth } from "@/src/lib/auth"
+import { auth } from "@/src/lib/auth";
 
 declare module "h3" {
     interface H3EventContext {
         user: NonNullable<
             Awaited<ReturnType<typeof auth.api.getSession>>
-        >["user"]
+        >["user"];
         session: NonNullable<
             Awaited<ReturnType<typeof auth.api.getSession>>
-        >["session"]
+        >["session"];
     }
 }
 
 export default defineHandler(async (event) => {
-    const path = event.url.pathname
+    const path = event.url.pathname;
     if (!path.startsWith("/api/") || path.startsWith("/api/auth")) {
-        return
+        return;
     }
 
     if (event.req.method === "OPTIONS") {
-        return
+        return;
     }
 
     const session = await auth.api.getSession({
         headers: event.req.headers,
-    })
+    });
     if (!session) {
         throw HTTPError.status(401, "Unauthorized", {
             message: "You must be signed in to access this endpoint",
-        })
+        });
     }
 
-    event.context.user = session.user
-    event.context.session = session.session
-})
+    event.context.user = session.user;
+    event.context.session = session.session;
+});

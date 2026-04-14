@@ -1,12 +1,12 @@
-import { BookUser, CalendarRange, Users } from "lucide-react"
+import { BookUser, CalendarRange, Users } from "lucide-react";
 
-import type { AttendanceOverview } from "../../types/classroom"
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card"
+import type { AttendanceOverview } from "../../types/classroom";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 
 type CreatorOverviewPanelProps = {
-    data: AttendanceOverview | null
-    loading: boolean
-}
+    data: AttendanceOverview | null;
+    loading: boolean;
+};
 
 export function CreatorOverviewPanel({
     data,
@@ -22,7 +22,7 @@ export function CreatorOverviewPanel({
                     Loading class analytics...
                 </CardContent>
             </Card>
-        )
+        );
     }
 
     if (!data) {
@@ -35,7 +35,7 @@ export function CreatorOverviewPanel({
                     Select a classroom you created to view student attendance.
                 </CardContent>
             </Card>
-        )
+        );
     }
 
     return (
@@ -75,10 +75,18 @@ export function CreatorOverviewPanel({
                     <table className="w-full border-collapse text-sm">
                         <thead className="bg-[#121827] text-left text-slate-300">
                             <tr>
-                                <th className="px-3 py-2 font-medium">Student</th>
-                                <th className="px-3 py-2 font-medium">Joined</th>
-                                <th className="px-3 py-2 font-medium">Present</th>
-                                <th className="px-3 py-2 font-medium">Attendance %</th>
+                                <th className="px-3 py-2 font-medium">
+                                    Student
+                                </th>
+                                <th className="px-3 py-2 font-medium">
+                                    Joined
+                                </th>
+                                <th className="px-3 py-2 font-medium">
+                                    Present
+                                </th>
+                                <th className="px-3 py-2 font-medium">
+                                    Attendance %
+                                </th>
                             </tr>
                         </thead>
                         <tbody>
@@ -96,9 +104,9 @@ export function CreatorOverviewPanel({
                                         </p>
                                     </td>
                                     <td className="px-3 py-2 text-slate-300">
-                                        {new Date(student.joinedAt).toLocaleDateString(
-                                            "en-IN",
-                                        )}
+                                        {new Date(
+                                            student.joinedAt,
+                                        ).toLocaleDateString("en-IN")}
                                     </td>
                                     <td className="px-3 py-2 text-slate-100">
                                         {student.attendanceMarkedCount}
@@ -115,5 +123,5 @@ export function CreatorOverviewPanel({
                 </div>
             </CardContent>
         </Card>
-    )
+    );
 }

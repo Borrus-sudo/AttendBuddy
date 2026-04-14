@@ -1,33 +1,41 @@
-import { ChevronDown, ChevronRight, GraduationCap, PlusCircle, QrCode } from "lucide-react"
-import { useMemo, useState } from "react"
+import {
+    ChevronDown,
+    ChevronRight,
+    GraduationCap,
+    PlusCircle,
+    QrCode,
+} from "lucide-react";
+import { useMemo, useState } from "react";
 
-import type { Classroom } from "../../types/classroom"
-import { cn } from "../../lib/utils"
+import type { Classroom } from "../../types/classroom";
+import { cn } from "../../lib/utils";
 
 type ClassroomSidebarProps = {
-    classrooms: Classroom[]
-    selectedCode: string | null
-    onSelect: (code: string) => void
-}
+    classrooms: Classroom[];
+    selectedCode: string | null;
+    onSelect: (code: string) => void;
+};
 
 export function ClassroomSidebar({
     classrooms,
     selectedCode,
     onSelect,
 }: ClassroomSidebarProps) {
-    const creatorsCount = classrooms.filter((item) => item.role === "creator").length
-    const [showCreated, setShowCreated] = useState(true)
-    const [showJoined, setShowJoined] = useState(true)
+    const creatorsCount = classrooms.filter(
+        (item) => item.role === "creator",
+    ).length;
+    const [showCreated, setShowCreated] = useState(true);
+    const [showJoined, setShowJoined] = useState(true);
 
     const createdClassrooms = useMemo(
         () => classrooms.filter((item) => item.role === "creator"),
         [classrooms],
-    )
+    );
 
     const joinedClassrooms = useMemo(
         () => classrooms.filter((item) => item.role !== "creator"),
         [classrooms],
-    )
+    );
 
     function renderClassroomItem(classroomItem: Classroom) {
         return (
@@ -41,7 +49,7 @@ export function ClassroomSidebar({
                         : "border-slate-800 bg-[#0f1119] hover:border-slate-700 hover:bg-[#131724]",
                 )}
                 onClick={() => {
-                    onSelect(classroomItem.code)
+                    onSelect(classroomItem.code);
                 }}
             >
                 <div className="mb-1 flex items-center justify-between gap-2">
@@ -54,7 +62,8 @@ export function ClassroomSidebar({
                 </div>
 
                 <p className="mb-2 line-clamp-2 text-xs text-slate-400">
-                    {classroomItem.description || "No class description provided yet."}
+                    {classroomItem.description ||
+                        "No class description provided yet."}
                 </p>
 
                 <div className="flex items-center gap-2 text-xs text-slate-300">
@@ -71,7 +80,7 @@ export function ClassroomSidebar({
                     )}
                 </div>
             </button>
-        )
+        );
     }
 
     return (
@@ -121,10 +130,12 @@ export function ClassroomSidebar({
                                 type="button"
                                 className="flex w-full items-center justify-between rounded-lg bg-slate-900/60 px-2 py-1 text-left text-sm font-semibold text-slate-200"
                                 onClick={() => {
-                                    setShowCreated((value) => !value)
+                                    setShowCreated((value) => !value);
                                 }}
                             >
-                                <span>Created by You ({createdClassrooms.length})</span>
+                                <span>
+                                    Created by You ({createdClassrooms.length})
+                                </span>
                                 {showCreated ? (
                                     <ChevronDown className="h-4 w-4" />
                                 ) : (
@@ -135,7 +146,9 @@ export function ClassroomSidebar({
                             {showCreated ? (
                                 <div className="space-y-2">
                                     {createdClassrooms.length > 0 ? (
-                                        createdClassrooms.map(renderClassroomItem)
+                                        createdClassrooms.map(
+                                            renderClassroomItem,
+                                        )
                                     ) : (
                                         <p className="rounded-lg border border-slate-800 bg-slate-900/40 px-3 py-2 text-xs text-slate-500">
                                             No classrooms created yet.
@@ -150,10 +163,13 @@ export function ClassroomSidebar({
                                 type="button"
                                 className="flex w-full items-center justify-between rounded-lg bg-slate-900/60 px-2 py-1 text-left text-sm font-semibold text-slate-200"
                                 onClick={() => {
-                                    setShowJoined((value) => !value)
+                                    setShowJoined((value) => !value);
                                 }}
                             >
-                                <span>Joined as Student ({joinedClassrooms.length})</span>
+                                <span>
+                                    Joined as Student ({joinedClassrooms.length}
+                                    )
+                                </span>
                                 {showJoined ? (
                                     <ChevronDown className="h-4 w-4" />
                                 ) : (
@@ -164,7 +180,9 @@ export function ClassroomSidebar({
                             {showJoined ? (
                                 <div className="space-y-2">
                                     {joinedClassrooms.length > 0 ? (
-                                        joinedClassrooms.map(renderClassroomItem)
+                                        joinedClassrooms.map(
+                                            renderClassroomItem,
+                                        )
                                     ) : (
                                         <p className="rounded-lg border border-slate-800 bg-slate-900/40 px-3 py-2 text-xs text-slate-500">
                                             No classrooms joined yet.
@@ -177,5 +195,5 @@ export function ClassroomSidebar({
                 )}
             </div>
         </aside>
-    )
+    );
 }

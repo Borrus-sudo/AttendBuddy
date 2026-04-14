@@ -5,7 +5,7 @@ import {
     sqliteTable,
     text,
     primaryKey,
-} from "drizzle-orm/sqlite-core"
+} from "drizzle-orm/sqlite-core";
 
 export const user = sqliteTable(
     "user",
@@ -25,7 +25,7 @@ export const user = sqliteTable(
             .notNull(),
     },
     (table) => [index("user_email_idx").on(table.email)],
-)
+);
 
 export const session = sqliteTable(
     "session",
@@ -49,7 +49,7 @@ export const session = sqliteTable(
         index("session_user_id_idx").on(table.userId),
         uniqueIndex("session_token_unique").on(table.token),
     ],
-)
+);
 
 export const account = sqliteTable(
     "account",
@@ -85,7 +85,7 @@ export const account = sqliteTable(
             table.accountId,
         ),
     ],
-)
+);
 
 export const verification = sqliteTable(
     "verification",
@@ -108,7 +108,7 @@ export const verification = sqliteTable(
             table.value,
         ),
     ],
-)
+);
 
 export const classroom = sqliteTable(
     "classroom",
@@ -127,7 +127,7 @@ export const classroom = sqliteTable(
             .notNull(),
     },
     (table) => [index("classroom_creator_id_idx").on(table.creatorId)],
-)
+);
 
 export const classroomMember = sqliteTable(
     "classroom_member",
@@ -149,7 +149,7 @@ export const classroomMember = sqliteTable(
         index("classroom_member_user_id_idx").on(table.userId),
         index("classroom_member_classroom_code_idx").on(table.classroomCode),
     ],
-)
+);
 
 export const attendanceSession = sqliteTable(
     "attendance_session",
@@ -177,7 +177,7 @@ export const attendanceSession = sqliteTable(
         ),
         uniqueIndex("attendance_session_token_unique").on(table.token),
     ],
-)
+);
 
 export const attendanceRecord = sqliteTable(
     "attendance_record",
@@ -206,4 +206,4 @@ export const attendanceRecord = sqliteTable(
             table.userId,
         ),
     ],
-)
+);

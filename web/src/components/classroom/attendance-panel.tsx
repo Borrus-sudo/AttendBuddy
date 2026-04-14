@@ -1,28 +1,34 @@
-import { useMemo, useState } from "react"
-import { Clock3, QrCode, ShieldCheck } from "lucide-react"
-import { QRCodeSVG } from "qrcode.react"
+import { useMemo, useState } from "react";
+import { Clock3, QrCode, ShieldCheck } from "lucide-react";
+import { QRCodeSVG } from "qrcode.react";
 
-import type { AttendanceSession, Classroom } from "../../types/classroom"
-import { Button } from "../ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card"
-import { Label } from "../ui/label"
-import { Spinner } from "../ui/spinner"
+import type { AttendanceSession, Classroom } from "../../types/classroom";
+import { Button } from "../ui/button";
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from "../ui/card";
+import { Label } from "../ui/label";
+import { Spinner } from "../ui/spinner";
 
 type AttendancePanelProps = {
-    classroom: Classroom | null
-    activeSession: AttendanceSession | null
+    classroom: Classroom | null;
+    activeSession: AttendanceSession | null;
     onStartSession: (args: {
-        classroomCode: string
-        durationMinutes: number
-    }) => Promise<void>
+        classroomCode: string;
+        durationMinutes: number;
+    }) => Promise<void>;
     onCloseSession: (args: {
-        classroomCode: string
-        attendanceSessionId: string
-    }) => Promise<void>
-    loading: boolean
-}
+        classroomCode: string;
+        attendanceSessionId: string;
+    }) => Promise<void>;
+    loading: boolean;
+};
 
-const durationOptions = [5, 10, 15, 30, 45]
+const durationOptions = [5, 10, 15, 30, 45];
 
 export function AttendancePanel({
     classroom,
@@ -31,20 +37,20 @@ export function AttendancePanel({
     onCloseSession,
     loading,
 }: AttendancePanelProps) {
-    const [durationMinutes, setDurationMinutes] = useState(10)
+    const [durationMinutes, setDurationMinutes] = useState(10);
 
     const expiresLabel = useMemo(() => {
         if (!activeSession) {
-            return null
+            return null;
         }
 
-        const expiry = new Date(activeSession.expiresAt)
+        const expiry = new Date(activeSession.expiresAt);
         return new Intl.DateTimeFormat("en-IN", {
             hour: "2-digit",
             minute: "2-digit",
             second: "2-digit",
-        }).format(expiry)
-    }, [activeSession])
+        }).format(expiry);
+    }, [activeSession]);
 
     if (!classroom) {
         return (
@@ -52,11 +58,12 @@ export function AttendancePanel({
                 <CardHeader>
                     <CardTitle>Attendance Session</CardTitle>
                     <CardDescription>
-                        Select a classroom from the left panel to manage attendance.
+                        Select a classroom from the left panel to manage
+                        attendance.
                     </CardDescription>
                 </CardHeader>
             </Card>
-        )
+        );
     }
 
     if (classroom.role !== "creator") {
@@ -65,16 +72,17 @@ export function AttendancePanel({
                 <CardHeader>
                     <CardTitle>Teacher Attendance Session</CardTitle>
                     <CardDescription>
-                        Teachers generate QR sessions. Students can mark attendance
-                        below using token entry.
+                        Teachers generate QR sessions. Students can mark
+                        attendance below using token entry.
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="rounded-xl border border-slate-800 bg-slate-900/50 p-4 text-sm text-slate-300">
-                    Ask your instructor to start attendance. Once the QR is shown,
-                    scan it from your member app and your presence will be marked.
+                    Ask your instructor to start attendance. Once the QR is
+                    shown, scan it from your member app and your presence will
+                    be marked.
                 </CardContent>
             </Card>
-        )
+        );
     }
 
     return (
@@ -85,8 +93,8 @@ export function AttendancePanel({
                     Start Attendance with QR
                 </CardTitle>
                 <CardDescription>
-                    Generate a time-bound QR for {classroom.name}. Members can scan
-                    and auto-mark attendance.
+                    Generate a time-bound QR for {classroom.name}. Members can
+                    scan and auto-mark attendance.
                 </CardDescription>
             </CardHeader>
 
@@ -121,8 +129,9 @@ export function AttendancePanel({
                         </div>
 
                         <p className="mb-3 text-xs text-cyan-100/90">
-                            Members should scan this QR from AttendBuddy attendance
-                            scanner. The token is single-session and time-limited.
+                            Members should scan this QR from AttendBuddy
+                            attendance scanner. The token is single-session and
+                            time-limited.
                         </p>
 
                         <Button
@@ -133,17 +142,23 @@ export function AttendancePanel({
                                 void onCloseSession({
                                     classroomCode: classroom.code,
                                     attendanceSessionId: activeSession.id,
-                                })
+                                });
                             }}
                         >
-                            {loading ? <Spinner /> : <ShieldCheck className="h-4 w-4" />}
+                            {loading ? (
+                                <Spinner />
+                            ) : (
+                                <ShieldCheck className="h-4 w-4" />
+                            )}
                             {loading ? "Closing..." : "Close Session"}
                         </Button>
                     </div>
                 ) : (
                     <>
                         <div className="space-y-2">
-                            <Label htmlFor="attendance-duration">Session Duration</Label>
+                            <Label htmlFor="attendance-duration">
+                                Session Duration
+                            </Label>
                             <div
                                 id="attendance-duration"
                                 className="grid grid-cols-5 gap-2"
@@ -158,7 +173,7 @@ export function AttendancePanel({
                                                 : "border-slate-700 bg-[#10141f] text-slate-300 hover:border-slate-600"
                                         }`}
                                         onClick={() => {
-                                            setDurationMinutes(duration)
+                                            setDurationMinutes(duration);
                                         }}
                                     >
                                         {duration}m
@@ -174,15 +189,21 @@ export function AttendancePanel({
                                 void onStartSession({
                                     classroomCode: classroom.code,
                                     durationMinutes,
-                                })
+                                });
                             }}
                         >
-                            {loading ? <Spinner /> : <QrCode className="h-4 w-4" />}
-                            {loading ? "Generating..." : "Generate Attendance QR"}
+                            {loading ? (
+                                <Spinner />
+                            ) : (
+                                <QrCode className="h-4 w-4" />
+                            )}
+                            {loading
+                                ? "Generating..."
+                                : "Generate Attendance QR"}
                         </Button>
                     </>
                 )}
             </CardContent>
         </Card>
-    )
+    );
 }

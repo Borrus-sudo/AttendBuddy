@@ -1,12 +1,12 @@
-import { HTTPError } from "h3"
-import { consola } from "consola"
-import type { NitroErrorHandler } from "nitro/types"
+import { HTTPError } from "h3";
+import { consola } from "consola";
+import type { NitroErrorHandler } from "nitro/types";
 
 const onError: NitroErrorHandler = (error, event) => {
     const requestPath = event?.req.url
         ? new URL(event.req.url).pathname
-        : "unknown"
-    const method = event?.req.method ?? "UNKNOWN"
+        : "unknown";
+    const method = event?.req.method ?? "UNKNOWN";
 
     if (HTTPError.isError(error)) {
         consola.error({
@@ -15,7 +15,7 @@ const onError: NitroErrorHandler = (error, event) => {
             method,
             path: requestPath,
             message: error.message,
-        })
+        });
 
         return new Response(
             JSON.stringify({
@@ -28,14 +28,14 @@ const onError: NitroErrorHandler = (error, event) => {
                     "content-type": "application/json",
                 },
             },
-        )
+        );
     }
 
     consola.error({
         method,
         path: requestPath,
         error,
-    })
+    });
 
     return new Response(
         JSON.stringify({
@@ -48,7 +48,7 @@ const onError: NitroErrorHandler = (error, event) => {
                 "content-type": "application/json",
             },
         },
-    )
-}
+    );
+};
 
-export default onError
+export default onError;

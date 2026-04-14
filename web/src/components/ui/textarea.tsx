@@ -1,8 +1,8 @@
-import type { TextareaHTMLAttributes } from "react"
+import type { TextareaHTMLAttributes } from "react";
 
-import { cn } from "../../lib/utils"
+import { cn } from "../../lib/utils";
 
-type TextareaProps = TextareaHTMLAttributes<HTMLTextAreaElement>
+type TextareaProps = TextareaHTMLAttributes<HTMLTextAreaElement>;
 
 export function Textarea({ className, ...props }: TextareaProps) {
     return (
@@ -13,5 +13,5 @@ export function Textarea({ className, ...props }: TextareaProps) {
             )}
             {...props}
         />
-    )
+    );
 }

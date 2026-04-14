@@ -2,12 +2,7 @@
 
 :root {
     color-scheme: dark;
-    font-family:
-        "Sora",
-        "Manrope",
-        "Avenir Next",
-        "Segoe UI",
-        sans-serif;
+    font-family: "Sora", "Manrope", "Avenir Next", "Segoe UI", sans-serif;
 }
 
 * {

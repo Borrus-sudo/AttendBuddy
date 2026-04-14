@@ -1,33 +1,33 @@
-import { useState, type FormEvent } from "react"
+import { useState, type FormEvent } from "react";
 
-import { Button } from "../ui/button"
-import { Input } from "../ui/input"
-import { Label } from "../ui/label"
-import { Spinner } from "../ui/spinner"
-import { Textarea } from "../ui/textarea"
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
+import { Label } from "../ui/label";
+import { Spinner } from "../ui/spinner";
+import { Textarea } from "../ui/textarea";
 
 type ClassroomCreateFormProps = {
-    onCreate: (input: { name: string; description: string }) => Promise<void>
-    isLoading: boolean
-}
+    onCreate: (input: { name: string; description: string }) => Promise<void>;
+    isLoading: boolean;
+};
 
 export function ClassroomCreateForm({
     onCreate,
     isLoading,
 }: ClassroomCreateFormProps) {
-    const [name, setName] = useState("")
-    const [description, setDescription] = useState("")
+    const [name, setName] = useState("");
+    const [description, setDescription] = useState("");
 
     async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-        event.preventDefault()
+        event.preventDefault();
 
         await onCreate({
             name: name.trim(),
             description: description.trim(),
-        })
+        });
 
-        setName("")
-        setDescription("")
+        setName("");
+        setDescription("");
     }
 
     return (
@@ -38,7 +38,7 @@ export function ClassroomCreateForm({
                     id="create-name"
                     value={name}
                     onChange={(event) => {
-                        setName(event.target.value)
+                        setName(event.target.value);
                     }}
                     placeholder="DSA Lab A"
                     required
@@ -52,7 +52,7 @@ export function ClassroomCreateForm({
                     id="create-description"
                     value={description}
                     onChange={(event) => {
-                        setDescription(event.target.value)
+                        setDescription(event.target.value);
                     }}
                     placeholder="Attendance for semester VI practical batch"
                     maxLength={1000}
@@ -64,5 +64,5 @@ export function ClassroomCreateForm({
                 {isLoading ? "Creating..." : "Create Classroom"}
             </Button>
         </form>
-    )
+    );
 }

@@ -1,16 +1,22 @@
-import { ShieldCheck, Trash2, UserMinus } from "lucide-react"
+import { ShieldCheck, Trash2, UserMinus } from "lucide-react";
 
-import type { Classroom } from "../../types/classroom"
-import { Badge } from "../ui/badge"
-import { Button } from "../ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card"
+import type { Classroom } from "../../types/classroom";
+import { Badge } from "../ui/badge";
+import { Button } from "../ui/button";
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from "../ui/card";
 
 type ClassroomFocusCardProps = {
-    classroom: Classroom | null
-    loadingCode?: string
-    onLeave: (code: string) => Promise<void>
-    onDelete: (code: string) => Promise<void>
-}
+    classroom: Classroom | null;
+    loadingCode?: string;
+    onLeave: (code: string) => Promise<void>;
+    onDelete: (code: string) => Promise<void>;
+};
 
 export function ClassroomFocusCard({
     classroom,
@@ -28,7 +34,7 @@ export function ClassroomFocusCard({
                     </CardDescription>
                 </CardHeader>
             </Card>
-        )
+        );
     }
 
     return (
@@ -57,7 +63,7 @@ export function ClassroomFocusCard({
                         size="sm"
                         disabled={loadingCode === classroom.code}
                         onClick={() => {
-                            void onDelete(classroom.code)
+                            void onDelete(classroom.code);
                         }}
                     >
                         <Trash2 className="h-4 w-4" />
@@ -69,7 +75,7 @@ export function ClassroomFocusCard({
                         size="sm"
                         disabled={loadingCode === classroom.code}
                         onClick={() => {
-                            void onLeave(classroom.code)
+                            void onLeave(classroom.code);
                         }}
                     >
                         <UserMinus className="h-4 w-4" />
@@ -78,5 +84,5 @@ export function ClassroomFocusCard({
                 )}
             </CardContent>
         </Card>
-    )
+    );
 }

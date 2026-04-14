@@ -1,24 +1,24 @@
-import { Trash2, UserMinus } from "lucide-react"
+import { Trash2, UserMinus } from "lucide-react";
 
-import type { Classroom } from "../../types/classroom"
-import { Badge } from "../ui/badge"
-import { Button } from "../ui/button"
+import type { Classroom } from "../../types/classroom";
+import { Badge } from "../ui/badge";
+import { Button } from "../ui/button";
 import {
     Card,
     CardContent,
     CardDescription,
     CardHeader,
     CardTitle,
-} from "../ui/card"
+} from "../ui/card";
 
 type ClassroomListProps = {
-    classrooms: Classroom[]
-    selectedCode: string | null
-    onSelect: (code: string) => void
-    onLeave: (code: string) => Promise<void>
-    onDelete: (code: string) => Promise<void>
-    loadingCode?: string
-}
+    classrooms: Classroom[];
+    selectedCode: string | null;
+    onSelect: (code: string) => void;
+    onLeave: (code: string) => Promise<void>;
+    onDelete: (code: string) => Promise<void>;
+    loadingCode?: string;
+};
 
 export function ClassroomList({
     classrooms,
@@ -60,7 +60,9 @@ export function ClassroomList({
                                                 type="button"
                                                 className="font-semibold text-slate-100 hover:text-cyan-100"
                                                 onClick={() => {
-                                                    onSelect(classroomItem.code)
+                                                    onSelect(
+                                                        classroomItem.code,
+                                                    );
                                                 }}
                                             >
                                                 {classroomItem.name}
@@ -80,9 +82,14 @@ export function ClassroomList({
                                                 variant="danger"
                                                 size="sm"
                                                 onClick={() => {
-                                                    void onDelete(classroomItem.code)
+                                                    void onDelete(
+                                                        classroomItem.code,
+                                                    );
                                                 }}
-                                                disabled={loadingCode === classroomItem.code}
+                                                disabled={
+                                                    loadingCode ===
+                                                    classroomItem.code
+                                                }
                                             >
                                                 <Trash2 className="h-4 w-4" />
                                                 Delete
@@ -92,9 +99,14 @@ export function ClassroomList({
                                                 variant="outline"
                                                 size="sm"
                                                 onClick={() => {
-                                                    void onLeave(classroomItem.code)
+                                                    void onLeave(
+                                                        classroomItem.code,
+                                                    );
                                                 }}
-                                                disabled={loadingCode === classroomItem.code}
+                                                disabled={
+                                                    loadingCode ===
+                                                    classroomItem.code
+                                                }
                                             >
                                                 <UserMinus className="h-4 w-4" />
                                                 Leave
@@ -108,5 +120,5 @@ export function ClassroomList({
                 )}
             </CardContent>
         </Card>
-    )
+    );
 }

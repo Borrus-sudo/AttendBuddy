@@ -1,19 +1,19 @@
-import { LogIn } from "lucide-react"
+import { LogIn } from "lucide-react";
 
-import { Button } from "../ui/button"
+import { Button } from "../ui/button";
 import {
     Card,
     CardContent,
     CardDescription,
     CardHeader,
     CardTitle,
-} from "../ui/card"
-import { Spinner } from "../ui/spinner"
+} from "../ui/card";
+import { Spinner } from "../ui/spinner";
 
 type GoogleSignInCardProps = {
-    onSignIn: () => Promise<void>
-    isLoading: boolean
-}
+    onSignIn: () => Promise<void>;
+    isLoading: boolean;
+};
 
 export function GoogleSignInCard({
     onSignIn,
@@ -33,7 +33,7 @@ export function GoogleSignInCard({
                 <Button
                     className="w-full"
                     onClick={() => {
-                        void onSignIn()
+                        void onSignIn();
                     }}
                     disabled={isLoading}
                 >
@@ -42,5 +42,5 @@ export function GoogleSignInCard({
                 </Button>
             </CardContent>
         </Card>
-    )
+    );
 }

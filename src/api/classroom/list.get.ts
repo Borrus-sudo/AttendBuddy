@@ -1,8 +1,8 @@
-import { and, desc, eq } from "drizzle-orm"
-import { defineHandler } from "nitro"
+import { and, desc, eq } from "drizzle-orm";
+import { defineHandler } from "nitro";
 
-import { classroom, classroomMember } from "@/db/schema"
-import { db } from "@/src/lib/db.ts"
+import { classroom, classroomMember } from "@/db/schema";
+import { db } from "@/src/lib/db.ts";
 
 export default defineHandler(async (event) => {
     const rows = await db
@@ -23,12 +23,12 @@ export default defineHandler(async (event) => {
             ),
         )
         .where(eq(classroomMember.userId, event.context.user.id))
-        .orderBy(desc(classroomMember.joinedAt))
+        .orderBy(desc(classroomMember.joinedAt));
 
     const classrooms = rows.map((row) => ({
         ...row,
         role: row.creatorId === event.context.user.id ? "creator" : "member",
-    }))
+    }));
 
-    return { classrooms }
-})
+    return { classrooms };
+});

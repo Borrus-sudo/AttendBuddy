@@ -1,16 +1,16 @@
-import type { ReactNode } from "react"
-import { BookMarked, LogOut, Plus, UserPlus } from "lucide-react"
+import type { ReactNode } from "react";
+import { BookMarked, LogOut, Plus, UserPlus } from "lucide-react";
 
-import { Button } from "../components/ui/button"
+import { Button } from "../components/ui/button";
 
 type AppShellProps = {
-    userName: string
-    userEmail: string
-    onSignOut: () => Promise<void>
-    onOpenCreate: () => void
-    onOpenJoin: () => void
-    children: ReactNode
-}
+    userName: string;
+    userEmail: string;
+    onSignOut: () => Promise<void>;
+    onOpenCreate: () => void;
+    onOpenJoin: () => void;
+    children: ReactNode;
+};
 
 export function AppShell({
     userName,
@@ -45,24 +45,18 @@ export function AppShell({
                     </div>
 
                     <div className="flex flex-wrap items-center gap-2">
-                        <Button
-                            variant="secondary"
-                            onClick={onOpenCreate}
-                        >
+                        <Button variant="secondary" onClick={onOpenCreate}>
                             <Plus className="h-4 w-4" />
                             Create Classroom
                         </Button>
-                        <Button
-                            variant="outline"
-                            onClick={onOpenJoin}
-                        >
+                        <Button variant="outline" onClick={onOpenJoin}>
                             <UserPlus className="h-4 w-4" />
                             Join Classroom
                         </Button>
                         <Button
                             variant="outline"
                             onClick={() => {
-                                void onSignOut()
+                                void onSignOut();
                             }}
                         >
                             <LogOut className="h-4 w-4" />
@@ -76,5 +70,5 @@ export function AppShell({
                 </section>
             </div>
         </div>
-    )
+    );
 }

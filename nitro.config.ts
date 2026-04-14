@@ -1,4 +1,4 @@
-import { defineConfig } from "nitro"
+import { defineConfig } from "nitro";
 
 export default defineConfig({
     serverDir: "./src",
@@ -11,8 +11,10 @@ export default defineConfig({
         betterAuthUrl: "",
         googleClientId: "",
         googleClientSecret: "",
+        frontendUrl: "",
+        backendUrl: "",
         nitro: {
             envPrefix: "APP_",
         },
     },
-})
+});

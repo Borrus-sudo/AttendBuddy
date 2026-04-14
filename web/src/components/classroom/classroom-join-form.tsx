@@ -1,22 +1,25 @@
-import { useState, type FormEvent } from "react"
+import { useState, type FormEvent } from "react";
 
-import { Button } from "../ui/button"
-import { Input } from "../ui/input"
-import { Label } from "../ui/label"
-import { Spinner } from "../ui/spinner"
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
+import { Label } from "../ui/label";
+import { Spinner } from "../ui/spinner";
 
 type ClassroomJoinFormProps = {
-    onJoin: (code: string) => Promise<void>
-    isLoading: boolean
-}
+    onJoin: (code: string) => Promise<void>;
+    isLoading: boolean;
+};
 
-export function ClassroomJoinForm({ onJoin, isLoading }: ClassroomJoinFormProps) {
-    const [code, setCode] = useState("")
+export function ClassroomJoinForm({
+    onJoin,
+    isLoading,
+}: ClassroomJoinFormProps) {
+    const [code, setCode] = useState("");
 
     async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-        event.preventDefault()
-        await onJoin(code.trim().toUpperCase())
-        setCode("")
+        event.preventDefault();
+        await onJoin(code.trim().toUpperCase());
+        setCode("");
     }
 
     return (
@@ -27,7 +30,7 @@ export function ClassroomJoinForm({ onJoin, isLoading }: ClassroomJoinFormProps)
                     id="join-code"
                     value={code}
                     onChange={(event) => {
-                        setCode(event.target.value.toUpperCase())
+                        setCode(event.target.value.toUpperCase());
                     }}
                     placeholder="A1B2C3"
                     required
@@ -41,5 +44,5 @@ export function ClassroomJoinForm({ onJoin, isLoading }: ClassroomJoinFormProps)
                 {isLoading ? "Joining..." : "Join Classroom"}
             </Button>
         </form>
-    )
+    );
 }

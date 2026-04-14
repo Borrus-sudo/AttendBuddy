@@ -1,55 +1,57 @@
-import { useEffect, useMemo, useState } from "react"
-import { Navigate } from "react-router-dom"
+import { useEffect, useMemo, useState } from "react";
+import { Navigate } from "react-router-dom";
 
-import { GoogleSignInCard } from "../components/auth/google-sign-in-card"
-import { getSession, signIn, useSession } from "../lib/auth-client"
+import { GoogleSignInCard } from "../components/auth/google-sign-in-card";
+import { getSession, signIn, useSession } from "../lib/auth-client";
 
 export function AuthRoute() {
-    const { data: session, isPending } = useSession()
-    const [isRedirecting, setIsRedirecting] = useState(false)
+    const { data: session, isPending } = useSession();
+    const [isRedirecting, setIsRedirecting] = useState(false);
 
     const hasOAuthParams = useMemo(() => {
-        const search = window.location.search
+        const search = window.location.search;
         return (
             search.includes("code=") ||
             search.includes("state=") ||
             search.includes("error=")
-        )
-    }, [])
+        );
+    }, []);
 
     useEffect(() => {
         if (session || isPending || !hasOAuthParams) {
-            return
+            return;
         }
 
-        ;(async () => {
+        (async () => {
             try {
-                await getSession()
+                await getSession();
             } catch {
                 // No session yet, keep on auth screen.
             }
-            history.replaceState({}, document.title, window.location.pathname)
-        })()
-    }, [hasOAuthParams, isPending, session])
+            history.replaceState({}, document.title, window.location.pathname);
+        })();
+    }, [hasOAuthParams, isPending, session]);
 
     async function handleGoogleSignIn() {
-        setIsRedirecting(true)
+        setIsRedirecting(true);
         await signIn.social({
             provider: "google",
             callbackURL: `${window.location.origin}/app`,
-        })
+        });
     }
 
     if (isPending) {
         return (
             <div className="flex min-h-screen items-center justify-center bg-slate-950 px-4">
-                <p className="text-sm text-slate-300">Checking your session...</p>
+                <p className="text-sm text-slate-300">
+                    Checking your session...
+                </p>
             </div>
-        )
+        );
     }
 
     if (session) {
-        return <Navigate to="/app" replace />
+        return <Navigate to="/app" replace />;
     }
 
     return (
@@ -62,5 +64,5 @@ export function AuthRoute() {
                 />
             </div>
         </div>
-    )
+    );
 }

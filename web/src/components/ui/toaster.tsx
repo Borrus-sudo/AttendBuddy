@@ -7,67 +7,70 @@ import {
     useMemo,
     useState,
     type ReactNode,
-} from "react"
-import { AlertCircle, CheckCircle2, X } from "lucide-react"
+} from "react";
+import { AlertCircle, CheckCircle2, X } from "lucide-react";
 
-import { cn } from "../../lib/utils"
+import { cn } from "../../lib/utils";
 
-type ToastVariant = "success" | "error"
+type ToastVariant = "success" | "error";
 
 type Toast = {
-    id: number
-    title: string
-    message?: string
-    variant: ToastVariant
-}
+    id: number;
+    title: string;
+    message?: string;
+    variant: ToastVariant;
+};
 
-type ToastInput = Omit<Toast, "id">
+type ToastInput = Omit<Toast, "id">;
 
 type ToastContextValue = {
-    notify: (input: ToastInput) => void
-}
+    notify: (input: ToastInput) => void;
+};
 
-const ToastContext = createContext<ToastContextValue | null>(null)
+const ToastContext = createContext<ToastContextValue | null>(null);
 
 export function useToast() {
-    const context = useContext(ToastContext)
+    const context = useContext(ToastContext);
     if (!context) {
-        throw new Error("useToast must be used within ToasterProvider")
+        throw new Error("useToast must be used within ToasterProvider");
     }
-    return context
+    return context;
 }
 
 type ToasterProviderProps = {
-    children: ReactNode
-}
+    children: ReactNode;
+};
 
 export function ToasterProvider({ children }: ToasterProviderProps) {
-    const [toasts, setToasts] = useState<Toast[]>([])
+    const [toasts, setToasts] = useState<Toast[]>([]);
 
     const dismiss = useCallback((id: number) => {
         setToasts((previousToasts) =>
             previousToasts.filter((toast) => toast.id !== id),
-        )
-    }, [])
+        );
+    }, []);
 
     const notify = useCallback(
         (input: ToastInput) => {
-            const id = Date.now() + Math.floor(Math.random() * 10000)
-            setToasts((previousToasts) => [...previousToasts, { ...input, id }])
+            const id = Date.now() + Math.floor(Math.random() * 10000);
+            setToasts((previousToasts) => [
+                ...previousToasts,
+                { ...input, id },
+            ]);
 
             setTimeout(() => {
-                dismiss(id)
-            }, 3500)
+                dismiss(id);
+            }, 3500);
         },
         [dismiss],
-    )
+    );
 
     const contextValue = useMemo(
         () => ({
             notify,
         }),
         [notify],
-    )
+    );
 
     return (
         <ToastContext.Provider value={contextValue}>
@@ -107,7 +110,7 @@ export function ToasterProvider({ children }: ToasterProviderProps) {
                                 type="button"
                                 className="rounded-md p-1 text-white/70 transition hover:bg-white/10 hover:text-white"
                                 onClick={() => {
-                                    dismiss(toast.id)
+                                    dismiss(toast.id);
                                 }}
                             >
                                 <X className="h-3.5 w-3.5" />
@@ -117,5 +120,5 @@ export function ToasterProvider({ children }: ToasterProviderProps) {
                 ))}
             </div>
         </ToastContext.Provider>
-    )
+    );
 }

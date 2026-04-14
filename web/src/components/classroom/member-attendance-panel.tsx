@@ -1,12 +1,12 @@
-import { CheckCircle2, Clock3, Percent } from "lucide-react"
+import { CheckCircle2, Clock3, Percent } from "lucide-react";
 
-import type { MyAttendanceSummary } from "../../types/classroom"
-import { Card, CardContent, CardHeader, CardTitle } from "../ui/card"
+import type { MyAttendanceSummary } from "../../types/classroom";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 
 type MemberAttendancePanelProps = {
-    data: MyAttendanceSummary | null
-    loading: boolean
-}
+    data: MyAttendanceSummary | null;
+    loading: boolean;
+};
 
 export function MemberAttendancePanel({
     data,
@@ -22,7 +22,7 @@ export function MemberAttendancePanel({
                     Loading your attendance stats...
                 </CardContent>
             </Card>
-        )
+        );
     }
 
     if (!data) {
@@ -35,7 +35,7 @@ export function MemberAttendancePanel({
                     Select a joined classroom to view your attendance details.
                 </CardContent>
             </Card>
-        )
+        );
     }
 
     return (
@@ -80,12 +80,15 @@ export function MemberAttendancePanel({
                             <div>
                                 <p className="text-sm font-medium text-slate-100">
                                     Session on{" "}
-                                    {new Date(entry.sessionCreatedAt).toLocaleString(
-                                        "en-IN",
-                                    )}
+                                    {new Date(
+                                        entry.sessionCreatedAt,
+                                    ).toLocaleString("en-IN")}
                                 </p>
                                 <p className="text-xs text-slate-400">
-                                    Closed by {new Date(entry.sessionExpiresAt).toLocaleTimeString("en-IN")}
+                                    Closed by{" "}
+                                    {new Date(
+                                        entry.sessionExpiresAt,
+                                    ).toLocaleTimeString("en-IN")}
                                 </p>
                             </div>
                             <span
@@ -95,12 +98,14 @@ export function MemberAttendancePanel({
                                         : "bg-rose-500/20 text-rose-100"
                                 }`}
                             >
-                                {entry.status === "present" ? "Present" : "Absent"}
+                                {entry.status === "present"
+                                    ? "Present"
+                                    : "Absent"}
                             </span>
                         </div>
                     ))}
                 </div>
             </CardContent>
         </Card>
-    )
+    );
 }

@@ -1,48 +1,55 @@
-import { useState, type FormEvent } from "react"
-import { CheckCheck, KeyRound } from "lucide-react"
+import { useState, type FormEvent } from "react";
+import { CheckCheck, KeyRound } from "lucide-react";
 
-import { markAttendanceByToken } from "../../lib/api"
-import type { Classroom } from "../../types/classroom"
-import { Button } from "../ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "../ui/card"
-import { Input } from "../ui/input"
-import { Label } from "../ui/label"
-import { Spinner } from "../ui/spinner"
-import { useToast } from "../ui/toaster"
+import { markAttendanceByToken } from "../../lib/api";
+import type { Classroom } from "../../types/classroom";
+import { Button } from "../ui/button";
+import {
+    Card,
+    CardContent,
+    CardDescription,
+    CardHeader,
+    CardTitle,
+} from "../ui/card";
+import { Input } from "../ui/input";
+import { Label } from "../ui/label";
+import { Spinner } from "../ui/spinner";
+import { useToast } from "../ui/toaster";
 
 type MarkAttendanceFormProps = {
-    classroom: Classroom | null
-    onMarked: (result: { alreadyMarked: boolean }) => void
-}
+    classroom: Classroom | null;
+    onMarked: (result: { alreadyMarked: boolean }) => void;
+};
 
 export function MarkAttendanceForm({
     classroom,
     onMarked,
 }: MarkAttendanceFormProps) {
-    const { notify } = useToast()
-    const [token, setToken] = useState("")
-    const [isSubmitting, setIsSubmitting] = useState(false)
+    const { notify } = useToast();
+    const [token, setToken] = useState("");
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     if (!classroom || classroom.role === "creator") {
-        return null
+        return null;
     }
 
     async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-        event.preventDefault()
-        setIsSubmitting(true)
+        event.preventDefault();
+        setIsSubmitting(true);
 
         try {
-            const result = await markAttendanceByToken(token.trim())
-            onMarked({ alreadyMarked: result.alreadyMarked })
-            setToken("")
+            const result = await markAttendanceByToken(token.trim());
+            onMarked({ alreadyMarked: result.alreadyMarked });
+            setToken("");
         } catch (err) {
             notify({
                 variant: "error",
                 title: "Could not mark attendance",
-                message: err instanceof Error ? err.message : "Please try again.",
-            })
+                message:
+                    err instanceof Error ? err.message : "Please try again.",
+            });
         } finally {
-            setIsSubmitting(false)
+            setIsSubmitting(false);
         }
     }
 
@@ -62,12 +69,14 @@ export function MarkAttendanceForm({
             <CardContent>
                 <form className="space-y-4" onSubmit={handleSubmit}>
                     <div className="space-y-2">
-                        <Label htmlFor="attendance-token">Attendance Token</Label>
+                        <Label htmlFor="attendance-token">
+                            Attendance Token
+                        </Label>
                         <Input
                             id="attendance-token"
                             value={token}
                             onChange={(event) => {
-                                setToken(event.target.value)
+                                setToken(event.target.value);
                             }}
                             placeholder="Paste token from QR scanner"
                             minLength={16}
@@ -75,12 +84,20 @@ export function MarkAttendanceForm({
                         />
                     </div>
 
-                    <Button type="submit" className="w-full" disabled={isSubmitting}>
-                        {isSubmitting ? <Spinner /> : <KeyRound className="h-4 w-4" />}
+                    <Button
+                        type="submit"
+                        className="w-full"
+                        disabled={isSubmitting}
+                    >
+                        {isSubmitting ? (
+                            <Spinner />
+                        ) : (
+                            <KeyRound className="h-4 w-4" />
+                        )}
                         {isSubmitting ? "Marking..." : "Mark Attendance"}
                     </Button>
                 </form>
             </CardContent>
         </Card>
-    )
+    );
 }

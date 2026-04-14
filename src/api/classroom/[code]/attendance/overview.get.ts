@@ -1,6 +1,6 @@
-import { and, desc, eq, sql } from "drizzle-orm"
-import { HTTPError } from "h3"
-import { defineHandler } from "nitro"
+import { and, desc, eq, sql } from "drizzle-orm";
+import { HTTPError } from "h3";
+import { defineHandler } from "nitro";
 
 import {
     attendanceRecord,
@@ -8,16 +8,16 @@ import {
     classroom,
     classroomMember,
     user,
-} from "@/db/schema"
-import { db } from "@/src/lib/db.ts"
+} from "@/db/schema";
+import { db } from "@/src/lib/db.ts";
 
 export default defineHandler(async (event) => {
-    const code = event.context.params?.code?.trim().toUpperCase()
+    const code = event.context.params?.code?.trim().toUpperCase();
 
     if (!code || code.length !== 6) {
         throw HTTPError.status(400, "Bad Request", {
             message: "A valid 6 character classroom code is required",
-        })
+        });
     }
 
     const targetClassroom = await db
@@ -31,19 +31,19 @@ export default defineHandler(async (event) => {
         })
         .from(classroom)
         .where(eq(classroom.code, code))
-        .limit(1)
+        .limit(1);
 
-    const classroomRecord = targetClassroom[0]
+    const classroomRecord = targetClassroom[0];
     if (!classroomRecord || !classroomRecord.isActive) {
         throw HTTPError.status(404, "Not Found", {
             message: "Classroom not found",
-        })
+        });
     }
 
     if (classroomRecord.creatorId !== event.context.user.id) {
         throw HTTPError.status(403, "Forbidden", {
             message: "Only classroom creators can view this overview",
-        })
+        });
     }
 
     const memberRows = await db
@@ -57,7 +57,7 @@ export default defineHandler(async (event) => {
         .from(classroomMember)
         .innerJoin(user, eq(classroomMember.userId, user.id))
         .where(eq(classroomMember.classroomCode, code))
-        .orderBy(user.name)
+        .orderBy(user.name);
 
     const attendanceTotals = await db
         .select({
@@ -66,39 +66,42 @@ export default defineHandler(async (event) => {
         })
         .from(attendanceRecord)
         .where(eq(attendanceRecord.classroomCode, code))
-        .groupBy(attendanceRecord.userId)
+        .groupBy(attendanceRecord.userId);
 
     const totalSessionsRow = await db
         .select({
             count: sql<number>`count(*)`,
         })
         .from(attendanceSession)
-        .where(eq(attendanceSession.classroomCode, code))
+        .where(eq(attendanceSession.classroomCode, code));
 
-    const totalSessions = totalSessionsRow[0]?.count ?? 0
+    const totalSessions = totalSessionsRow[0]?.count ?? 0;
     const attendanceByUserId = new Map(
         attendanceTotals.map((row) => [row.userId, row.marksCount]),
-    )
+    );
 
     const studentRows = memberRows.filter(
         (member) => member.userId !== classroomRecord.creatorId,
-    )
+    );
 
     const students = studentRows.map((member) => {
-        const attendanceMarkedCount = attendanceByUserId.get(member.userId) ?? 0
+        const attendanceMarkedCount =
+            attendanceByUserId.get(member.userId) ?? 0;
         const attendancePercentage =
             totalSessions > 0
                 ? Number(
-                      ((attendanceMarkedCount / totalSessions) * 100).toFixed(1),
+                      ((attendanceMarkedCount / totalSessions) * 100).toFixed(
+                          1,
+                      ),
                   )
-                : 0
+                : 0;
 
         return {
             ...member,
             attendanceMarkedCount,
             attendancePercentage,
-        }
-    })
+        };
+    });
 
     const recentSessions = await db
         .select({
@@ -110,12 +113,12 @@ export default defineHandler(async (event) => {
         .from(attendanceSession)
         .where(eq(attendanceSession.classroomCode, code))
         .orderBy(desc(attendanceSession.createdAt))
-        .limit(15)
+        .limit(15);
 
     const totalAttendanceMarks = students.reduce(
         (sum, student) => sum + student.attendanceMarkedCount,
         0,
-    )
+    );
 
     return {
         classroom: classroomRecord,
@@ -126,5 +129,5 @@ export default defineHandler(async (event) => {
         },
         students,
         recentSessions,
-    }
-})
+    };
+});

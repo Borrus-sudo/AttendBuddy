@@ -1,7 +1,7 @@
-import { createBrowserRouter } from "react-router-dom"
+import { createBrowserRouter } from "react-router-dom";
 
-import { AuthRoute } from "./routes/auth-route"
-import { DashboardRoute } from "./routes/dashboard-route"
+import { AuthRoute } from "./routes/auth-route";
+import { DashboardRoute } from "./routes/dashboard-route";
 
 export const router = createBrowserRouter([
     {
@@ -12,4 +12,4 @@ export const router = createBrowserRouter([
         path: "/app",
         element: <DashboardRoute />,
     },
-])
+]);

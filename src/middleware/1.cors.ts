@@ -1,15 +1,14 @@
-import { handleCors } from "h3"
-import { defineHandler } from "nitro"
-
-const allowedOrigins = ["http://localhost:3000"]
+import { handleCors } from "h3";
+import { defineHandler } from "nitro";
+import { useRuntimeConfig } from "nitro/runtime-config";
 
 export default defineHandler((event) => {
     if (!event.url.pathname.startsWith("/api/")) {
-        return
+        return;
     }
 
     const res = handleCors(event, {
-        origin: allowedOrigins,
+        origin: [useRuntimeConfig().frontendUrl],
         credentials: true,
         methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
         allowHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
@@ -17,9 +16,9 @@ export default defineHandler((event) => {
         preflight: {
             statusCode: 204,
         },
-    })
+    });
     if (res !== false) {
-        return res
+        return res;
     }
-    return
-})
+    return;
+});
