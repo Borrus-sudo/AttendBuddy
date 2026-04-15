@@ -1,9 +1,7 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "@better-auth/drizzle-adapter";
 import { useRuntimeConfig } from "nitro/runtime-config";
-
-import * as schema from "@/db/schema";
-import { db } from "@/src/lib/db.ts";
+import { db, schema } from "@/src/lib/db.ts";
 
 const runtimeConfig = useRuntimeConfig();
 

@@ -1,7 +1,7 @@
 import { defineHandler } from "nitro";
 import { HTTPError } from "h3";
 import { db, schema } from "@/src/lib/db";
-import { eq } from "drizzle-orm";
+import { eq, getTableColumns } from "drizzle-orm";
 import * as z from "zod";
 
 const Params = z.object({
@@ -35,18 +35,30 @@ export default defineHandler(async (event) => {
         });
     }
 
-    const classroom = classrooms[0]!; // This is already validated, so no worries
+    const classroom = classrooms[0]!;
     const classroomOwnerId = classroom.creatorId;
 
-    if (classroomOwnerId != userId) {
-        throw HTTPError.status(401, "Not authorized", {
-            message: "You haven't created the classroom vro!",
-        });
-    }
+    // find all the members of the classroom
+    const members =
+        userId == classroomOwnerId
+            ? await db
+                  .select(getTableColumns(schema.user))
+                  .from(schema.user)
+                  .innerJoin(
+                      schema.classroomMember,
+                      eq(schema.classroomMember.userId, schema.user.id),
+                  )
+                  .where(eq(schema.classroom.code, code))
+            : await db
+                  .select()
+                  .from(schema.user)
+                  .where(eq(schema.user.id, classroomOwnerId));
 
-    await db.delete(schema.classroom).where(eq(schema.classroom.code, code));
     return {
         success: true,
-        payload: "Operation done!",
+        payload: {
+            ...classroom,
+            members,
+        },
     };
 });

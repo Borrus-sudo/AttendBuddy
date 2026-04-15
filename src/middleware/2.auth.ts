@@ -20,16 +20,12 @@ export default defineHandler(async (event) => {
         return;
     }
 
-    if (event.req.method === "OPTIONS") {
-        return;
-    }
-
     const session = await auth.api.getSession({
         headers: event.req.headers,
     });
-    if (!session) {
+    if (!session || !session.user || !session.session) {
         throw HTTPError.status(401, "Unauthorized", {
-            message: "You must be signed in to access this endpoint",
+            message: "You must be signed in to access this endpoint.",
         });
     }
 

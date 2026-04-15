@@ -3,10 +3,6 @@ import { defineHandler } from "nitro";
 import { useRuntimeConfig } from "nitro/runtime-config";
 
 export default defineHandler((event) => {
-    if (!event.url.pathname.startsWith("/api/")) {
-        return;
-    }
-
     const res = handleCors(event, {
         origin: [useRuntimeConfig().frontendUrl],
         credentials: true,
