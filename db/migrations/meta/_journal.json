@@ -1,20 +1,13 @@
 {
-    "version": "7",
-    "dialect": "sqlite",
-    "entries": [
-        {
-            "idx": 0,
-            "version": "6",
-            "when": 1775743817048,
-            "tag": "0000_slim_winter_soldier",
-            "breakpoints": true
-        },
-        {
-            "idx": 1,
-            "version": "6",
-            "when": 1775755401339,
-            "tag": "0001_early_martin_li",
-            "breakpoints": true
-        }
-    ]
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1776421724714,
+      "tag": "0000_flaky_nekra",
+      "breakpoints": true
+    }
+  ]
 }

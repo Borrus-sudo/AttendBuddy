@@ -39,7 +39,22 @@ export default defineHandler(async (event) => {
         name: parsed.data.name,
         description: parsed.data.description,
     };
-    await db.insert(schema.classroom).values(classroom).onConflictDoNothing();
+
+    await db.transaction(async (tx) => {
+        await tx
+            .insert(schema.classroom)
+            .values(classroom)
+            .onConflictDoNothing();
+
+        await tx
+            .insert(schema.classroomMember)
+            .values({
+                classroomCode: classroom.code,
+                userId,
+            })
+            .onConflictDoNothing();
+    });
+
     return {
         success: true,
         payload: {

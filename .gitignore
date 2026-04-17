@@ -9,3 +9,4 @@ dist
 .env.*
 db/local.db
 !.env.example
+_api

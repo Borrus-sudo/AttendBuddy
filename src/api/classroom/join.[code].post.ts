@@ -5,7 +5,7 @@ import { db, schema } from "@/src/lib/db";
 import { eq } from "drizzle-orm";
 
 const Params = z.object({
-    code: z.string().length(6),
+    code: z.string(),
 });
 
 export default defineHandler(async (event) => {

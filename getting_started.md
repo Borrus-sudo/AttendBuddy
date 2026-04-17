@@ -219,8 +219,8 @@ Frontend quality/build:
     - Ensure backend is running and user is logged in.
     - Confirm frontend uses correct `VITE_BETTER_AUTH_URL`.
 - **Google sign-in redirects but no session in app**
-    - Check backend `APP_BETTER_AUTH_URL` and Google callback URL:
-        - `<APP_BETTER_AUTH_URL>/api/auth/callback/google`
+    - Check backend `APP_BACKEND_URL` and Google callback URL:
+        - `<APP_BACKEND_URL>/api/auth/callback/google`
 - **CORS/trusted origins issues**
     - Backend auth currently trusts `http://localhost:3000` and `http://localhost:5000`.
     - If you change frontend port/host, update backend trusted origins.

@@ -5,7 +5,7 @@ import { eq } from "drizzle-orm";
 import * as z from "zod";
 
 const Params = z.object({
-    code: z.string().length(6),
+    code: z.string(),
 });
 
 export default defineHandler(async (event) => {

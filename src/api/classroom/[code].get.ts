@@ -5,7 +5,7 @@ import { eq, getTableColumns } from "drizzle-orm";
 import * as z from "zod";
 
 const Params = z.object({
-    code: z.string().length(6),
+    code: z.string(),
 });
 
 export default defineHandler(async (event) => {
@@ -48,7 +48,7 @@ export default defineHandler(async (event) => {
                       schema.classroomMember,
                       eq(schema.classroomMember.userId, schema.user.id),
                   )
-                  .where(eq(schema.classroom.code, code))
+                  .where(eq(schema.classroomMember.classroomCode, code))
             : await db
                   .select()
                   .from(schema.user)

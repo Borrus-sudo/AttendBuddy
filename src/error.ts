@@ -19,8 +19,11 @@ const onError: NitroErrorHandler = (error, event) => {
 
         return new Response(
             JSON.stringify({
-                error: error.statusText ?? "Error",
-                message: error.message || "Request failed",
+                success: false,
+                payload: {
+                    error: error.statusText ?? "Error",
+                    message: error.message || "Request failed",
+                },
             }),
             {
                 status: error.status,
@@ -39,8 +42,11 @@ const onError: NitroErrorHandler = (error, event) => {
 
     return new Response(
         JSON.stringify({
-            error: "Internal Server Error",
-            message: "Something went wrong",
+            success: false,
+            payload: {
+                error: "Internal Server Error",
+                message: "Something went wrong",
+            },
         }),
         {
             status: 500,

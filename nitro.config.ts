@@ -8,7 +8,6 @@ export default defineConfig({
         databaseUrl: "",
         databaseAuthToken: "",
         betterAuthSecret: "",
-        betterAuthUrl: "",
         googleClientId: "",
         googleClientSecret: "",
         frontendUrl: "",

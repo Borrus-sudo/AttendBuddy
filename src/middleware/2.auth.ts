@@ -16,6 +16,11 @@ declare module "h3" {
 
 export default defineHandler(async (event) => {
     const path = event.url.pathname;
+
+    // if (event.req.method === "OPTIONS") {
+    //     return;
+    // }
+
     if (!path.startsWith("/api/") || path.startsWith("/api/auth")) {
         return;
     }
@@ -23,6 +28,7 @@ export default defineHandler(async (event) => {
     const session = await auth.api.getSession({
         headers: event.req.headers,
     });
+
     if (!session || !session.user || !session.session) {
         throw HTTPError.status(401, "Unauthorized", {
             message: "You must be signed in to access this endpoint.",
