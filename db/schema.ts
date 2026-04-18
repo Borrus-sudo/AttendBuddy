@@ -195,7 +195,7 @@ export const attendanceRecord = sqliteTable(
         markedAt: integer("marked_at", { mode: "timestamp_ms" })
             .$defaultFn(() => new Date())
             .notNull(),
-        markMethod: text("mark_method").default("qr").notNull(),
+        markMethod: text("mark_method").default("student").notNull(),
     },
     (table) => [
         index("attendance_record_session_idx").on(table.attendanceSessionId),

@@ -1,22 +1,22 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
     ActivityIndicator,
     FlatList,
     Pressable,
     StyleSheet,
-    TextInput,
     View,
 } from "react-native";
+import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { router } from "expo-router";
 import { useThemeColor } from "@/hooks/use-theme-color";
 
-import {
-    createClassroom,
-    deleteClassroom,
-    getUserProfile,
-    isClassroomTeacher,
-    joinClassroom,
-} from "@/lib/api";
+import { createClassroom, getUserProfile, joinClassroom } from "@/lib/api";
+import { AppButton } from "@/components/ui/app-button";
+import { AppCard } from "@/components/ui/app-card";
+import { AppInput } from "@/components/ui/app-input";
+import { AppModal } from "@/components/ui/app-modal";
+import { ScreenHeader } from "@/components/ui/screen-header";
+import { StatusPill } from "@/components/ui/status-pill";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { useAuth } from "@/providers/auth-provider";
@@ -28,16 +28,15 @@ export default function ClassesScreen() {
     const [isLoading, setIsLoading] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [createModalVisible, setCreateModalVisible] = useState(false);
+    const [joinModalVisible, setJoinModalVisible] = useState(false);
     const [newClassName, setNewClassName] = useState("");
     const [newClassDescription, setNewClassDescription] = useState("");
     const [joinCode, setJoinCode] = useState("");
 
-    const cardColor = useThemeColor({}, "card");
-    const borderColor = useThemeColor({}, "border");
-    const textColor = useThemeColor({}, "text");
     const mutedColor = useThemeColor({}, "muted");
-    const primaryColor = useThemeColor({}, "primary");
     const dangerColor = useThemeColor({}, "danger");
+    const primaryColor = useThemeColor({}, "primary");
 
     const loadClassrooms = useCallback(async () => {
         if (!user) {
@@ -86,6 +85,7 @@ export default function ClassesScreen() {
             });
             setNewClassName("");
             setNewClassDescription("");
+            setCreateModalVisible(false);
             await loadClassrooms();
         } catch (err) {
             setError(
@@ -108,6 +108,7 @@ export default function ClassesScreen() {
         try {
             await joinClassroom(normalizedCode);
             setJoinCode("");
+            setJoinModalVisible(false);
             await loadClassrooms();
         } catch (err) {
             setError(
@@ -118,20 +119,11 @@ export default function ClassesScreen() {
         }
     }
 
-    async function handleDeleteClass(code: string) {
-        setError(null);
-        setIsSubmitting(true);
-        try {
-            await deleteClassroom(code);
-            await loadClassrooms();
-        } catch (err) {
-            setError(
-                err instanceof Error ? err.message : "Unable to remove class",
-            );
-        } finally {
-            setIsSubmitting(false);
-        }
-    }
+    const classCountLabel = useMemo(
+        () =>
+            `${classrooms.length} ${classrooms.length === 1 ? "class" : "classes"}`,
+        [classrooms.length],
+    );
 
     if (isLoading) {
         return (
@@ -143,165 +135,201 @@ export default function ClassesScreen() {
 
     return (
         <ThemedView style={styles.container}>
-            <ThemedText type="title">Classes</ThemedText>
+            <ScreenHeader
+                title="Classes"
+                subtitle={classCountLabel}
+                rightSlot={
+                    <>
+                        <AppButton
+                            label="Create"
+                            variant="secondary"
+                            onPress={() => {
+                                setError(null);
+                                setCreateModalVisible(true);
+                            }}
+                            leftIcon={
+                                <MaterialIcons
+                                    name="add"
+                                    size={16}
+                                    color={primaryColor}
+                                />
+                            }
+                        />
+                        <AppButton
+                            label="Join"
+                            variant="secondary"
+                            onPress={() => {
+                                setError(null);
+                                setJoinModalVisible(true);
+                            }}
+                            leftIcon={
+                                <MaterialIcons
+                                    name="link"
+                                    size={15}
+                                    color={primaryColor}
+                                />
+                            }
+                        />
+                    </>
+                }
+            />
 
             {error ? (
-                <View style={[styles.errorCard, { borderColor: dangerColor }]}>
+                <AppCard
+                    style={[styles.errorCard, { borderColor: dangerColor }]}
+                >
                     <ThemedText style={[styles.error, { color: dangerColor }]}>
                         {error}
                     </ThemedText>
-                    <Pressable
-                        style={[
-                            styles.retryButton,
-                            { backgroundColor: primaryColor },
-                        ]}
-                        onPress={loadClassrooms}
-                    >
-                        <ThemedText style={styles.retryText}>Retry</ThemedText>
-                    </Pressable>
-                </View>
+                    <AppButton label="Retry" onPress={loadClassrooms} />
+                </AppCard>
             ) : null}
-
-            <View
-                style={[
-                    styles.formCard,
-                    { backgroundColor: cardColor, borderColor },
-                ]}
-            >
-                <ThemedText type="subtitle">Create Class</ThemedText>
-                <TextInput
-                    style={[styles.input, { borderColor, color: textColor }]}
-                    placeholder="Class name"
-                    placeholderTextColor={mutedColor}
-                    value={newClassName}
-                    onChangeText={setNewClassName}
-                />
-                <TextInput
-                    style={[styles.input, { borderColor, color: textColor }]}
-                    placeholder="Description"
-                    placeholderTextColor={mutedColor}
-                    value={newClassDescription}
-                    onChangeText={setNewClassDescription}
-                />
-                <Pressable
-                    style={[
-                        styles.actionButton,
-                        { backgroundColor: primaryColor },
-                    ]}
-                    disabled={isSubmitting}
-                    onPress={handleCreateClass}
-                >
-                    <ThemedText style={styles.actionButtonText}>
-                        Create
-                    </ThemedText>
-                </Pressable>
-            </View>
-
-            <View
-                style={[
-                    styles.formCard,
-                    { backgroundColor: cardColor, borderColor },
-                ]}
-            >
-                <ThemedText type="subtitle">Join Class</ThemedText>
-                <TextInput
-                    style={[styles.input, { borderColor, color: textColor }]}
-                    placeholder="Class code"
-                    placeholderTextColor={mutedColor}
-                    value={joinCode}
-                    onChangeText={setJoinCode}
-                    autoCapitalize="none"
-                />
-                <Pressable
-                    style={[
-                        styles.actionButton,
-                        { backgroundColor: primaryColor },
-                    ]}
-                    disabled={isSubmitting}
-                    onPress={handleJoinClass}
-                >
-                    <ThemedText style={styles.actionButtonText}>
-                        Join
-                    </ThemedText>
-                </Pressable>
-            </View>
 
             <FlatList
                 data={classrooms}
                 keyExtractor={(item) => item.code}
+                numColumns={2}
+                columnWrapperStyle={styles.columnWrapper}
+                showsVerticalScrollIndicator={false}
                 contentContainerStyle={styles.listContent}
                 ListEmptyComponent={
-                    <View
-                        style={[
-                            styles.emptyCard,
-                            { backgroundColor: cardColor, borderColor },
-                        ]}
-                    >
-                        <ThemedText>No classes joined</ThemedText>
-                    </View>
+                    <AppCard style={styles.emptyCard}>
+                        <ThemedText type="defaultSemiBold">
+                            No classes yet
+                        </ThemedText>
+                        <ThemedText style={{ color: mutedColor }}>
+                            Create one or join with a class code.
+                        </ThemedText>
+                    </AppCard>
                 }
-                renderItem={({ item }) => {
-                    const resolvedRole =
+                renderItem={({ item, index }) => {
+                    const role =
                         item.role ||
                         (item.creatorId === user?.id ? "teacher" : "member");
-                    const canDelete =
-                        !!user && isClassroomTeacher(item, user.id);
 
                     return (
                         <View
                             style={[
-                                styles.classCard,
-                                { backgroundColor: cardColor, borderColor },
+                                styles.gridItem,
+                                index % 2 === 0 ? styles.gridItemLeft : null,
                             ]}
                         >
                             <Pressable
+                                style={({ pressed }) => [
+                                    styles.cardPress,
+                                    {
+                                        opacity: pressed ? 0.95 : 1,
+                                        transform: [
+                                            { scale: pressed ? 0.985 : 1 },
+                                        ],
+                                    },
+                                ]}
                                 onPress={() => {
-                                    router.push(
-                                        `/classroom/${item.code}` as never,
-                                    );
+                                    router.push({
+                                        pathname: "/classroom/[code]",
+                                        params: { code: item.code },
+                                    } as never);
                                 }}
                             >
-                                <ThemedText type="subtitle">
-                                    {item.name}
-                                </ThemedText>
-                                <ThemedText
-                                    style={[
-                                        styles.description,
-                                        { color: mutedColor },
-                                    ]}
+                                <AppCard
+                                    style={styles.classCard}
+                                    padded={false}
                                 >
-                                    {item.description || "No description"}
-                                </ThemedText>
-                                <ThemedText>Code: {item.code}</ThemedText>
-                                <ThemedText>Role: {resolvedRole}</ThemedText>
-                                <ThemedText>
-                                    Status:{" "}
-                                    {item.isActive ? "Active" : "Inactive"}
-                                </ThemedText>
+                                    <View style={styles.classBody}>
+                                        <View style={styles.classTopRow}>
+                                            <ThemedText
+                                                type="defaultSemiBold"
+                                                numberOfLines={2}
+                                            >
+                                                {item.name}
+                                            </ThemedText>
+                                            <StatusPill
+                                                label={
+                                                    role === "teacher"
+                                                        ? "Teacher"
+                                                        : "Student"
+                                                }
+                                                tone={
+                                                    role === "teacher"
+                                                        ? "success"
+                                                        : "muted"
+                                                }
+                                            />
+                                        </View>
+
+                                        <ThemedText
+                                            style={[
+                                                styles.description,
+                                                { color: mutedColor },
+                                            ]}
+                                            numberOfLines={3}
+                                        >
+                                            {item.description ||
+                                                "No description yet."}
+                                        </ThemedText>
+
+                                        <View style={styles.classFooter}>
+                                            <ThemedText
+                                                style={{ color: mutedColor }}
+                                            >
+                                                {item.code}
+                                            </ThemedText>
+                                        </View>
+                                    </View>
+                                </AppCard>
                             </Pressable>
-                            {canDelete ? (
-                                <Pressable
-                                    style={[
-                                        styles.removeButton,
-                                        { borderColor: dangerColor },
-                                    ]}
-                                    disabled={isSubmitting}
-                                    onPress={() => handleDeleteClass(item.code)}
-                                >
-                                    <ThemedText
-                                        style={[
-                                            styles.removeButtonText,
-                                            { color: dangerColor },
-                                        ]}
-                                    >
-                                        Remove class
-                                    </ThemedText>
-                                </Pressable>
-                            ) : null}
                         </View>
                     );
                 }}
             />
+
+            <AppModal
+                visible={createModalVisible}
+                title="Create class"
+                onClose={() => setCreateModalVisible(false)}
+            >
+                <View style={styles.modalBody}>
+                    <AppInput
+                        label="Class name"
+                        value={newClassName}
+                        onChangeText={setNewClassName}
+                        placeholder="e.g. DSA Semester 2"
+                    />
+                    <AppInput
+                        label="Description"
+                        value={newClassDescription}
+                        onChangeText={setNewClassDescription}
+                        placeholder="A quick description"
+                        multiline
+                    />
+                    <AppButton
+                        label="Create Class"
+                        loading={isSubmitting}
+                        onPress={handleCreateClass}
+                    />
+                </View>
+            </AppModal>
+
+            <AppModal
+                visible={joinModalVisible}
+                title="Join class"
+                onClose={() => setJoinModalVisible(false)}
+            >
+                <View style={styles.modalBody}>
+                    <AppInput
+                        label="Class code"
+                        value={joinCode}
+                        onChangeText={setJoinCode}
+                        autoCapitalize="none"
+                        placeholder="Paste invite code"
+                    />
+                    <AppButton
+                        label="Join Class"
+                        loading={isSubmitting}
+                        onPress={handleJoinClass}
+                    />
+                </View>
+            </AppModal>
         </ThemedView>
     );
 }
@@ -309,8 +337,9 @@ export default function ClassesScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        padding: 20,
-        gap: 12,
+        paddingHorizontal: 16,
+        paddingTop: 14,
+        gap: 14,
     },
     centered: {
         flex: 1,
@@ -323,69 +352,56 @@ const styles = StyleSheet.create({
         textAlign: "center",
     },
     errorCard: {
-        borderWidth: 1,
-        borderRadius: 10,
         padding: 12,
-        gap: 10,
-    },
-    retryButton: {
-        borderRadius: 10,
-        paddingHorizontal: 16,
-        paddingVertical: 10,
-    },
-    retryText: {
-        color: "#ffffff",
-        fontWeight: "700",
     },
     listContent: {
-        gap: 12,
+        gap: 10,
         paddingBottom: 16,
+        minHeight: "100%",
+    },
+    columnWrapper: {
+        gap: 10,
+    },
+    gridItem: {
+        flex: 1,
+        maxWidth: "50%",
+    },
+    gridItemLeft: {
+        paddingRight: 0,
+    },
+    cardPress: {
+        borderRadius: 16,
     },
     classCard: {
-        borderWidth: 1,
-        borderRadius: 14,
-        padding: 14,
-        gap: 6,
+        minHeight: 170,
     },
-    description: {
-        marginBottom: 2,
-    },
-    emptyCard: {
-        borderWidth: 1,
-        borderRadius: 14,
-        padding: 16,
-    },
-    formCard: {
-        borderWidth: 1,
-        borderRadius: 14,
+    classBody: {
         padding: 12,
+        gap: 10,
+        flex: 1,
+    },
+    classTopRow: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "flex-start",
         gap: 8,
     },
-    input: {
-        borderWidth: 1,
-        borderRadius: 10,
-        paddingHorizontal: 12,
-        paddingVertical: 10,
+    description: {
+        fontSize: 13,
+        lineHeight: 18,
+        minHeight: 54,
     },
-    actionButton: {
-        borderRadius: 10,
-        minHeight: 42,
+    classFooter: {
+        flexDirection: "row",
         alignItems: "center",
-        justifyContent: "center",
+        justifyContent: "flex-start",
+        marginTop: "auto",
     },
-    actionButtonText: {
-        color: "#ffffff",
-        fontWeight: "700",
+    emptyCard: {
+        marginTop: 18,
+        gap: 6,
     },
-    removeButton: {
-        borderWidth: 1,
-        borderRadius: 10,
-        paddingVertical: 8,
-        paddingHorizontal: 10,
-        alignSelf: "flex-start",
-        marginTop: 6,
-    },
-    removeButtonText: {
-        fontWeight: "700",
+    modalBody: {
+        gap: 12,
     },
 });

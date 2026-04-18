@@ -1,89 +1,89 @@
 # AGENTS.md
 
-Operational guidance for agentic coding tools working in this repository.
+Operational guide for agentic coding tools working in this repository.
 
 ## Repository Snapshot
 
-- Backend framework/runtime: Nitro (`nitro`, ESM, TypeScript).
-- Backend app root: repository root.
-- Server source directory: `src/`.
-- API routes: `src/api/**` -> `/api/**`.
-- Non-API routes: `src/routes/**` -> `/**`.
+- Backend runtime/framework: Nitro (`nitro`, ESM, TypeScript).
+- Backend source root: `src/`.
+- API routes: `src/api/**` map to `/api/**`.
+- Non-API routes: `src/routes/**` map to `/**`.
 - Middleware: `src/middleware/*` (numeric prefixes define order).
-- Auth stack: Better Auth + Drizzle adapter + Google OAuth.
-- DB stack: Drizzle ORM + libsql + SQLite dialect.
-- Migrations: schema in `db/schema.ts`, SQL in `db/migrations`.
-- Frontend app: Vite + React in `web/`.
+- Auth: Better Auth + Drizzle adapter + Google OAuth.
+- Database: Drizzle ORM + libsql client + SQLite dialect.
+- DB schema: `db/schema.ts`.
+- DB migrations: `db/migrations/`.
+- Mobile client: Expo + React Native in `mobile/`.
 
 ## Rule Files (Cursor/Copilot)
 
-Checked in this repo:
+Checked in this repository:
 
 - `.cursor/rules/**`: not present.
 - `.cursorrules`: not present.
 - `.github/copilot-instructions.md`: not present.
 
-If these appear later, treat them as higher-priority local policy and update
-this file.
+If these files are added later, treat them as higher-priority local policy.
 
-## Setup and Dev Commands
+## Setup and Development Commands
 
-- Install backend deps: `npm install`
-- Install frontend deps: `npm install --prefix web`
+- Install backend dependencies: `npm install`
+- Install mobile dependencies: `npm install --prefix mobile`
 - Run backend dev server: `npm run dev`
-- Run frontend dev server: `npm run dev --prefix web`
+- Run mobile dev server: `npm run dev --prefix mobile`
+- Run mobile Android target: `npm run android --prefix mobile`
+- Run mobile iOS target: `npm run ios --prefix mobile`
+- Run mobile web target: `npm run web --prefix mobile`
 
 ## Build, Lint, and Test Commands
 
-### Backend (root)
+### Backend (repository root)
 
 - Build production server: `npm run build`
 - Preview production build: `npm run preview`
-- Format code: `npm run lint`
-- Check formatting: `npm run lint:check`
+- Format code with oxfmt: `npm run lint`
+- Check formatting without writing: `npm run lint:check`
 
 Backend test status:
 
-- No `test` script in root `package.json`.
-- No backend test runner configured.
-- Single-test execution is not available yet.
+- No `test` script exists in root `package.json`.
+- No backend test runner is configured today.
+- Single-test execution is currently unavailable.
 
-If Vitest is added:
+If Vitest is added later, use:
 
 - Run all tests: `npx vitest run`
 - Run one test file: `npx vitest run path/to/file.test.ts`
 - Run one named test: `npx vitest run -t "test name"`
 
-### Frontend (`web/`)
+### Mobile (`mobile/`)
 
-- Dev server: `npm run dev --prefix web`
-- Build: `npm run build --prefix web`
-- Lint: `npm run lint --prefix web`
-- Preview build: `npm run preview --prefix web`
+- Start Expo dev server: `npm run dev --prefix mobile`
+- Start Expo for Android: `npm run android --prefix mobile`
+- Start Expo for iOS: `npm run ios --prefix mobile`
+- Start Expo for web: `npm run web --prefix mobile`
 
-Frontend test status:
+Mobile lint/test/build status:
 
-- No `test` script in `web/package.json`.
-- No frontend test runner configured.
-- Single-test execution is not available yet.
+- No `lint` script is defined in `mobile/package.json`.
+- No `test` script is defined in `mobile/package.json`.
+- No dedicated mobile CI build script is defined.
+- Single-test execution is currently unavailable.
 
-If Vitest is added to frontend:
-
-- Run all tests: `npx vitest run --root web`
-- Run one test file: `npx vitest run --root web src/path/file.test.tsx`
-- Run one named test: `npx vitest run --root web -t "test name"`
+If Jest or Vitest is added later, include single-test commands in this file.
 
 ## Database and Migration Commands
 
 - Generate migrations: `npm run db:generate`
 - Apply migrations: `npm run db:migrate`
+- Push schema directly: `npm run db:push`
 - Open Drizzle Studio: `npm run db:studio`
 
 ## Environment and Secrets
 
-Env var prefix is `APP_` (`nitro.config.ts`).
+Nitro runtime config uses env prefix `APP_` (`nitro.config.ts`).
 
-Configured/expected variables:
+Expected environment variables:
 
 - `APP_DATABASE_URL`
 - `APP_DATABASE_AUTH_TOKEN`
@@ -96,8 +96,8 @@ Configured/expected variables:
 
 Notes:
 
-- `src/lib/db.ts` falls back to `file:./db/local.db` when URL is missing.
-- Never commit real credentials, tokens, or keys.
+- `src/lib/db.ts` falls back to `file:./db/local.db` when DB URL is missing.
+- Never commit real credentials, tokens, or secrets.
 
 ## Code Style and Conventions
 
@@ -105,135 +105,81 @@ Notes:
 
 - Prefer `@/*` alias imports for internal modules.
 - Keep external imports before internal imports.
-- Separate import groups with one blank line.
-- Prefer named imports; avoid namespace imports unless clearer.
-- Keep import ordering stable to avoid noisy diffs.
-- Aliases may appear as `@/src/...` and `@/db/...`; follow local file style.
+- Use one blank line between import groups.
+- Prefer named imports; avoid namespace imports unless clearly better.
+- Keep import ordering stable to reduce noisy diffs.
 
 ### Formatting
 
-Based on `.prettierrc` and existing files:
+Based on `.prettierrc` and `.oxfmtrc.json`:
 
 - Use double quotes.
 - Use semicolons.
 - Use trailing commas where valid.
 - Use 4-space indentation.
-- Keep lines near 80 chars when practical.
-- Keep files ASCII unless existing content already uses Unicode.
+- Target ~80 character lines where practical.
 - Avoid formatting-only churn in unrelated files.
+- Prefer ASCII unless a file already requires Unicode.
 
 ### TypeScript and Types
 
-- Prefer explicit types on exported functions and public contracts.
-- Use local inference for obvious locals.
+- Prefer explicit types for exported functions and public contracts.
+- Allow local inference for obvious locals.
 - Prefer narrow unions/literals over broad primitive types.
-- Avoid `any`; if unavoidable, keep scope minimal.
+- Avoid `any`; if unavoidable, keep usage tightly scoped.
 - Use `as` assertions sparingly.
-- Use `type` for unions/composition; `interface` for extension/merging.
-- Keep zod schemas and parsed payload handling explicit.
+- Keep zod schemas explicit for request parsing/validation.
 
 ### Naming
 
 - Files: lowercase and descriptive.
 - Variables/functions: `camelCase`.
-- Types/interfaces: `PascalCase`.
-- Route filenames: follow Nitro conventions (`index.ts`, `[id].ts`,
-  `create.post.ts`, `join.[code].post.ts`).
-- Middleware ordering: preserve numeric prefixes (`1.cors.ts`, `2.auth.ts`).
+- Types/interfaces/classes: `PascalCase`.
+- Constants: `UPPER_SNAKE_CASE` only when truly constant.
+- Route files: Nitro conventions like `index.ts`, `[id].ts`, `x.post.ts`.
+- Middleware ordering: preserve numeric prefixes like `1.cors.ts`.
 
 ## API and Error Handling
 
-- Throw `HTTPError.status(...)` for validation/auth/request errors.
-- Prefer 401 for auth failures.
-- Keep API success shape as `{ success: true, payload: { ... } }`.
-- Let centralized handler in `src/error.ts` normalize unexpected errors.
-- Do not swallow errors silently.
-- Do not leak secrets in errors, logs, or response payloads.
-- Fail fast on missing critical runtime config.
+- For request/auth/validation failures, throw `HTTPError.status(...)`.
+- Prefer `401 Unauthorized` for authentication failures.
+- Keep success envelope consistent: `{ success: true, payload: ... }`.
+- Keep error envelope consistent through `src/error.ts`.
+- Do not swallow exceptions silently.
+- Do not leak secrets in logs or response payloads.
+- Keep authorization checks explicit for owner-only actions.
 
-## API Surface (`src/api`)
+## Backend-Specific Notes
 
-Current API directory layout:
-
-- `src/api/auth/`: currently empty (auth routes handled by Better Auth wiring).
-- `src/api/session/`: currently empty.
-- `src/api/classroom/`: classroom CRUD/join endpoints.
-- `src/api/user/`: user self-service endpoints.
-
-Current route files and observed behavior:
-
-- `src/api/classroom/create.post.ts`
-    - Creates classroom rows with `code`, `creatorId`, `name`, `description`.
-    - Uses zod body parsing and requires authenticated user from middleware.
-- `src/api/classroom/join.[code].post.ts`
-    - Joins current user to a classroom by route param `code`.
-    - Validates classroom existence, inserts into `classroom_member` with
-      `onConflictDoNothing()`.
-- `src/api/classroom/[code].get.ts`
-    - Returns classroom details and members/owner info for authenticated users.
-    - Validates code param and existence checks before payload response.
-- `src/api/classroom/[code].delete.ts`
-    - Allows deletion only for classroom owner (`creatorId === userId`).
-    - Returns success after deleting classroom.
-- `src/api/user/[id].get.ts`
-    - Allows users to fetch their own profile only (`requestedId === userId`).
-    - Returns user info plus classroom list with computed role.
-- `src/api/user/[id].delete.ts`
-    - Allows users to delete their own account only.
-- `src/api/user/index.ts`
-    - Lightweight placeholder route returning a static success payload.
-
-Implementation notes for agents editing API routes:
-
-- Auth context is populated by `src/middleware/2.auth.ts` for `/api/**` except
-  `/api/auth`.
-- Most handlers validate route params via zod `safeParse`.
-- Prefer consistent success envelope: `{ success: true, payload: ... }`.
-- Prefer `HTTPError.status(code, statusText, { message })` over ad-hoc errors.
-- Maintain route file naming by HTTP method and Nitro dynamic segments.
-- Keep DB queries in Drizzle style already used in nearby route files.
-- Preserve user-ownership checks for sensitive operations.
-
-## Database and Auth Guidelines
-
-- Make schema edits in `db/schema.ts`.
-- Generate migrations via command, not hand-written SQL snapshots.
-- Commit schema and migration artifacts together.
-- Run migrations locally before hand-off if schema changed.
-- Preserve foreign keys and indexes when evolving tables.
+- Auth context is attached in `src/middleware/2.auth.ts` for `/api/**`
+  except `/api/auth` routes.
+- Better Auth handler is mounted at `src/api/auth/[...all].ts`.
+- Keep DB wiring centralized in `src/lib/db.ts`.
 - Keep Better Auth setup centralized in `src/lib/auth.ts`.
-- Keep DB client wiring centralized in `src/lib/db.ts`.
-- Keep provider credentials/URLs in environment variables only.
+- Use Drizzle patterns consistent with nearby files.
 
-## Tooling Notes
+## Database Change Policy
 
-- Backend lint command is formatter-based (`oxfmt`), not ESLint.
-- Frontend lint command is ESLint (`web/eslint.config.js`).
-- Frontend build runs `tsc -b` before Vite build.
-- No backend/frontend test files are currently present.
+- Make schema changes in `db/schema.ts`.
+- Generate migrations from schema changes; do not hand-write snapshots.
+- Commit schema and migration artifacts together.
+- Run `npm run db:migrate` locally when schema changes.
+- Preserve foreign keys, uniqueness, and indexes when evolving tables.
 
 ## Agent Workflow Expectations
 
-- Read nearby files and follow local patterns before edits.
+- Read nearby files and match existing patterns before editing.
 - Keep patches focused and minimal.
 - Avoid unrelated refactors in the same change.
-- If scripts/config behavior changes, update docs in the same patch.
-- Prefer deterministic, reproducible commands in notes/PRs.
-- When adding tooling/scripts, document commands in this file.
+- Update this file when scripts/tooling/workflows change.
+- Prefer deterministic commands in notes and PR descriptions.
 
-## Validation Checklist (Before Hand-off)
+## Pre-Handoff Validation Checklist
 
-- Run relevant checks for touched areas (build/lint/db).
-- Run tests if a runner exists; otherwise state tests are not configured.
+- Run relevant checks for touched areas.
+- Backend baseline: `npm run lint:check` and `npm run build`.
+- Mobile baseline: run at least `npm run dev --prefix mobile` if applicable.
+- If tests exist in future, run them and include single-test examples.
 - Confirm `@/*` imports resolve after edits.
-- Confirm no secrets were added to tracked files.
-- Confirm migration artifacts are included when schema changed.
-- Call out risks, assumptions, and limitations clearly.
-
-Quick pre-handoff commands (as applicable):
-
-- `npm run lint:check`
-- `npm run build`
-- `npm run lint --prefix web`
-- `npm run build --prefix web`
-- `npm run db:migrate`
+- Confirm no secrets were introduced in tracked files.
+- Call out assumptions, risks, and known limitations.

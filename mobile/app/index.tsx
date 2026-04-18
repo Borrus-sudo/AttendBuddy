@@ -19,5 +19,9 @@ export default function Index() {
         );
     }
 
-    return <Redirect href={user ? "/(protected)/(tabs)/profile" : "/(auth)/sign-in"} />;
+    return (
+        <Redirect
+            href={user ? "/(protected)/(tabs)/profile" : "/(auth)/sign-in"}
+        />
+    );
 }

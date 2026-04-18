@@ -3,10 +3,8 @@ import { consola } from "consola";
 import type { NitroErrorHandler } from "nitro/types";
 
 const onError: NitroErrorHandler = (error, event) => {
-    const requestPath = event?.req.url
-        ? new URL(event.req.url).pathname
-        : "unknown";
-    const method = event?.req.method ?? "UNKNOWN";
+    const requestPath = new URL(event.req.url).pathname;
+    const method = event.req.method;
 
     if (HTTPError.isError(error)) {
         consola.error({
@@ -16,7 +14,6 @@ const onError: NitroErrorHandler = (error, event) => {
             path: requestPath,
             message: error.message,
         });
-
         return new Response(
             JSON.stringify({
                 success: false,
@@ -33,7 +30,6 @@ const onError: NitroErrorHandler = (error, event) => {
             },
         );
     }
-
     consola.error({
         method,
         path: requestPath,
