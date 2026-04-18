@@ -11,17 +11,13 @@ export default defineHandler((event) => {
 
     const res = handleCors(event, {
         origin(origin) {
+            // why do we even do this? The app does not rely on deep links?
             if (
                 origin.startsWith("exp://") ||
                 origin.startsWith("attend-buddy://")
             ) {
                 return true;
             }
-            // if (/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(origin)) {
-            // return true;
-            // }
-            console.log(origin);
-            console.log(allowedOrigins.includes(origin));
             return allowedOrigins.includes(origin);
         },
         credentials: true,

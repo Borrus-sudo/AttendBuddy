@@ -1,5 +1,4 @@
 import { Pressable, StyleSheet, View } from "react-native";
-import { Redirect } from "expo-router";
 import { Image } from "expo-image";
 
 import { signOut } from "@/lib/auth";
@@ -10,18 +9,18 @@ import { useThemeColor } from "@/hooks/use-theme-color";
 import { useAuth } from "@/providers/auth-provider";
 
 export default function ProfileScreen() {
-    const user = useAuth();
+    const { user, loading } = useAuth();
     const cardColor = useThemeColor({}, "card");
     const borderColor = useThemeColor({}, "border");
     const mutedColor = useThemeColor({}, "muted");
     const primaryColor = useThemeColor({}, "primary");
 
-    if (user === undefined) {
+    if (loading) {
         return null;
     }
 
     if (!user) {
-        return <Redirect href="/sign-in" />;
+        return null;
     }
 
     return (

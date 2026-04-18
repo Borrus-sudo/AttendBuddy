@@ -1,6 +1,5 @@
-import { API_BASE_URL } from "@/lib/config";
+import { API_BASE_URL, isWeb } from "@/lib/config";
 import { getAuthCookie } from "@/lib/auth";
-import { Platform } from "react-native";
 import type {
     ClassroomDetailPayload,
     ClassroomSummary,
@@ -35,7 +34,7 @@ async function request<T>(
 
     let credentials: RequestCredentials = "include";
 
-    if (Platform.OS !== "web") {
+    if (!isWeb) {
         const cookie = await getAuthCookie();
         if (cookie) {
             headers.Cookie = cookie;

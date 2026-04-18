@@ -1,8 +1,8 @@
-import { Redirect } from "expo-router";
+import { Stack, Redirect } from "expo-router";
 import { useAuth } from "@/providers/auth-provider";
 import { ActivityIndicator, View } from "react-native";
 
-export default function Index() {
+export default function ProtectedLayout() {
     const { user, loading } = useAuth();
 
     if (loading) {
@@ -19,5 +19,10 @@ export default function Index() {
         );
     }
 
-    return <Redirect href={user ? "/(protected)/(tabs)/profile" : "/(auth)/sign-in"} />;
+    // Not logged in → send to sign-in
+    if (!user) {
+        return <Redirect href="/(auth)/sign-in" />;
+    }
+
+    return <Stack screenOptions={{ headerShown: false }} />;
 }

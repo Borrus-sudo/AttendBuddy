@@ -1,19 +1,27 @@
 import { useState } from "react";
 import { ActivityIndicator, Pressable, StyleSheet, View } from "react-native";
-import { Redirect, router } from "expo-router";
 
 import { signIn } from "@/lib/auth";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { useAuth } from "@/providers/auth-provider";
+import { isWeb } from "@/lib/config";
 
 export default function SignInScreen() {
-    const user = useAuth();
+    const { user, loading } = useAuth();
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
+    if (loading) {
+        return (
+            <ThemedView style={styles.container}>
+                <ActivityIndicator />
+            </ThemedView>
+        );
+    }
+
     if (user) {
-        return <Redirect href="/(tabs)/profile" />;
+        return null;
     }
 
     async function handleGoogleSignIn() {
@@ -22,14 +30,16 @@ export default function SignInScreen() {
         try {
             const result = await signIn.social({
                 provider: "google",
+                // TODO: solve this, make this more prod ready and mobile ready?
+                callbackURL: isWeb
+                    ? "http://localhost:8081/profile"
+                    : "/profile",
             });
-
             if (result?.error) {
                 throw new Error(
                     result.error.message || "Google sign-in failed",
                 );
             }
-            router.push("/(tabs)/classes");
         } catch (err) {
             setError(
                 err instanceof Error

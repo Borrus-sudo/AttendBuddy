@@ -1,46 +1,58 @@
-import { createContext, useContext } from "react";
+import { createContext, useContext, useEffect, useMemo } from "react";
+import { usePathname, useRouter } from "expo-router";
 
 import { useSession } from "@/lib/auth";
 import type { AppUser } from "@/types/api";
 
-const AuthContext = createContext<AppUser | null | undefined>(undefined);
+type AuthContextType = {
+    user: AppUser | null;
+    loading: boolean;
+};
 
-function toAppUser(data: unknown): AppUser | null {
-    if (!data || typeof data !== "object") {
-        return null;
-    }
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-    const sessionData = data as {
-        user?: {
-            id: string;
-            name: string;
-            email: string;
-            image?: string | null;
-        };
+type SessionLike = {
+    user?: {
+        id: string;
+        name: string;
+        email: string;
+        image?: string | null;
     };
+};
 
-    if (!sessionData.user) {
+function toAppUser(data: SessionLike | null | undefined): AppUser | null {
+    if (!data?.user) {
         return null;
     }
 
     return {
-        id: sessionData.user.id,
-        name: sessionData.user.name,
-        email: sessionData.user.email,
-        image: sessionData.user.image ?? null,
+        id: data.user.id,
+        name: data.user.name,
+        email: data.user.email,
+        image: data.user.image ?? null,
     };
 }
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
     const { data, isPending } = useSession();
 
-    const user = isPending ? undefined : toAppUser(data);
+    const value = useMemo<AuthContextType>(() => {
+        const loading = isPending;
+        const user = loading ? null : toAppUser((data as SessionLike) ?? null);
+        return { user, loading };
+    }, [data, isPending]);
 
     return (
-        <AuthContext.Provider value={user}>{children}</AuthContext.Provider>
+        <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
     );
 }
 
 export function useAuth() {
-    return useContext(AuthContext);
+    const context = useContext(AuthContext);
+
+    if (!context) {
+        throw new Error("useAuth must be used within AuthProvider");
+    }
+
+    return context;
 }

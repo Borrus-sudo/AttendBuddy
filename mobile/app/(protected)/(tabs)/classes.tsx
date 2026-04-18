@@ -23,7 +23,7 @@ import { useAuth } from "@/providers/auth-provider";
 import type { ClassroomSummary } from "@/types/api";
 
 export default function ClassesScreen() {
-    const user = useAuth();
+    const { user, loading } = useAuth();
     const [classrooms, setClassrooms] = useState<ClassroomSummary[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -62,6 +62,14 @@ export default function ClassesScreen() {
     useEffect(() => {
         loadClassrooms();
     }, [loadClassrooms]);
+
+    if (loading) {
+        return (
+            <ThemedView style={styles.centered}>
+                <ActivityIndicator />
+            </ThemedView>
+        );
+    }
 
     async function handleCreateClass() {
         if (!newClassName.trim()) {

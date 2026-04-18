@@ -1,4 +1,4 @@
-import { Redirect, useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams } from "expo-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ActivityIndicator, FlatList, StyleSheet, View } from "react-native";
 
@@ -11,7 +11,7 @@ import type { ClassroomDetailPayload } from "@/types/api";
 
 export default function ClassroomDetailScreen() {
     const { code } = useLocalSearchParams<{ code: string }>();
-    const user = useAuth();
+    const { user, loading } = useAuth();
     const cardColor = useThemeColor({}, "card");
     const borderColor = useThemeColor({}, "border");
     const mutedColor = useThemeColor({}, "muted");
@@ -56,16 +56,12 @@ export default function ClassroomDetailScreen() {
         loadClassroom();
     }, [loadClassroom]);
 
-    if (isLoading) {
+    if (loading || isLoading) {
         return (
             <ThemedView style={styles.centered}>
                 <ActivityIndicator />
             </ThemedView>
         );
-    }
-
-    if (!user) {
-        return <Redirect href="/sign-in" />;
     }
 
     if (error || !classroom) {
