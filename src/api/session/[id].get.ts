@@ -9,8 +9,8 @@ const Params = z.object({
     id: z.string().min(1),
 });
 
-const Query = z.object({
-    classroomCode: z.string().min(1),
+const OptionalQuery = z.object({
+    classroomCode: z.string().min(1).optional(),
 });
 
 export default defineHandler(async (event) => {
@@ -23,15 +23,7 @@ export default defineHandler(async (event) => {
         });
     }
 
-    const parsedQuery = Query.safeParse(event.context.query);
-    if (!parsedQuery.success) {
-        throw HTTPError.status(400, "Bad Request", {
-            message: "classroomCode query param is required.",
-        });
-    }
-
     const { id: attendanceSessionId } = parsedParams.data;
-    const { classroomCode } = parsedQuery.data;
 
     const sessionRows = await db
         .select()
@@ -45,6 +37,18 @@ export default defineHandler(async (event) => {
     }
 
     const attendanceSession = sessionRows[0]!;
+
+    const queryParsed = OptionalQuery.safeParse(event.context.query);
+
+    const queryClassroomCode = queryParsed.success
+        ? queryParsed.data.classroomCode
+        : undefined;
+
+    const classroomCode =
+        typeof queryClassroomCode === "string" && queryClassroomCode.length > 0
+            ? queryClassroomCode
+            : attendanceSession.classroomCode;
+
     if (attendanceSession.classroomCode !== classroomCode) {
         throw HTTPError.status(400, "Bad Request", {
             message: "Session does not belong to the requested classroom.",
@@ -112,6 +116,8 @@ export default defineHandler(async (event) => {
         attendanceByUser.set(record.userId, record.markedAt);
     }
 
+    const role = attendanceSession.createdByUserId === userId ? "teacher" : "student";
+
     const membersWithStatus = members.map((member) => {
         const markedAt = attendanceByUser.get(member.id);
         return {
@@ -123,6 +129,11 @@ export default defineHandler(async (event) => {
             markedAt: markedAt ?? null,
         };
     });
+
+    const responseMembers =
+        role === "teacher"
+            ? membersWithStatus
+            : membersWithStatus.filter((member) => member.userId === userId);
 
     const presentCount = attendanceRecords.length;
     const totalCount = members.length;
@@ -141,6 +152,7 @@ export default defineHandler(async (event) => {
             session: {
                 id: attendanceSession.id,
                 classroomCode: attendanceSession.classroomCode,
+                createdByUserId: attendanceSession.createdByUserId,
                 token: attendanceSession.token,
                 createdAt: attendanceSession.createdAt,
                 expiresAt: attendanceSession.expiresAt,
@@ -149,7 +161,9 @@ export default defineHandler(async (event) => {
                 totalCount,
                 status,
             },
-            members: membersWithStatus,
+            role,
+            currentUserId: userId,
+            members: responseMembers,
         },
     };
 });

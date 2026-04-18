@@ -151,6 +151,9 @@ export async function getClassroomSessions(
             id: String(data.id || ""),
             classroomCode,
             token: data.token ? String(data.token) : undefined,
+            createdByUserId: data.createdByUserId
+                ? String(data.createdByUserId)
+                : undefined,
             createdAt: toIso(data.createdAt as string | number | Date),
             expiresAt: toIso(data.expiresAt as string | number | Date),
             isClosed: Boolean(data.isClosed),
@@ -199,37 +202,14 @@ export async function getAttendanceSessionDetail(
     classroomCode: string,
     sessionId: string,
 ): Promise<AttendanceSessionDetailPayload> {
-    const response = await tryRequest<
-        SuccessEnvelope<AttendanceSessionDetailPayload>
-    >(`/api/session/${sessionId}?classroomCode=${classroomCode}`);
+    const query = classroomCode
+        ? `?classroomCode=${encodeURIComponent(classroomCode)}`
+        : "";
+    const response = await request<SuccessEnvelope<AttendanceSessionDetailPayload>>(
+        `/api/session/${sessionId}${query}`,
+    );
 
-    if (response?.payload?.session?.id) {
-        return response.payload;
-    }
-
-    const classroom = await getClassroomByCode(classroomCode);
-    const members = classroom.payload.members.map((member) => ({
-        userId: member.id,
-        name: member.name,
-        email: member.email,
-        image: member.image,
-        isPresent: false,
-        markedAt: null,
-    })) satisfies AttendanceMemberStatus[];
-
-    return {
-        session: {
-            id: sessionId,
-            classroomCode,
-            createdAt: new Date().toISOString(),
-            expiresAt: new Date(Date.now() + 30 * 60 * 1000).toISOString(),
-            isClosed: false,
-            presentCount: 0,
-            totalCount: members.length,
-            status: "unknown",
-        },
-        members,
-    };
+    return response.payload;
 }
 
 export async function setAttendancePresence(input: {
@@ -267,6 +247,12 @@ export async function setAttendancePresence(input: {
         "This backend does not support marking an existing record as absent yet.",
         400,
     );
+}
+
+export async function markAttendanceByToken(token: string): Promise<void> {
+    await request<SuccessEnvelope<{ message: string }>>(`/api/session/mark/${token}`, {
+        method: "POST",
+    });
 }
 
 export async function getMemberAttendanceAnalytics(

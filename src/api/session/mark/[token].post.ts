@@ -35,6 +35,25 @@ export default defineHandler(async (event) => {
 
     const attendanceSession = sessions[0]!;
 
+    const classrooms = await db
+        .select()
+        .from(schema.classroom)
+        .where(eq(schema.classroom.code, attendanceSession.classroomCode));
+
+    if (classrooms.length === 0) {
+        throw HTTPError.status(404, "Not Found", {
+            message: "Classroom not found.",
+        });
+    }
+
+    const classroom = classrooms[0]!;
+
+    if (classroom.creatorId === userId) {
+        throw HTTPError.status(401, "Unauthorized", {
+            message: "Teachers cannot mark attendance by scanning QR codes.",
+        });
+    }
+
     if (attendanceSession.isClosed) {
         throw HTTPError.status(400, "Bad Request", {
             message: "Attendance session is already closed.",

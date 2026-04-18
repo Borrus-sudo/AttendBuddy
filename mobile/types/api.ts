@@ -47,6 +47,7 @@ export type AttendanceSessionSummary = {
     id: string;
     classroomCode: string;
     token?: string;
+    createdByUserId?: string;
     createdAt: string;
     expiresAt: string;
     isClosed: boolean;
@@ -66,6 +67,8 @@ export type AttendanceMemberStatus = {
 
 export type AttendanceSessionDetailPayload = {
     session: AttendanceSessionSummary;
+    role: "teacher" | "student";
+    currentUserId: string;
     members: AttendanceMemberStatus[];
 };
 

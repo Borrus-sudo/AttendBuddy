@@ -108,6 +108,7 @@ export default defineHandler(async (event) => {
                     id: session.id,
                     classroomCode: session.classroomCode,
                     token: session.token,
+                    createdByUserId: session.createdByUserId,
                     createdAt: session.createdAt,
                     expiresAt: session.expiresAt,
                     isClosed: session.isClosed,
