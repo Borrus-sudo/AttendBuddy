@@ -1,5 +1,5 @@
 import { HTTPError } from "h3";
-import { and, eq } from "drizzle-orm";
+import { and, eq, ne } from "drizzle-orm";
 import { defineHandler } from "nitro";
 import * as z from "zod";
 
@@ -96,7 +96,12 @@ export default defineHandler(async (event) => {
             schema.user,
             eq(schema.classroomMember.userId, schema.user.id),
         )
-        .where(eq(schema.classroomMember.classroomCode, classroomCode));
+        .where(
+            and(
+                eq(schema.classroomMember.classroomCode, classroomCode),
+                ne(schema.user.id, attendanceSession.createdByUserId),
+            ),
+        );
 
     const attendanceRecords = await db
         .select({

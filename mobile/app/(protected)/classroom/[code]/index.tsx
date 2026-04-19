@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { ActivityIndicator, FlatList, StyleSheet, View } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import * as Clipboard from "expo-clipboard";
 
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
@@ -51,6 +52,7 @@ export default function ClassroomScreen() {
     const [isLoading, setIsLoading] = useState(true);
     const [isRefreshing, setIsRefreshing] = useState(false);
     const [isStartingSession, setIsStartingSession] = useState(false);
+    const [isCopyingCode, setIsCopyingCode] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [durationMinutes, setDurationMinutes] = useState(30);
     const [teacherTab, setTeacherTab] = useState<TeacherTab>("members");
@@ -158,6 +160,27 @@ export default function ClassroomScreen() {
         }
     }, [classroomCode, durationMinutes]);
 
+    const displayClassroomCode = useMemo(() => {
+        if (classroomCode.length <= 10) {
+            return classroomCode;
+        }
+
+        return `${classroomCode.slice(0, 4)}...${classroomCode.slice(-4)}`;
+    }, [classroomCode]);
+
+    const handleCopyClassroomCode = useCallback(async () => {
+        if (!classroomCode) {
+            return;
+        }
+
+        setIsCopyingCode(true);
+        try {
+            await Clipboard.setStringAsync(classroomCode);
+        } finally {
+            setIsCopyingCode(false);
+        }
+    }, [classroomCode]);
+
     if (isLoading) {
         return (
             <ThemedView style={styles.centered}>
@@ -181,15 +204,24 @@ export default function ClassroomScreen() {
         <ThemedView style={styles.container}>
             <ScreenHeader
                 title={classroom.name}
-                subtitle={classroomCode}
+                subtitle={`Code: ${displayClassroomCode}`}
                 rightSlot={
-                    <AppButton
-                        label={isRefreshing ? "Refreshing..." : "Refresh"}
-                        variant="ghost"
-                        onPress={() => {
-                            void refresh();
-                        }}
-                    />
+                    <View style={styles.headerButtons}>
+                        <AppButton
+                            label={isCopyingCode ? "Copied" : "Copy Code"}
+                            variant="secondary"
+                            onPress={() => {
+                                void handleCopyClassroomCode();
+                            }}
+                        />
+                        <AppButton
+                            label={isRefreshing ? "Refreshing..." : "Refresh"}
+                            variant="ghost"
+                            onPress={() => {
+                                void refresh();
+                            }}
+                        />
+                    </View>
                 }
             />
 
@@ -267,33 +299,53 @@ export default function ClassroomScreen() {
                     }
                     renderItem={({ item }) => (
                         <AppCard style={styles.sessionCard}>
-                            <View style={styles.sessionRow}>
-                                <View style={styles.sessionDetails}>
-                                    <ThemedText type="defaultSemiBold">
-                                        {formatSessionLabel(item.createdAt)}
-                                    </ThemedText>
-                                    <ThemedText style={{ color: muted }}>
-                                        {item.presentCount}/{item.totalCount}{" "}
-                                        present
-                                    </ThemedText>
-                                </View>
-                                <StatusPill
-                                    label={
-                                        item.status === "present"
-                                            ? "Present"
-                                            : item.status === "absent"
-                                              ? "Absent"
-                                              : "Unknown"
-                                    }
-                                    tone={
-                                        item.status === "present"
-                                            ? "success"
-                                            : item.status === "absent"
-                                              ? "danger"
-                                              : "muted"
-                                    }
-                                />
-                            </View>
+                            {(() => {
+                                const isExpired =
+                                    item.isClosed ||
+                                    new Date(item.expiresAt).getTime() < Date.now();
+
+                                return (
+                                    <View style={styles.sessionRow}>
+                                        <View style={styles.sessionDetails}>
+                                            <ThemedText type="defaultSemiBold">
+                                                {formatSessionLabel(item.createdAt)}
+                                            </ThemedText>
+                                            <ThemedText style={{ color: muted }}>
+                                                {item.presentCount}/{item.totalCount}{" "}
+                                                students present
+                                            </ThemedText>
+                                        </View>
+                                        <View style={styles.sessionPills}>
+                                            <StatusPill
+                                                label={
+                                                    isExpired ? "Expired" : "Active"
+                                                }
+                                                tone={
+                                                    isExpired ? "danger" : "success"
+                                                }
+                                            />
+                                            {role === "student" ? (
+                                                <StatusPill
+                                                    label={
+                                                        item.status === "present"
+                                                            ? "Present"
+                                                            : item.status === "absent"
+                                                              ? "Absent"
+                                                              : "Unknown"
+                                                    }
+                                                    tone={
+                                                        item.status === "present"
+                                                            ? "success"
+                                                            : item.status === "absent"
+                                                              ? "danger"
+                                                              : "muted"
+                                                    }
+                                                />
+                                            ) : null}
+                                        </View>
+                                    </View>
+                                );
+                            })()}
                             <AppButton
                                 label="Open Session"
                                 variant="secondary"
@@ -390,6 +442,10 @@ const styles = StyleSheet.create({
         gap: 10,
         paddingBottom: 18,
     },
+    headerButtons: {
+        alignItems: "flex-end",
+        gap: 8,
+    },
     sessionCard: {
         gap: 10,
     },
@@ -398,6 +454,10 @@ const styles = StyleSheet.create({
         alignItems: "center",
         justifyContent: "space-between",
         gap: 12,
+    },
+    sessionPills: {
+        alignItems: "flex-end",
+        gap: 6,
     },
     sessionDetails: {
         flex: 1,

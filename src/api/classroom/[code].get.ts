@@ -1,7 +1,7 @@
 import { defineHandler } from "nitro";
 import { HTTPError } from "h3";
 import { db, schema } from "@/src/lib/db";
-import { eq, getTableColumns } from "drizzle-orm";
+import { and, eq, getTableColumns, ne } from "drizzle-orm";
 import * as z from "zod";
 
 const Params = z.object({
@@ -48,7 +48,12 @@ export default defineHandler(async (event) => {
                       schema.classroomMember,
                       eq(schema.classroomMember.userId, schema.user.id),
                   )
-                  .where(eq(schema.classroomMember.classroomCode, code))
+                  .where(
+                      and(
+                          eq(schema.classroomMember.classroomCode, code),
+                          ne(schema.user.id, classroomOwnerId),
+                      ),
+                  )
             : await db
                   .select()
                   .from(schema.user)

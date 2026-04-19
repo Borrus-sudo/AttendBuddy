@@ -90,11 +90,12 @@ export default function SessionDetailScreen() {
             return { present: 0, absent: 0, total: 0 };
         }
 
-        const present = data.members.filter((item) => item.isPresent).length;
-        const total = data.members.length;
+        const total = data.session.totalCount;
+        const present = data.session.presentCount;
+
         return {
             present,
-            absent: total - present,
+            absent: Math.max(0, total - present),
             total,
         };
     }, [data]);
@@ -234,8 +235,18 @@ export default function SessionDetailScreen() {
                 subtitle={formatSessionLabel(data.session.createdAt)}
                 rightSlot={
                     <StatusPill
-                        label={data.session.isClosed ? "Closed" : "Open"}
-                        tone={data.session.isClosed ? "danger" : "success"}
+                        label={
+                            data.session.isClosed ||
+                            new Date(data.session.expiresAt).getTime() < Date.now()
+                                ? "Expired"
+                                : "Active"
+                        }
+                        tone={
+                            data.session.isClosed ||
+                            new Date(data.session.expiresAt).getTime() < Date.now()
+                                ? "danger"
+                                : "success"
+                        }
                     />
                 }
             />

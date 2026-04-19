@@ -50,12 +50,13 @@ export default defineHandler(async (event) => {
         });
     }
 
-    const members = await db
+    const teacherRows = await db
         .select({ userId: schema.classroomMember.userId })
         .from(schema.classroomMember)
         .where(eq(schema.classroomMember.classroomCode, classroomCode));
 
-    const memberCount = members.length;
+    const totalMemberCount = teacherRows.length;
+    const studentCount = Math.max(0, totalMemberCount - 1);
 
     const sessions = await db
         .select()
@@ -113,7 +114,7 @@ export default defineHandler(async (event) => {
                     expiresAt: session.expiresAt,
                     isClosed: session.isClosed,
                     presentCount,
-                    totalCount: memberCount,
+                    totalCount: studentCount,
                     status,
                 };
             }),
