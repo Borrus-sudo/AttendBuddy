@@ -3,6 +3,7 @@ import {
     DefaultTheme,
     ThemeProvider,
 } from "@react-navigation/native";
+import { PaperProvider, MD3DarkTheme, MD3LightTheme } from "react-native-paper";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { LogBox } from "react-native";
@@ -22,10 +23,14 @@ export default function RootLayout() {
         <ThemeProvider
             value={colorScheme === "dark" ? DarkTheme : DefaultTheme}
         >
-            <AuthProvider>
-                <Stack screenOptions={{ headerShown: false }} />
-            </AuthProvider>
-            <StatusBar style="auto" />
+            <PaperProvider
+                theme={colorScheme === "dark" ? MD3DarkTheme : MD3LightTheme}
+            >
+                <AuthProvider>
+                    <Stack screenOptions={{ headerShown: false }} />
+                </AuthProvider>
+                <StatusBar style="auto" />
+            </PaperProvider>
         </ThemeProvider>
     );
 }

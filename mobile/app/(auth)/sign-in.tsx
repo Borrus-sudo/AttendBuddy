@@ -32,8 +32,8 @@ export default function SignInScreen() {
                 provider: "google",
                 // TODO: solve this, make this more prod ready and mobile ready?
                 callbackURL: isWeb
-                    ? "http://localhost:8081/profile"
-                    : "/profile",
+                    ? "http://localhost:8081/home"
+                    : "/home",
             });
             if (result?.error) {
                 throw new Error(

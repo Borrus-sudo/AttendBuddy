@@ -30,14 +30,14 @@ export function AppCard({ children, style, padded = true }: AppCardProps) {
 const styles = StyleSheet.create({
     card: {
         borderWidth: 1,
-        borderRadius: 16,
-        shadowColor: "#020617",
-        shadowOpacity: 0.25,
-        shadowRadius: 14,
-        shadowOffset: { width: 0, height: 8 },
-        elevation: 6,
+        borderRadius: 20,
+        shadowColor: "#7C5CFC",
+        shadowOpacity: 0.06,
+        shadowRadius: 16,
+        shadowOffset: { width: 0, height: 6 },
+        elevation: 4,
     },
     padded: {
-        padding: 14,
+        padding: 16,
     },
 });

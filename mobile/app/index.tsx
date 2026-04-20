@@ -21,7 +21,7 @@ export default function Index() {
 
     return (
         <Redirect
-            href={user ? "/(protected)/(tabs)/profile" : "/(auth)/sign-in"}
+            href={user ? "/(protected)/(tabs)/home" : "/(auth)/sign-in"}
         />
     );
 }

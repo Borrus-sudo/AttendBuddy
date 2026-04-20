@@ -8,6 +8,7 @@ import {
     View,
 } from "react-native";
 import { useLocalSearchParams } from "expo-router";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import QRCode from "react-native-qrcode-svg";
 
@@ -228,9 +229,12 @@ export default function SessionDetailScreen() {
         );
     }
 
+    const insets = useSafeAreaInsets();
+
     return (
-        <ThemedView style={styles.container}>
+        <ThemedView style={[styles.container, { paddingTop: insets.top + 8 }]}>
             <ScreenHeader
+                showBack
                 title="Session Detail"
                 subtitle={formatSessionLabel(data.session.createdAt)}
                 rightSlot={

@@ -8,22 +8,30 @@ import {
 } from "react-native";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { router } from "expo-router";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+
 import { useThemeColor } from "@/hooks/use-theme-color";
+import { useColorScheme } from "@/hooks/use-color-scheme";
 
 import { createClassroom, getUserProfile, joinClassroom } from "@/lib/api";
 import { AppButton } from "@/components/ui/app-button";
 import { AppCard } from "@/components/ui/app-card";
 import { AppInput } from "@/components/ui/app-input";
 import { AppModal } from "@/components/ui/app-modal";
-import { ScreenHeader } from "@/components/ui/screen-header";
 import { StatusPill } from "@/components/ui/status-pill";
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
+import { Skeleton } from "@/components/ui/skeleton-loader";
 import { useAuth } from "@/providers/auth-provider";
+import { ClassAccentColors, getClassEmoji } from "@/constants/theme";
 import type { ClassroomSummary } from "@/types/api";
 
 export default function ClassesScreen() {
     const { user, loading } = useAuth();
+    const insets = useSafeAreaInsets();
+    const colorScheme = useColorScheme();
+    const isDark = colorScheme === "dark";
+
     const [classrooms, setClassrooms] = useState<ClassroomSummary[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -37,15 +45,19 @@ export default function ClassesScreen() {
     const mutedColor = useThemeColor({}, "muted");
     const dangerColor = useThemeColor({}, "danger");
     const primaryColor = useThemeColor({}, "primary");
+    const cardColor = useThemeColor({}, "card");
+    const borderColor = useThemeColor({}, "border");
+
+    const accentColors = isDark
+        ? ClassAccentColors.dark
+        : ClassAccentColors.light;
+
+    /* ---------- data ---------- */
 
     const loadClassrooms = useCallback(async () => {
-        if (!user) {
-            return;
-        }
-
+        if (!user) return;
         setIsLoading(true);
         setError(null);
-
         try {
             const response = await getUserProfile(user.id);
             setClassrooms(response.payload.classrooms || []);
@@ -75,7 +87,6 @@ export default function ClassesScreen() {
             setError("Class name is required");
             return;
         }
-
         setError(null);
         setIsSubmitting(true);
         try {
@@ -102,7 +113,6 @@ export default function ClassesScreen() {
             setError("Class code is required");
             return;
         }
-
         setError(null);
         setIsSubmitting(true);
         try {
@@ -125,54 +135,133 @@ export default function ClassesScreen() {
         [classrooms.length],
     );
 
+    /* ---------- skeleton ---------- */
+
     if (isLoading) {
         return (
-            <ThemedView style={styles.centered}>
-                <ActivityIndicator />
+            <ThemedView
+                style={[styles.container, { paddingTop: insets.top + 16 }]}
+            >
+                <View style={styles.header}>
+                    <Skeleton width={150} height={32} borderRadius={8} />
+                    <Skeleton
+                        width={100}
+                        height={16}
+                        borderRadius={6}
+                        style={{ marginTop: 6 }}
+                    />
+                </View>
+                <View style={styles.headerButtons}>
+                    <Skeleton width={90} height={42} borderRadius={12} />
+                    <Skeleton width={80} height={42} borderRadius={12} />
+                </View>
+                <View style={styles.columnWrapper}>
+                    <Skeleton
+                        height={200}
+                        borderRadius={20}
+                        style={{ flex: 1 }}
+                    />
+                    <Skeleton
+                        height={200}
+                        borderRadius={20}
+                        style={{ flex: 1 }}
+                    />
+                </View>
+                <View style={styles.columnWrapper}>
+                    <Skeleton
+                        height={200}
+                        borderRadius={20}
+                        style={{ flex: 1 }}
+                    />
+                    <Skeleton
+                        height={200}
+                        borderRadius={20}
+                        style={{ flex: 1 }}
+                    />
+                </View>
             </ThemedView>
         );
     }
 
+    /* ---------- render ---------- */
+
     return (
-        <ThemedView style={styles.container}>
-            <ScreenHeader
-                title="Classes"
-                subtitle={classCountLabel}
-                rightSlot={
-                    <>
-                        <AppButton
-                            label="Create"
-                            variant="secondary"
-                            onPress={() => {
-                                setError(null);
-                                setCreateModalVisible(true);
-                            }}
-                            leftIcon={
-                                <MaterialIcons
-                                    name="add"
-                                    size={16}
-                                    color={primaryColor}
-                                />
-                            }
+        <ThemedView
+            style={[styles.container, { paddingTop: insets.top + 8 }]}
+        >
+            {/* Header */}
+            <View style={styles.headerRow}>
+                <View>
+                    <ThemedText style={styles.titleText}>
+                        My Classes
+                    </ThemedText>
+                    <ThemedText
+                        style={[styles.subtitleText, { color: mutedColor }]}
+                    >
+                        {classCountLabel}
+                    </ThemedText>
+                </View>
+                <View style={styles.headerButtons}>
+                    <Pressable
+                        style={({ pressed }) => [
+                            styles.actionChip,
+                            {
+                                backgroundColor: isDark
+                                    ? "#22203A"
+                                    : "#F0EAFF",
+                                opacity: pressed ? 0.8 : 1,
+                            },
+                        ]}
+                        onPress={() => {
+                            setError(null);
+                            setCreateModalVisible(true);
+                        }}
+                    >
+                        <MaterialIcons
+                            name="add"
+                            size={16}
+                            color={primaryColor}
                         />
-                        <AppButton
-                            label="Join"
-                            variant="secondary"
-                            onPress={() => {
-                                setError(null);
-                                setJoinModalVisible(true);
-                            }}
-                            leftIcon={
-                                <MaterialIcons
-                                    name="link"
-                                    size={15}
-                                    color={primaryColor}
-                                />
-                            }
+                        <ThemedText
+                            style={[
+                                styles.actionChipLabel,
+                                { color: primaryColor },
+                            ]}
+                        >
+                            Create
+                        </ThemedText>
+                    </Pressable>
+                    <Pressable
+                        style={({ pressed }) => [
+                            styles.actionChip,
+                            {
+                                backgroundColor: isDark
+                                    ? "#1C322F"
+                                    : "#E5FAF6",
+                                opacity: pressed ? 0.8 : 1,
+                            },
+                        ]}
+                        onPress={() => {
+                            setError(null);
+                            setJoinModalVisible(true);
+                        }}
+                    >
+                        <MaterialIcons
+                            name="link"
+                            size={15}
+                            color={isDark ? "#6BE0D8" : "#4ECDC4"}
                         />
-                    </>
-                }
-            />
+                        <ThemedText
+                            style={[
+                                styles.actionChipLabel,
+                                { color: isDark ? "#6BE0D8" : "#4ECDC4" },
+                            ]}
+                        >
+                            Join
+                        </ThemedText>
+                    </Pressable>
+                </View>
+            </View>
 
             {error ? (
                 <AppCard
@@ -193,19 +282,30 @@ export default function ClassesScreen() {
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={styles.listContent}
                 ListEmptyComponent={
-                    <AppCard style={styles.emptyCard}>
+                    <View
+                        style={[
+                            styles.emptyCard,
+                            { backgroundColor: cardColor, borderColor },
+                        ]}
+                    >
+                        <ThemedText style={styles.emptyEmoji}>📭</ThemedText>
                         <ThemedText type="defaultSemiBold">
                             No classes yet
                         </ThemedText>
-                        <ThemedText style={{ color: mutedColor }}>
+                        <ThemedText
+                            style={[styles.emptyText, { color: mutedColor }]}
+                        >
                             Create one or join with a class code.
                         </ThemedText>
-                    </AppCard>
+                    </View>
                 }
                 renderItem={({ item, index }) => {
                     const role =
                         item.role ||
                         (item.creatorId === user?.id ? "teacher" : "member");
+                    const colors =
+                        accentColors[index % accentColors.length];
+                    const emoji = getClassEmoji(item.name);
 
                     return (
                         <View
@@ -216,11 +316,13 @@ export default function ClassesScreen() {
                         >
                             <Pressable
                                 style={({ pressed }) => [
-                                    styles.cardPress,
+                                    styles.classCard,
                                     {
-                                        opacity: pressed ? 0.95 : 1,
+                                        backgroundColor: colors.bg,
+                                        borderColor: colors.accent + "25",
+                                        opacity: pressed ? 0.9 : 1,
                                         transform: [
-                                            { scale: pressed ? 0.985 : 1 },
+                                            { scale: pressed ? 0.97 : 1 },
                                         ],
                                     },
                                 ]}
@@ -231,57 +333,69 @@ export default function ClassesScreen() {
                                     } as never);
                                 }}
                             >
-                                <AppCard
-                                    style={styles.classCard}
-                                    padded={false}
-                                >
-                                    <View style={styles.classBody}>
-                                        <View style={styles.classTopRow}>
-                                            <ThemedText
-                                                type="defaultSemiBold"
-                                                numberOfLines={2}
-                                            >
-                                                {item.name}
-                                            </ThemedText>
-                                            <StatusPill
-                                                label={
-                                                    role === "teacher"
-                                                        ? "Teacher"
-                                                        : "Student"
-                                                }
-                                                tone={
-                                                    role === "teacher"
-                                                        ? "success"
-                                                        : "muted"
-                                                }
-                                            />
-                                        </View>
-
-                                        <ThemedText
-                                            style={[
-                                                styles.description,
-                                                { color: mutedColor },
-                                            ]}
-                                            numberOfLines={3}
-                                        >
-                                            {item.description ||
-                                                "No description yet."}
+                                <View style={styles.classCardHeader}>
+                                    <View
+                                        style={[
+                                            styles.emojiCircle,
+                                            {
+                                                backgroundColor:
+                                                    colors.accent + "20",
+                                            },
+                                        ]}
+                                    >
+                                        <ThemedText style={styles.emoji}>
+                                            {emoji}
                                         </ThemedText>
-
-                                        <View style={styles.classFooter}>
-                                            <ThemedText
-                                                style={{ color: mutedColor }}
-                                            >
-                                                {item.code}
-                                            </ThemedText>
-                                        </View>
                                     </View>
-                                </AppCard>
+                                    <StatusPill
+                                        label={
+                                            role === "teacher"
+                                                ? "Teacher"
+                                                : "Student"
+                                        }
+                                        tone={
+                                            role === "teacher"
+                                                ? "primary"
+                                                : "muted"
+                                        }
+                                    />
+                                </View>
+
+                                <ThemedText
+                                    type="defaultSemiBold"
+                                    numberOfLines={2}
+                                    style={styles.className}
+                                >
+                                    {item.name}
+                                </ThemedText>
+
+                                <ThemedText
+                                    style={[
+                                        styles.description,
+                                        { color: mutedColor },
+                                    ]}
+                                    numberOfLines={3}
+                                >
+                                    {item.description || "No description yet."}
+                                </ThemedText>
+
+                                <View style={styles.classFooter}>
+                                    <ThemedText
+                                        style={[
+                                            styles.codeText,
+                                            { color: colors.accent },
+                                        ]}
+                                    >
+                                        {item.code}
+                                    </ThemedText>
+                                </View>
                             </Pressable>
                         </View>
                     );
                 }}
             />
+
+            {/* ---- Modals ---- */}
 
             <AppModal
                 visible={createModalVisible}
@@ -334,11 +448,14 @@ export default function ClassesScreen() {
     );
 }
 
+/* ------------------------------------------------------------------ */
+/*  Styles                                                             */
+/* ------------------------------------------------------------------ */
+
 const styles = StyleSheet.create({
     container: {
         flex: 1,
         paddingHorizontal: 16,
-        paddingTop: 14,
         gap: 14,
     },
     centered: {
@@ -348,19 +465,54 @@ const styles = StyleSheet.create({
         padding: 20,
         gap: 12,
     },
-    error: {
-        textAlign: "center",
-    },
-    errorCard: {
-        padding: 12,
-    },
-    listContent: {
+
+    /* header */
+    header: { gap: 4 },
+    headerRow: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "flex-start",
         gap: 10,
+        paddingHorizontal: 4,
+    },
+    titleText: {
+        fontSize: 28,
+        fontWeight: "800",
+        lineHeight: 34,
+    },
+    subtitleText: {
+        fontSize: 14,
+        marginTop: 2,
+    },
+    headerButtons: {
+        flexDirection: "row",
+        gap: 8,
+    },
+    actionChip: {
+        flexDirection: "row",
+        alignItems: "center",
+        gap: 5,
+        paddingHorizontal: 14,
+        paddingVertical: 10,
+        borderRadius: 12,
+    },
+    actionChipLabel: {
+        fontSize: 13,
+        fontWeight: "700",
+    },
+
+    /* error */
+    error: { textAlign: "center" },
+    errorCard: { padding: 12 },
+
+    /* grid */
+    listContent: {
+        gap: 12,
         paddingBottom: 16,
         minHeight: "100%",
     },
     columnWrapper: {
-        gap: 10,
+        gap: 12,
     },
     gridItem: {
         flex: 1,
@@ -369,27 +521,33 @@ const styles = StyleSheet.create({
     gridItemLeft: {
         paddingRight: 0,
     },
-    cardPress: {
-        borderRadius: 16,
-    },
+
+    /* class card */
     classCard: {
-        minHeight: 170,
+        borderRadius: 20,
+        borderWidth: 1,
+        padding: 14,
+        gap: 8,
+        minHeight: 200,
     },
-    classBody: {
-        padding: 12,
-        gap: 10,
-        flex: 1,
-    },
-    classTopRow: {
+    classCardHeader: {
         flexDirection: "row",
         justifyContent: "space-between",
         alignItems: "flex-start",
-        gap: 8,
     },
+    emojiCircle: {
+        width: 42,
+        height: 42,
+        borderRadius: 14,
+        alignItems: "center",
+        justifyContent: "center",
+    },
+    emoji: { fontSize: 22 },
+    className: { fontSize: 15, lineHeight: 20 },
     description: {
-        fontSize: 13,
-        lineHeight: 18,
-        minHeight: 54,
+        fontSize: 12,
+        lineHeight: 16,
+        minHeight: 48,
     },
     classFooter: {
         flexDirection: "row",
@@ -397,11 +555,24 @@ const styles = StyleSheet.create({
         justifyContent: "flex-start",
         marginTop: "auto",
     },
+    codeText: {
+        fontSize: 11,
+        fontWeight: "700",
+        letterSpacing: 0.5,
+    },
+
+    /* empty */
     emptyCard: {
         marginTop: 18,
-        gap: 6,
+        borderWidth: 1,
+        borderRadius: 24,
+        padding: 32,
+        alignItems: "center",
+        gap: 8,
     },
-    modalBody: {
-        gap: 12,
-    },
+    emptyEmoji: { fontSize: 48, marginBottom: 4 },
+    emptyText: { textAlign: "center", fontSize: 14, lineHeight: 20 },
+
+    /* modals */
+    modalBody: { gap: 12 },
 });

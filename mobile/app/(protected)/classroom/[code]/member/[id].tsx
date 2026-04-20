@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ActivityIndicator, FlatList, StyleSheet, View } from "react-native";
 import { useLocalSearchParams } from "expo-router";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
@@ -95,9 +96,12 @@ export default function MemberDetailScreen() {
         );
     }
 
+    const insets = useSafeAreaInsets();
+
     return (
-        <ThemedView style={styles.container}>
+        <ThemedView style={[styles.container, { paddingTop: insets.top + 8 }]}>
             <ScreenHeader
+                showBack
                 title={analytics.member.name}
                 subtitle={analytics.member.email}
             />
