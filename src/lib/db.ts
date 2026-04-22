@@ -7,7 +7,6 @@ const runtimeConfig = useRuntimeConfig();
 
 const client = createClient({
     url: runtimeConfig.databaseUrl || "file:./db/local.db",
-    authToken: runtimeConfig.databaseAuthToken || undefined,
 });
 
 const db = drizzle(client, { schema });

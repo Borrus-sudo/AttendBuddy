@@ -223,9 +223,12 @@ export const attendanceRequest = sqliteTable(
             .references(() => user.id, { onDelete: "cascade" }),
         message: text("message").notNull(),
         status: text("status").default("pending").notNull(),
-        reviewedByUserId: text("reviewed_by_user_id").references(() => user.id, {
-            onDelete: "set null",
-        }),
+        reviewedByUserId: text("reviewed_by_user_id").references(
+            () => user.id,
+            {
+                onDelete: "set null",
+            },
+        ),
         reviewNote: text("review_note"),
         createdAt: integer("created_at", { mode: "timestamp_ms" })
             .$defaultFn(() => new Date())
@@ -240,5 +243,72 @@ export const attendanceRequest = sqliteTable(
             table.attendanceSessionId,
             table.studentUserId,
         ),
+    ],
+);
+
+export const attendanceVerificationChallenge = sqliteTable(
+    "attendance_verification_challenge",
+    {
+        id: text("id").primaryKey(),
+        attendanceSessionId: text("attendance_session_id")
+            .notNull()
+            .references(() => attendanceSession.id, { onDelete: "cascade" }),
+        classroomCode: text("classroom_code")
+            .notNull()
+            .references(() => classroom.code, { onDelete: "cascade" }),
+        userId: text("user_id")
+            .notNull()
+            .references(() => user.id, { onDelete: "cascade" }),
+        tokenHash: text("token_hash").notNull(),
+        createdAt: integer("created_at", { mode: "timestamp_ms" })
+            .$defaultFn(() => new Date())
+            .notNull(),
+        expiresAt: integer("expires_at", { mode: "timestamp_ms" }).notNull(),
+        usedAt: integer("used_at", { mode: "timestamp_ms" }),
+    },
+    (table) => [
+        index("attendance_verify_challenge_session_idx").on(
+            table.attendanceSessionId,
+        ),
+        index("attendance_verify_challenge_user_idx").on(table.userId),
+        uniqueIndex("attendance_verify_challenge_token_hash_unique").on(
+            table.tokenHash,
+        ),
+    ],
+);
+
+export const attendanceVerificationAttempt = sqliteTable(
+    "attendance_verification_attempt",
+    {
+        id: text("id").primaryKey(),
+        attendanceSessionId: text("attendance_session_id")
+            .notNull()
+            .references(() => attendanceSession.id, { onDelete: "cascade" }),
+        classroomCode: text("classroom_code")
+            .notNull()
+            .references(() => classroom.code, { onDelete: "cascade" }),
+        userId: text("user_id")
+            .notNull()
+            .references(() => user.id, { onDelete: "cascade" }),
+        challengeId: text("challenge_id")
+            .notNull()
+            .references(() => attendanceVerificationChallenge.id, {
+                onDelete: "cascade",
+            }),
+        isSuccess: integer("is_success", { mode: "boolean" })
+            .default(false)
+            .notNull(),
+        confidence: integer("confidence"),
+        failureReason: text("failure_reason"),
+        createdAt: integer("created_at", { mode: "timestamp_ms" })
+            .$defaultFn(() => new Date())
+            .notNull(),
+    },
+    (table) => [
+        index("attendance_verify_attempt_session_idx").on(
+            table.attendanceSessionId,
+        ),
+        index("attendance_verify_attempt_user_idx").on(table.userId),
+        index("attendance_verify_attempt_created_at_idx").on(table.createdAt),
     ],
 );

@@ -7,6 +7,13 @@ import { db, schema } from "@/src/lib/db.ts";
 const runtimeConfig = useRuntimeConfig();
 
 export const auth = betterAuth({
+    advanced: {
+        useSecureCookies: true,
+        defaultCookieAttributes: {
+            sameSite: "none",
+            secure: true,
+        },
+    },
     database: drizzleAdapter(db, {
         provider: "sqlite",
         schema,

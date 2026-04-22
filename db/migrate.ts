@@ -9,7 +9,6 @@ config({
 
 const client = createClient({
     url: process.env.APP_DATABASE_URL ?? "file:./db/local.db",
-    authToken: process.env.APP_DATABASE_AUTH_TOKEN,
 });
 
 const db = drizzle(client);

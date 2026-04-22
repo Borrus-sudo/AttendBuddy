@@ -6,12 +6,12 @@ export default defineConfig({
     // Everything would be overridden by the env variables. See `.env.example`
     runtimeConfig: {
         databaseUrl: "",
-        databaseAuthToken: "",
         betterAuthSecret: "",
         googleClientId: "",
         googleClientSecret: "",
         frontendUrl: "",
         backendUrl: "",
+        faceVerificationMinScore: "0.75",
         nitro: {
             envPrefix: "APP_",
         },

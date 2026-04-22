@@ -203,7 +203,9 @@ export default function ClassroomScreen() {
                             percentage: analytics.percentage,
                             lastAttendedAt:
                                 analytics.recent[0]?.createdAt ?? null,
-                            status: getStatusFromPercentage(analytics.percentage),
+                            status: getStatusFromPercentage(
+                                analytics.percentage,
+                            ),
                         } satisfies MemberTableRow;
                     } catch {
                         return {
@@ -453,16 +455,13 @@ export default function ClassroomScreen() {
         setMaxPct("");
     }, []);
 
-    const toggleColumn = useCallback(
-        (key: keyof typeof visibleColumns) => {
-            LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-            setVisibleColumns((prev) => ({
-                ...prev,
-                [key]: !prev[key],
-            }));
-        },
-        [],
-    );
+    const toggleColumn = useCallback((key: keyof typeof visibleColumns) => {
+        LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
+        setVisibleColumns((prev) => ({
+            ...prev,
+            [key]: !prev[key],
+        }));
+    }, []);
 
     const renderMemberRow = useCallback(
         ({ item, index }: { item: MemberTableRow; index: number }) => {
@@ -511,19 +510,34 @@ export default function ClassroomScreen() {
                     </View>
 
                     {visibleColumns.present ? (
-                        <View style={[styles.tableCellSmall, styles.tableCellBase]}>
+                        <View
+                            style={[
+                                styles.tableCellSmall,
+                                styles.tableCellBase,
+                            ]}
+                        >
                             <ThemedText>{item.presentCount}</ThemedText>
                         </View>
                     ) : null}
 
                     {visibleColumns.absent ? (
-                        <View style={[styles.tableCellSmall, styles.tableCellBase]}>
+                        <View
+                            style={[
+                                styles.tableCellSmall,
+                                styles.tableCellBase,
+                            ]}
+                        >
                             <ThemedText>{item.absentCount}</ThemedText>
                         </View>
                     ) : null}
 
                     {visibleColumns.percentage ? (
-                        <View style={[styles.tableCellSmall, styles.tableCellBase]}>
+                        <View
+                            style={[
+                                styles.tableCellSmall,
+                                styles.tableCellBase,
+                            ]}
+                        >
                             <ThemedText
                                 style={
                                     item.status === "good"
@@ -539,7 +553,12 @@ export default function ClassroomScreen() {
                     ) : null}
 
                     {visibleColumns.lastAttended ? (
-                        <View style={[styles.tableCellSmall, styles.tableCellBase]}>
+                        <View
+                            style={[
+                                styles.tableCellSmall,
+                                styles.tableCellBase,
+                            ]}
+                        >
                             <ThemedText style={{ color: muted }}>
                                 {item.lastAttendedAt
                                     ? formatSessionLabel(item.lastAttendedAt)
@@ -713,20 +732,35 @@ export default function ClassroomScreen() {
                         ))}
                     </View>
 
-                    <View style={[styles.tableShell, { borderColor: border }]}> 
-                        <View style={[styles.tableHeader, { borderColor: border }]}> 
-                            <ThemedText style={[styles.tableHeaderName]}>Student</ThemedText>
+                    <View style={[styles.tableShell, { borderColor: border }]}>
+                        <View
+                            style={[
+                                styles.tableHeader,
+                                { borderColor: border },
+                            ]}
+                        >
+                            <ThemedText style={[styles.tableHeaderName]}>
+                                Student
+                            </ThemedText>
                             {visibleColumns.present ? (
-                                <ThemedText style={styles.tableHeaderCell}>P</ThemedText>
+                                <ThemedText style={styles.tableHeaderCell}>
+                                    P
+                                </ThemedText>
                             ) : null}
                             {visibleColumns.absent ? (
-                                <ThemedText style={styles.tableHeaderCell}>A</ThemedText>
+                                <ThemedText style={styles.tableHeaderCell}>
+                                    A
+                                </ThemedText>
                             ) : null}
                             {visibleColumns.percentage ? (
-                                <ThemedText style={styles.tableHeaderCell}>%</ThemedText>
+                                <ThemedText style={styles.tableHeaderCell}>
+                                    %
+                                </ThemedText>
                             ) : null}
                             {visibleColumns.lastAttended ? (
-                                <ThemedText style={styles.tableHeaderCell}>Last</ThemedText>
+                                <ThemedText style={styles.tableHeaderCell}>
+                                    Last
+                                </ThemedText>
                             ) : null}
                         </View>
 
@@ -758,7 +792,9 @@ export default function ClassroomScreen() {
                                     data={filteredMemberRows}
                                     keyExtractor={(item) => item.id}
                                     renderItem={renderMemberRow}
-                                    contentContainerStyle={styles.memberRowsContent}
+                                    contentContainerStyle={
+                                        styles.memberRowsContent
+                                    }
                                 />
                             </View>
                         )}
@@ -772,7 +808,11 @@ export default function ClassroomScreen() {
                 <View style={styles.sessionsArea}>
                     <View style={styles.sessionsActionRow}>
                         <AppButton
-                            label={isRefreshing ? "Refreshing..." : "Refresh Sessions"}
+                            label={
+                                isRefreshing
+                                    ? "Refreshing..."
+                                    : "Refresh Sessions"
+                            }
                             variant="secondary"
                             onPress={() => {
                                 void refresh();
@@ -799,30 +839,48 @@ export default function ClassroomScreen() {
                                     <View style={styles.sessionRow}>
                                         <View style={styles.sessionDetails}>
                                             <ThemedText type="defaultSemiBold">
-                                                {formatSessionLabel(item.createdAt)}
+                                                {formatSessionLabel(
+                                                    item.createdAt,
+                                                )}
                                             </ThemedText>
-                                            <ThemedText style={{ color: muted }}>
-                                                {item.presentCount}/{item.totalCount} students present
+                                            <ThemedText
+                                                style={{ color: muted }}
+                                            >
+                                                {item.presentCount}/
+                                                {item.totalCount} students
+                                                present
                                             </ThemedText>
                                         </View>
                                         <View style={styles.sessionPills}>
                                             <StatusPill
-                                                label={isExpired ? "Expired" : "Active"}
-                                                tone={isExpired ? "danger" : "success"}
+                                                label={
+                                                    isExpired
+                                                        ? "Expired"
+                                                        : "Active"
+                                                }
+                                                tone={
+                                                    isExpired
+                                                        ? "danger"
+                                                        : "success"
+                                                }
                                             />
                                             {role === "student" ? (
                                                 <StatusPill
                                                     label={
-                                                        item.status === "present"
+                                                        item.status ===
+                                                        "present"
                                                             ? "Present"
-                                                            : item.status === "absent"
+                                                            : item.status ===
+                                                                "absent"
                                                               ? "Absent"
                                                               : "Unknown"
                                                     }
                                                     tone={
-                                                        item.status === "present"
+                                                        item.status ===
+                                                        "present"
                                                             ? "success"
-                                                            : item.status === "absent"
+                                                            : item.status ===
+                                                                "absent"
                                                               ? "danger"
                                                               : "muted"
                                                     }
@@ -916,7 +974,11 @@ export default function ClassroomScreen() {
                 <View style={styles.modalBody}>
                     <AppButton
                         label="Attendance % high to low"
-                        variant={sortBy === "attendance_desc" ? "primary" : "secondary"}
+                        variant={
+                            sortBy === "attendance_desc"
+                                ? "primary"
+                                : "secondary"
+                        }
                         onPress={() => {
                             setSortBy("attendance_desc");
                             setShowSortModal(false);
@@ -924,7 +986,11 @@ export default function ClassroomScreen() {
                     />
                     <AppButton
                         label="Attendance % low to high"
-                        variant={sortBy === "attendance_asc" ? "primary" : "secondary"}
+                        variant={
+                            sortBy === "attendance_asc"
+                                ? "primary"
+                                : "secondary"
+                        }
                         onPress={() => {
                             setSortBy("attendance_asc");
                             setShowSortModal(false);
@@ -932,7 +998,9 @@ export default function ClassroomScreen() {
                     />
                     <AppButton
                         label="Name A-Z"
-                        variant={sortBy === "name_asc" ? "primary" : "secondary"}
+                        variant={
+                            sortBy === "name_asc" ? "primary" : "secondary"
+                        }
                         onPress={() => {
                             setSortBy("name_asc");
                             setShowSortModal(false);
@@ -961,20 +1029,20 @@ export default function ClassroomScreen() {
                 <View style={styles.modalBody}>
                     <ThemedText type="defaultSemiBold">Status</ThemedText>
                     <View style={styles.statusChipRow}>
-                        {(["good", "warning", "critical"] as MemberStatus[]).map(
-                            (status) => (
-                                <AppButton
-                                    key={status}
-                                    label={getStatusLabel(status)}
-                                    variant={
-                                        statusFilter.includes(status)
-                                            ? "primary"
-                                            : "secondary"
-                                    }
-                                    onPress={() => toggleStatusFilter(status)}
-                                />
-                            ),
-                        )}
+                        {(
+                            ["good", "warning", "critical"] as MemberStatus[]
+                        ).map((status) => (
+                            <AppButton
+                                key={status}
+                                label={getStatusLabel(status)}
+                                variant={
+                                    statusFilter.includes(status)
+                                        ? "primary"
+                                        : "secondary"
+                                }
+                                onPress={() => toggleStatusFilter(status)}
+                            />
+                        ))}
                     </View>
 
                     <AppInput
@@ -1012,23 +1080,31 @@ export default function ClassroomScreen() {
                 <View style={styles.modalBody}>
                     <AppButton
                         label={`Present: ${visibleColumns.present ? "On" : "Off"}`}
-                        variant={visibleColumns.present ? "primary" : "secondary"}
+                        variant={
+                            visibleColumns.present ? "primary" : "secondary"
+                        }
                         onPress={() => toggleColumn("present")}
                     />
                     <AppButton
                         label={`Absent: ${visibleColumns.absent ? "On" : "Off"}`}
-                        variant={visibleColumns.absent ? "primary" : "secondary"}
+                        variant={
+                            visibleColumns.absent ? "primary" : "secondary"
+                        }
                         onPress={() => toggleColumn("absent")}
                     />
                     <AppButton
                         label={`%: ${visibleColumns.percentage ? "On" : "Off"}`}
-                        variant={visibleColumns.percentage ? "primary" : "secondary"}
+                        variant={
+                            visibleColumns.percentage ? "primary" : "secondary"
+                        }
                         onPress={() => toggleColumn("percentage")}
                     />
                     <AppButton
                         label={`Last: ${visibleColumns.lastAttended ? "On" : "Off"}`}
                         variant={
-                            visibleColumns.lastAttended ? "primary" : "secondary"
+                            visibleColumns.lastAttended
+                                ? "primary"
+                                : "secondary"
                         }
                         onPress={() => toggleColumn("lastAttended")}
                     />

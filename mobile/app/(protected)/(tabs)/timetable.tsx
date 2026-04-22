@@ -1,10 +1,5 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import {
-    Pressable,
-    ScrollView,
-    StyleSheet,
-    View,
-} from "react-native";
+import { Pressable, ScrollView, StyleSheet, View } from "react-native";
 import { router } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -40,7 +35,14 @@ type DaySchedule = {
     blocks: ScheduleBlock[];
 };
 
-const DAYS = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+const DAYS = [
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+];
 const SHORT_DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
 const TIME_SLOTS = [
@@ -54,11 +56,11 @@ const TIME_SLOTS = [
 
 const DAY_PATTERNS = [
     [0, 2, 4], // MWF
-    [1, 3],    // TTh
-    [0, 2],    // MW
+    [1, 3], // TTh
+    [0, 2], // MW
     [1, 3, 4], // TThF
     [0, 1, 3], // MTTh
-    [2, 4],    // WF
+    [2, 4], // WF
 ];
 
 function parseTimeToMinutes(timeStr: string): number {
@@ -70,12 +72,27 @@ function parseTimeToMinutes(timeStr: string): number {
     return hours * 60 + m;
 }
 
-function isBlockActive(day: string, startTime: string, endTime: string): boolean {
+function isBlockActive(
+    day: string,
+    startTime: string,
+    endTime: string,
+): boolean {
     const now = new Date();
-    const dayNames = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    const dayNames = [
+        "Sunday",
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+    ];
     if (dayNames[now.getDay()] !== day) return false;
     const nowMin = now.getHours() * 60 + now.getMinutes();
-    return nowMin >= parseTimeToMinutes(startTime) && nowMin <= parseTimeToMinutes(endTime);
+    return (
+        nowMin >= parseTimeToMinutes(startTime) &&
+        nowMin <= parseTimeToMinutes(endTime)
+    );
 }
 
 function generateWeeklySchedule(
@@ -103,7 +120,9 @@ function generateWeeklySchedule(
             }
         });
         blocks.sort(
-            (a, b) => parseTimeToMinutes(a.startTime) - parseTimeToMinutes(b.startTime),
+            (a, b) =>
+                parseTimeToMinutes(a.startTime) -
+                parseTimeToMinutes(b.startTime),
         );
         return { day, shortDay: SHORT_DAYS[dayIdx], blocks };
     });
@@ -130,7 +149,9 @@ export default function TimetableScreen() {
     const primaryColor = useThemeColor({}, "primary");
     const borderColor = useThemeColor({}, "border");
 
-    const accentColors = isDark ? ClassAccentColors.dark : ClassAccentColors.light;
+    const accentColors = isDark
+        ? ClassAccentColors.dark
+        : ClassAccentColors.light;
 
     const [classrooms, setClassrooms] = useState<ClassroomSummary[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -163,14 +184,26 @@ export default function TimetableScreen() {
 
     if (isLoading) {
         return (
-            <ThemedView style={[styles.container, { paddingTop: insets.top + 16 }]}>
+            <ThemedView
+                style={[styles.container, { paddingTop: insets.top + 16 }]}
+            >
                 <View style={styles.header}>
                     <Skeleton width={160} height={32} borderRadius={8} />
-                    <Skeleton width={180} height={16} borderRadius={6} style={{ marginTop: 8 }} />
+                    <Skeleton
+                        width={180}
+                        height={16}
+                        borderRadius={6}
+                        style={{ marginTop: 8 }}
+                    />
                 </View>
                 <View style={styles.dayRow}>
                     {SHORT_DAYS.map((d) => (
-                        <Skeleton key={d} width={48} height={64} borderRadius={16} />
+                        <Skeleton
+                            key={d}
+                            width={48}
+                            height={64}
+                            borderRadius={16}
+                        />
                     ))}
                 </View>
                 <Skeleton height={100} borderRadius={20} />
@@ -191,7 +224,9 @@ export default function TimetableScreen() {
                 {/* Header */}
                 <View style={styles.header}>
                     <ThemedText style={styles.title}>Timetable</ThemedText>
-                    <ThemedText style={[styles.subtitle, { color: mutedColor }]}>
+                    <ThemedText
+                        style={[styles.subtitle, { color: mutedColor }]}
+                    >
                         Your weekly schedule
                     </ThemedText>
                 </View>
@@ -214,7 +249,9 @@ export default function TimetableScreen() {
                                               ? "#1E1F2B"
                                               : "#F0F1F5",
                                         opacity: pressed ? 0.85 : 1,
-                                        transform: [{ scale: pressed ? 0.95 : 1 }],
+                                        transform: [
+                                            { scale: pressed ? 0.95 : 1 },
+                                        ],
                                     },
                                 ]}
                             >
@@ -308,13 +345,19 @@ export default function TimetableScreen() {
                                                 { scale: pressed ? 0.98 : 1 },
                                             ],
                                         },
-                                        active ? {
-                                            shadowColor: block.accentColor,
-                                            shadowOpacity: 0.3,
-                                            shadowRadius: 12,
-                                            shadowOffset: { width: 0, height: 4 },
-                                            elevation: 6,
-                                        } : null,
+                                        active
+                                            ? {
+                                                  shadowColor:
+                                                      block.accentColor,
+                                                  shadowOpacity: 0.3,
+                                                  shadowRadius: 12,
+                                                  shadowOffset: {
+                                                      width: 0,
+                                                      height: 4,
+                                                  },
+                                                  elevation: 6,
+                                              }
+                                            : null,
                                     ]}
                                 >
                                     <View style={styles.blockRow}>
@@ -323,7 +366,9 @@ export default function TimetableScreen() {
                                             <ThemedText
                                                 style={[
                                                     styles.timeText,
-                                                    { color: block.accentColor },
+                                                    {
+                                                        color: block.accentColor,
+                                                    },
                                                 ]}
                                             >
                                                 {block.startTime}
@@ -333,7 +378,8 @@ export default function TimetableScreen() {
                                                     styles.timeLine,
                                                     {
                                                         backgroundColor:
-                                                            block.accentColor + "40",
+                                                            block.accentColor +
+                                                            "40",
                                                     },
                                                 ]}
                                             />
@@ -355,11 +401,14 @@ export default function TimetableScreen() {
                                                         styles.blockEmoji,
                                                         {
                                                             backgroundColor:
-                                                                block.accentColor + "20",
+                                                                block.accentColor +
+                                                                "20",
                                                         },
                                                     ]}
                                                 >
-                                                    <ThemedText style={{ fontSize: 18 }}>
+                                                    <ThemedText
+                                                        style={{ fontSize: 18 }}
+                                                    >
                                                         {block.emoji}
                                                     </ThemedText>
                                                 </View>
@@ -373,7 +422,11 @@ export default function TimetableScreen() {
                                                             },
                                                         ]}
                                                     >
-                                                        <ThemedText style={styles.liveText}>
+                                                        <ThemedText
+                                                            style={
+                                                                styles.liveText
+                                                            }
+                                                        >
                                                             NOW
                                                         </ThemedText>
                                                     </View>
@@ -404,8 +457,11 @@ export default function TimetableScreen() {
                 {/* Info footer */}
                 {classrooms.length > 0 ? (
                     <View style={[styles.infoFooter, { borderColor }]}>
-                        <ThemedText style={[styles.infoText, { color: mutedColor }]}>
-                            💡 Schedule is auto-generated from your enrolled classes. A real timetable feature is coming soon!
+                        <ThemedText
+                            style={[styles.infoText, { color: mutedColor }]}
+                        >
+                            💡 Schedule is auto-generated from your enrolled
+                            classes. A real timetable feature is coming soon!
                         </ThemedText>
                     </View>
                 ) : null}

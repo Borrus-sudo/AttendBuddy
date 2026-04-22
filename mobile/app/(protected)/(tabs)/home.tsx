@@ -121,14 +121,34 @@ export default function HomeScreen() {
                 </View>
                 <Skeleton height={170} borderRadius={24} />
                 <View style={styles.quickActions}>
-                    <Skeleton height={72} borderRadius={16} style={{ flex: 1 }} />
-                    <Skeleton height={72} borderRadius={16} style={{ flex: 1 }} />
-                    <Skeleton height={72} borderRadius={16} style={{ flex: 1 }} />
+                    <Skeleton
+                        height={72}
+                        borderRadius={16}
+                        style={{ flex: 1 }}
+                    />
+                    <Skeleton
+                        height={72}
+                        borderRadius={16}
+                        style={{ flex: 1 }}
+                    />
+                    <Skeleton
+                        height={72}
+                        borderRadius={16}
+                        style={{ flex: 1 }}
+                    />
                 </View>
                 <Skeleton width={130} height={22} borderRadius={6} />
                 <View style={styles.classGrid}>
-                    <Skeleton height={190} borderRadius={20} style={{ flex: 1 }} />
-                    <Skeleton height={190} borderRadius={20} style={{ flex: 1 }} />
+                    <Skeleton
+                        height={190}
+                        borderRadius={20}
+                        style={{ flex: 1 }}
+                    />
+                    <Skeleton
+                        height={190}
+                        borderRadius={20}
+                        style={{ flex: 1 }}
+                    />
                 </View>
             </ThemedView>
         );
@@ -137,9 +157,7 @@ export default function HomeScreen() {
     /* ---------- render ---------- */
 
     return (
-        <ThemedView
-            style={[styles.container, { paddingTop: insets.top + 8 }]}
-        >
+        <ThemedView style={[styles.container, { paddingTop: insets.top + 8 }]}>
             <ScrollView
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={styles.scrollContent}
@@ -166,9 +184,7 @@ export default function HomeScreen() {
                 {/* ---- Overview Card ---- */}
                 <LinearGradient
                     colors={
-                        isDark
-                            ? ["#22203A", "#1C2A3C"]
-                            : ["#7C5CFC", "#5B8DEF"]
+                        isDark ? ["#22203A", "#1C2A3C"] : ["#7C5CFC", "#5B8DEF"]
                     }
                     start={{ x: 0, y: 0 }}
                     end={{ x: 1, y: 1 }}
@@ -228,17 +244,13 @@ export default function HomeScreen() {
                         style={({ pressed }) => [
                             styles.quickAction,
                             {
-                                backgroundColor: isDark
-                                    ? "#22203A"
-                                    : "#F0EAFF",
+                                backgroundColor: isDark ? "#22203A" : "#F0EAFF",
                                 opacity: pressed ? 0.8 : 1,
                                 transform: [{ scale: pressed ? 0.96 : 1 }],
                             },
                         ]}
                         onPress={() =>
-                            router.push(
-                                "/(protected)/(tabs)/classes" as never,
-                            )
+                            router.push("/(protected)/(tabs)/classes" as never)
                         }
                     >
                         <ThemedText style={styles.quickActionEmoji}>
@@ -258,17 +270,13 @@ export default function HomeScreen() {
                         style={({ pressed }) => [
                             styles.quickAction,
                             {
-                                backgroundColor: isDark
-                                    ? "#1C322F"
-                                    : "#E5FAF6",
+                                backgroundColor: isDark ? "#1C322F" : "#E5FAF6",
                                 opacity: pressed ? 0.8 : 1,
                                 transform: [{ scale: pressed ? 0.96 : 1 }],
                             },
                         ]}
                         onPress={() =>
-                            router.push(
-                                "/(protected)/(tabs)/classes" as never,
-                            )
+                            router.push("/(protected)/(tabs)/classes" as never)
                         }
                     >
                         <ThemedText style={styles.quickActionEmoji}>
@@ -290,9 +298,7 @@ export default function HomeScreen() {
                         style={({ pressed }) => [
                             styles.quickAction,
                             {
-                                backgroundColor: isDark
-                                    ? "#3A1C2A"
-                                    : "#FFF0F5",
+                                backgroundColor: isDark ? "#3A1C2A" : "#FFF0F5",
                                 opacity: pressed ? 0.8 : 1,
                                 transform: [{ scale: pressed ? 0.96 : 1 }],
                             },
@@ -326,9 +332,7 @@ export default function HomeScreen() {
                     </ThemedText>
                     <Pressable
                         onPress={() =>
-                            router.push(
-                                "/(protected)/(tabs)/classes" as never,
-                            )
+                            router.push("/(protected)/(tabs)/classes" as never)
                         }
                     >
                         <ThemedText
@@ -376,14 +380,11 @@ export default function HomeScreen() {
                                         styles.classCard,
                                         {
                                             backgroundColor: colors.bg,
-                                            borderColor:
-                                                colors.accent + "25",
+                                            borderColor: colors.accent + "25",
                                             opacity: pressed ? 0.9 : 1,
                                             transform: [
                                                 {
-                                                    scale: pressed
-                                                        ? 0.97
-                                                        : 1,
+                                                    scale: pressed ? 0.97 : 1,
                                                 },
                                             ],
                                         },
@@ -477,8 +478,8 @@ export default function HomeScreen() {
                                 { color: mutedColor },
                             ]}
                         >
-                            Tap a class to view attendance details and mark
-                            your presence.
+                            Tap a class to view attendance details and mark your
+                            presence.
                         </ThemedText>
                     </View>
                 ) : null}

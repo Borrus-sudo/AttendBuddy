@@ -186,15 +186,11 @@ export default function ClassesScreen() {
     /* ---------- render ---------- */
 
     return (
-        <ThemedView
-            style={[styles.container, { paddingTop: insets.top + 8 }]}
-        >
+        <ThemedView style={[styles.container, { paddingTop: insets.top + 8 }]}>
             {/* Header */}
             <View style={styles.headerRow}>
                 <View>
-                    <ThemedText style={styles.titleText}>
-                        My Classes
-                    </ThemedText>
+                    <ThemedText style={styles.titleText}>My Classes</ThemedText>
                     <ThemedText
                         style={[styles.subtitleText, { color: mutedColor }]}
                     >
@@ -206,9 +202,7 @@ export default function ClassesScreen() {
                         style={({ pressed }) => [
                             styles.actionChip,
                             {
-                                backgroundColor: isDark
-                                    ? "#22203A"
-                                    : "#F0EAFF",
+                                backgroundColor: isDark ? "#22203A" : "#F0EAFF",
                                 opacity: pressed ? 0.8 : 1,
                             },
                         ]}
@@ -235,9 +229,7 @@ export default function ClassesScreen() {
                         style={({ pressed }) => [
                             styles.actionChip,
                             {
-                                backgroundColor: isDark
-                                    ? "#1C322F"
-                                    : "#E5FAF6",
+                                backgroundColor: isDark ? "#1C322F" : "#E5FAF6",
                                 opacity: pressed ? 0.8 : 1,
                             },
                         ]}
@@ -303,8 +295,7 @@ export default function ClassesScreen() {
                     const role =
                         item.role ||
                         (item.creatorId === user?.id ? "teacher" : "member");
-                    const colors =
-                        accentColors[index % accentColors.length];
+                    const colors = accentColors[index % accentColors.length];
                     const emoji = getClassEmoji(item.name);
 
                     return (

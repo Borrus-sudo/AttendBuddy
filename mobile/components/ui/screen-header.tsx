@@ -71,7 +71,11 @@ export function ScreenHeader({
                     </ThemedText>
                     {subtitle ? (
                         <ThemedText
-                            style={[styles.subtitle, { color: muted }, subtitleStyle]}
+                            style={[
+                                styles.subtitle,
+                                { color: muted },
+                                subtitleStyle,
+                            ]}
                         >
                             {subtitle}
                         </ThemedText>

@@ -1,0 +1,24 @@
+# code
+mobile/
+
+# env
+.env
+.env.*
+
+# deps
+node_modules/
+
+# build outputs
+dist
+.output
+.nitro
+.cache
+
+# local data
+.data
+db/local.db
+db/migrations/
+
+# git
+.git
+.gitignore

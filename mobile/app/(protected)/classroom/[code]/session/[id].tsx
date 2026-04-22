@@ -1,7 +1,8 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
     ActivityIndicator,
     FlatList,
+    Platform,
     ScrollView,
     StyleSheet,
     Switch,
@@ -10,6 +11,7 @@ import {
 } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { CameraView, useCameraPermissions } from "expo-camera";
 import QRCode from "react-native-qrcode-svg";
 
 import { ThemedText } from "@/components/themed-text";
@@ -22,11 +24,12 @@ import { StatusPill } from "@/components/ui/status-pill";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import {
     formatSessionLabel,
+    createAttendanceVerificationChallenge,
     getAttendanceSessionDetail,
-    markAttendanceByToken,
     reviewAttendanceRequest,
     setAttendancePresence,
     submitAttendanceRequest,
+    verifyAttendanceWithFace,
 } from "@/lib/api";
 import type {
     AttendanceMemberStatus,
@@ -57,9 +60,15 @@ export default function SessionDetailScreen() {
     const [error, setError] = useState<string | null>(null);
     const [attendanceCode, setAttendanceCode] = useState("");
     const [isSubmittingCode, setIsSubmittingCode] = useState(false);
+    const [showCamera, setShowCamera] = useState(false);
+    const [capturedSelfieBase64, setCapturedSelfieBase64] = useState("");
+    const [permission, requestPermission] = useCameraPermissions();
     const [requestMessage, setRequestMessage] = useState("");
     const [isSubmittingRequest, setIsSubmittingRequest] = useState(false);
     const [isReviewingRequest, setIsReviewingRequest] = useState(false);
+    const [isCameraReady, setIsCameraReady] = useState(false);
+    const cameraRef = useRef<CameraView | null>(null);
+    const insets = useSafeAreaInsets();
 
     const load = useCallback(async () => {
         if (!classroomCode || !sessionId) {
@@ -180,24 +189,93 @@ export default function SessionDetailScreen() {
             return;
         }
 
+        if (!capturedSelfieBase64) {
+            setError(
+                "Please capture your selfie before submitting attendance.",
+            );
+            return;
+        }
+
         setError(null);
         setIsSubmittingCode(true);
 
         try {
-            await markAttendanceByToken(code);
-            const latest = await getAttendanceSessionDetail(classroomCode, sessionId);
+            const challenge = await createAttendanceVerificationChallenge(code);
+            await verifyAttendanceWithFace({
+                attendanceCode: code,
+                challengeId: challenge.challengeId,
+                challengeToken: challenge.challengeToken,
+                selfieBase64: capturedSelfieBase64,
+            });
+
+            const latest = await getAttendanceSessionDetail(
+                classroomCode,
+                sessionId,
+            );
             setData(latest);
             setAttendanceCode("");
+            setCapturedSelfieBase64("");
+            setShowCamera(false);
         } catch (err) {
             setError(
                 err instanceof Error
                     ? err.message
-                    : "Unable to mark attendance with this code.",
+                    : "Unable to verify face and mark attendance.",
             );
         } finally {
             setIsSubmittingCode(false);
         }
-    }, [attendanceCode, classroomCode, sessionId]);
+    }, [attendanceCode, capturedSelfieBase64, classroomCode, sessionId]);
+
+    const handleCaptureSelfie = useCallback(async () => {
+        if (!permission?.granted) {
+            const result = await requestPermission();
+            if (!result.granted) {
+                setError(
+                    "Camera permission is required for face verification.",
+                );
+                return;
+            }
+        }
+
+        setIsCameraReady(false);
+        setShowCamera(true);
+    }, [permission?.granted, requestPermission]);
+
+    const handleTakeSelfie = useCallback(async () => {
+        if (!cameraRef.current) {
+            setError("Camera is not ready yet.");
+            return;
+        }
+
+        if (!isCameraReady) {
+            setError("Camera preview is still loading. Try again in a moment.");
+            return;
+        }
+
+        setError(null);
+        try {
+            const photo = await cameraRef.current.takePictureAsync({
+                base64: true,
+                quality: 0.5,
+                skipProcessing: true,
+            });
+
+            if (!photo?.base64) {
+                throw new Error("Could not capture selfie.");
+            }
+
+            setCapturedSelfieBase64(`data:image/jpeg;base64,${photo.base64}`);
+            setShowCamera(false);
+            setIsCameraReady(false);
+        } catch (err) {
+            setError(
+                err instanceof Error
+                    ? err.message
+                    : "Unable to capture selfie.",
+            );
+        }
+    }, [isCameraReady]);
 
     const handleSubmitRequest = useCallback(async () => {
         if (!data || isTeacher) {
@@ -219,7 +297,10 @@ export default function SessionDetailScreen() {
                 message: trimmed,
             });
 
-            const latest = await getAttendanceSessionDetail(classroomCode, sessionId);
+            const latest = await getAttendanceSessionDetail(
+                classroomCode,
+                sessionId,
+            );
             setData(latest);
             setRequestMessage("");
         } catch (err) {
@@ -276,8 +357,6 @@ export default function SessionDetailScreen() {
         );
     }
 
-    const insets = useSafeAreaInsets();
-
     return (
         <ThemedView style={[styles.container, { paddingTop: insets.top + 8 }]}>
             <ScreenHeader
@@ -288,13 +367,15 @@ export default function SessionDetailScreen() {
                     <StatusPill
                         label={
                             data.session.isClosed ||
-                            new Date(data.session.expiresAt).getTime() < Date.now()
+                            new Date(data.session.expiresAt).getTime() <
+                                Date.now()
                                 ? "Expired"
                                 : "Active"
                         }
                         tone={
                             data.session.isClosed ||
-                            new Date(data.session.expiresAt).getTime() < Date.now()
+                            new Date(data.session.expiresAt).getTime() <
+                                Date.now()
                                 ? "danger"
                                 : "success"
                         }
@@ -325,7 +406,9 @@ export default function SessionDetailScreen() {
 
             {isTeacher ? (
                 <AppCard style={styles.qrCard}>
-                    <ThemedText type="defaultSemiBold">Session QR Code</ThemedText>
+                    <ThemedText type="defaultSemiBold">
+                        Session QR Code
+                    </ThemedText>
                     {data.session.token ? (
                         <View style={styles.qrWrap}>
                             <QRCode value={data.session.token} size={180} />
@@ -346,93 +429,188 @@ export default function SessionDetailScreen() {
                     )}
                 </AppCard>
             ) : (
-                <View style={styles.studentSection}>
-                    <AppCard style={styles.studentCard}>
-                        <ThemedText type="defaultSemiBold">Mark attendance</ThemedText>
-                        <ThemedText style={{ color: muted }}>
-                            Enter the attendance code shared by your teacher.
-                        </ThemedText>
-
-                        <TextInput
-                            value={attendanceCode}
-                            onChangeText={setAttendanceCode}
-                            placeholder="Enter session code"
-                            placeholderTextColor={muted}
-                            autoCapitalize="none"
-                            style={[styles.requestInput, { color: muted }]}
-                        />
-
-                        <AppButton
-                            label="Submit Attendance Code"
-                            loading={isSubmittingCode}
-                            onPress={() => {
-                                void handleMarkByCode();
-                            }}
-                        />
-
-                        {currentStudent ? (
-                            <StatusPill
-                                label={
-                                    currentStudent.isPresent
-                                        ? "You are marked present"
-                                        : "You are currently absent"
-                                }
-                                tone={
-                                    currentStudent.isPresent ? "success" : "danger"
-                                }
-                            />
-                        ) : null}
-                    </AppCard>
-
-                    {currentStudent && !currentStudent.isPresent ? (
-                        <AppCard style={styles.requestCard}>
+                <ScrollView
+                    style={styles.studentScroll}
+                    contentContainerStyle={styles.studentScrollContent}
+                    showsVerticalScrollIndicator
+                >
+                    <View style={styles.studentSection}>
+                        <AppCard style={styles.studentCard}>
                             <ThemedText type="defaultSemiBold">
-                                Request attendance review
+                                Mark attendance
                             </ThemedText>
                             <ThemedText style={{ color: muted }}>
-                                If you were missed, send a message to your teacher.
+                                Enter the attendance code and capture your
+                                selfie.
                             </ThemedText>
+
                             <TextInput
-                                value={requestMessage}
-                                onChangeText={setRequestMessage}
-                                placeholder="Explain why you should be marked present"
+                                value={attendanceCode}
+                                onChangeText={setAttendanceCode}
+                                placeholder="Enter session code"
                                 placeholderTextColor={muted}
-                                multiline
+                                autoCapitalize="none"
                                 style={[styles.requestInput, { color: muted }]}
                             />
-                            <AppButton
-                                label="Submit Request"
-                                loading={isSubmittingRequest}
-                                onPress={() => {
-                                    void handleSubmitRequest();
-                                }}
-                            />
-                            {data.requests.length > 0 ? (
-                                <View style={styles.requestHistory}>
-                                    {data.requests.map((request) => (
-                                        <View
-                                            key={request.id}
-                                            style={styles.requestHistoryItem}
-                                        >
-                                            <StatusPill
-                                                label={request.status.toUpperCase()}
-                                                tone={
-                                                    request.status === "approved"
-                                                        ? "success"
-                                                        : request.status ===
-                                                            "rejected"
-                                                          ? "danger"
-                                                          : "muted"
-                                                }
-                                            />
-                                            <ThemedText>{request.message}</ThemedText>
-                                        </View>
-                                    ))}
-                                </View>
+
+                            <View style={styles.mobileActionRow}>
+                                <AppButton
+                                    label={
+                                        capturedSelfieBase64
+                                            ? "Retake Selfie"
+                                            : "Capture Selfie"
+                                    }
+                                    variant="secondary"
+                                    onPress={() => {
+                                        void handleCaptureSelfie();
+                                    }}
+                                />
+                                <AppButton
+                                    label="Verify + Submit"
+                                    loading={isSubmittingCode}
+                                    onPress={() => {
+                                        void handleMarkByCode();
+                                    }}
+                                />
+                            </View>
+
+                            {capturedSelfieBase64 ? (
+                                <ThemedText style={{ color: muted }}>
+                                    Selfie captured and ready for verification.
+                                </ThemedText>
+                            ) : null}
+
+                            {currentStudent ? (
+                                <StatusPill
+                                    label={
+                                        currentStudent.isPresent
+                                            ? "You are marked present"
+                                            : "You are currently absent"
+                                    }
+                                    tone={
+                                        currentStudent.isPresent
+                                            ? "success"
+                                            : "danger"
+                                    }
+                                />
                             ) : null}
                         </AppCard>
-                    ) : null}
-                </View>
+
+                        {currentStudent && !currentStudent.isPresent ? (
+                            <AppCard style={styles.requestCard}>
+                                <ThemedText type="defaultSemiBold">
+                                    Request attendance review
+                                </ThemedText>
+                                <ThemedText style={{ color: muted }}>
+                                    If you were missed, send a message to your
+                                    teacher.
+                                </ThemedText>
+                                <TextInput
+                                    value={requestMessage}
+                                    onChangeText={setRequestMessage}
+                                    placeholder="Explain why you should be marked present"
+                                    placeholderTextColor={muted}
+                                    multiline
+                                    style={[
+                                        styles.requestInput,
+                                        { color: muted },
+                                    ]}
+                                />
+                                <AppButton
+                                    label="Submit Request"
+                                    loading={isSubmittingRequest}
+                                    onPress={() => {
+                                        void handleSubmitRequest();
+                                    }}
+                                />
+                                {data.requests.length > 0 ? (
+                                    <View style={styles.requestHistory}>
+                                        {data.requests.map((request) => (
+                                            <View
+                                                key={request.id}
+                                                style={
+                                                    styles.requestHistoryItem
+                                                }
+                                            >
+                                                <StatusPill
+                                                    label={request.status.toUpperCase()}
+                                                    tone={
+                                                        request.status ===
+                                                        "approved"
+                                                            ? "success"
+                                                            : request.status ===
+                                                                "rejected"
+                                                              ? "danger"
+                                                              : "muted"
+                                                    }
+                                                />
+                                                <ThemedText>
+                                                    {request.message}
+                                                </ThemedText>
+                                            </View>
+                                        ))}
+                                    </View>
+                                ) : null}
+                            </AppCard>
+                        ) : null}
+
+                        {showCamera ? (
+                            <AppCard style={styles.captureCard}>
+                                <ThemedText type="defaultSemiBold">
+                                    Capture Selfie
+                                </ThemedText>
+                                <View style={styles.cameraPreviewFrame}>
+                                    <CameraView
+                                        ref={cameraRef}
+                                        style={StyleSheet.absoluteFill}
+                                        facing="front"
+                                        mirror
+                                        onCameraReady={() => {
+                                            setIsCameraReady(true);
+                                        }}
+                                        onMountError={() => {
+                                            setIsCameraReady(false);
+                                            setError(
+                                                Platform.OS === "web"
+                                                    ? "Unable to start camera on web. Ensure camera permission is allowed and the site runs on HTTPS or localhost."
+                                                    : "Unable to start camera preview.",
+                                            );
+                                            setShowCamera(false);
+                                        }}
+                                    />
+                                </View>
+                                <ThemedText style={{ color: muted }}>
+                                    Use a well-lit face photo for best
+                                    verification.
+                                </ThemedText>
+                                <View style={styles.mobileActionRow}>
+                                    <AppButton
+                                        label="Capture Photo"
+                                        disabled={!isCameraReady}
+                                        onPress={() => {
+                                            void handleTakeSelfie();
+                                        }}
+                                    />
+                                    <AppButton
+                                        label="Cancel"
+                                        variant="secondary"
+                                        onPress={() => {
+                                            setShowCamera(false);
+                                            setIsCameraReady(false);
+                                        }}
+                                    />
+                                </View>
+                            </AppCard>
+                        ) : null}
+
+                        <View style={styles.studentSummary}>
+                            <ThemedText style={{ color: muted }}>
+                                Attendance for students is code-based for this
+                                session.
+                            </ThemedText>
+                        </View>
+                    </View>
+                </ScrollView>
             )}
 
             {isTeacher ? (
@@ -443,7 +621,10 @@ export default function SessionDetailScreen() {
                                 Attendance requests
                             </ThemedText>
                             {data.requests.map((request) => (
-                                <View key={request.id} style={styles.teacherRequestItem}>
+                                <View
+                                    key={request.id}
+                                    style={styles.teacherRequestItem}
+                                >
                                     <View style={styles.teacherRequestHeader}>
                                         <ThemedText type="defaultSemiBold">
                                             {request.studentName}
@@ -453,7 +634,8 @@ export default function SessionDetailScreen() {
                                             tone={
                                                 request.status === "approved"
                                                     ? "success"
-                                                    : request.status === "rejected"
+                                                    : request.status ===
+                                                        "rejected"
                                                       ? "danger"
                                                       : "muted"
                                             }
@@ -463,7 +645,9 @@ export default function SessionDetailScreen() {
                                         {request.message}
                                     </ThemedText>
                                     {request.status === "pending" ? (
-                                        <View style={styles.teacherRequestActions}>
+                                        <View
+                                            style={styles.teacherRequestActions}
+                                        >
                                             <AppButton
                                                 label="Reject"
                                                 variant="danger"
@@ -539,19 +723,7 @@ export default function SessionDetailScreen() {
                         )}
                     />
                 </View>
-            ) : (
-                <ScrollView
-                    style={styles.studentScroll}
-                    contentContainerStyle={styles.studentScrollContent}
-                    showsVerticalScrollIndicator={false}
-                >
-                    <View style={styles.studentSummary}>
-                        <ThemedText style={{ color: muted }}>
-                            Attendance for students is code-based for this session.
-                        </ThemedText>
-                    </View>
-                </ScrollView>
-            )}
+            ) : null}
         </ThemedView>
     );
 }
@@ -614,6 +786,19 @@ const styles = StyleSheet.create({
         paddingHorizontal: 10,
         paddingVertical: 10,
     },
+    mobileActionRow: {
+        flexDirection: "row",
+        gap: 8,
+    },
+    captureCard: {
+        gap: 10,
+    },
+    cameraPreviewFrame: {
+        height: 220,
+        borderRadius: 12,
+        overflow: "hidden",
+        backgroundColor: "#0f172a",
+    },
     requestHistory: {
         gap: 8,
     },
@@ -632,6 +817,7 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     studentScrollContent: {
+        gap: 10,
         paddingBottom: 20,
     },
     teacherSection: {

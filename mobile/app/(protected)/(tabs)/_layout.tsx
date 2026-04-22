@@ -1,6 +1,7 @@
 import { Tabs } from "expo-router";
 import React from "react";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { HapticTab } from "@/components/haptic-tab";
 import { Colors } from "@/constants/theme";
@@ -10,6 +11,7 @@ export default function TabLayout() {
     const colorScheme = useColorScheme();
     const isDark = colorScheme === "dark";
     const palette = Colors[colorScheme ?? "light"];
+    const insets = useSafeAreaInsets();
 
     return (
         <Tabs
@@ -25,8 +27,8 @@ export default function TabLayout() {
                     shadowOpacity: isDark ? 0.3 : 0.08,
                     shadowRadius: 20,
                     shadowOffset: { width: 0, height: -4 },
-                    height: 64,
-                    paddingBottom: 8,
+                    height: 56 + Math.max(insets.bottom, 8),
+                    paddingBottom: Math.max(insets.bottom, 8),
                     paddingTop: 6,
                 },
                 tabBarLabelStyle: {
@@ -80,11 +82,7 @@ export default function TabLayout() {
                 options={{
                     title: "Profile",
                     tabBarIcon: ({ color }) => (
-                        <MaterialIcons
-                            name="person"
-                            size={26}
-                            color={color}
-                        />
+                        <MaterialIcons name="person" size={26} color={color} />
                     ),
                 }}
             />

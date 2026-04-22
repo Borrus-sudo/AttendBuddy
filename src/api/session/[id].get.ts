@@ -136,7 +136,10 @@ export default defineHandler(async (event) => {
             eq(schema.attendanceRequest.studentUserId, schema.user.id),
         )
         .where(
-            eq(schema.attendanceRequest.attendanceSessionId, attendanceSessionId),
+            eq(
+                schema.attendanceRequest.attendanceSessionId,
+                attendanceSessionId,
+            ),
         );
 
     const attendanceByUser = new Map<string, Date>();
@@ -144,7 +147,8 @@ export default defineHandler(async (event) => {
         attendanceByUser.set(record.userId, record.markedAt);
     }
 
-    const role = attendanceSession.createdByUserId === userId ? "teacher" : "student";
+    const role =
+        attendanceSession.createdByUserId === userId ? "teacher" : "student";
 
     const membersWithStatus = members.map((member) => {
         const markedAt = attendanceByUser.get(member.id);

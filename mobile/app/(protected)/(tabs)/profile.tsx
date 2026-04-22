@@ -1,11 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import {
-    Pressable,
-    ScrollView,
-    StyleSheet,
-    Switch,
-    View,
-} from "react-native";
+import { Pressable, ScrollView, StyleSheet, Switch, View } from "react-native";
 import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
@@ -73,9 +67,21 @@ export default function ProfileScreen() {
                 <Skeleton height={220} borderRadius={0} />
                 <View style={styles.bodyPadding}>
                     <View style={styles.statsRow}>
-                        <Skeleton height={80} borderRadius={16} style={{ flex: 1 }} />
-                        <Skeleton height={80} borderRadius={16} style={{ flex: 1 }} />
-                        <Skeleton height={80} borderRadius={16} style={{ flex: 1 }} />
+                        <Skeleton
+                            height={80}
+                            borderRadius={16}
+                            style={{ flex: 1 }}
+                        />
+                        <Skeleton
+                            height={80}
+                            borderRadius={16}
+                            style={{ flex: 1 }}
+                        />
+                        <Skeleton
+                            height={80}
+                            borderRadius={16}
+                            style={{ flex: 1 }}
+                        />
                     </View>
                     <Skeleton width={130} height={22} borderRadius={6} />
                     <Skeleton height={64} borderRadius={16} />
@@ -96,9 +102,7 @@ export default function ProfileScreen() {
                 {/* ---- Gradient Header ---- */}
                 <LinearGradient
                     colors={
-                        isDark
-                            ? ["#22203A", "#1C2A3C"]
-                            : ["#7C5CFC", "#9B7FFF"]
+                        isDark ? ["#22203A", "#1C2A3C"] : ["#7C5CFC", "#9B7FFF"]
                     }
                     start={{ x: 0, y: 0 }}
                     end={{ x: 1, y: 1 }}
@@ -115,20 +119,13 @@ export default function ProfileScreen() {
                             transition={150}
                         />
                     ) : (
-                        <View
-                            style={[
-                                styles.avatar,
-                                styles.avatarPlaceholder,
-                            ]}
-                        >
+                        <View style={[styles.avatar, styles.avatarPlaceholder]}>
                             <ThemedText style={styles.avatarInitial}>
                                 {user.name?.charAt(0)?.toUpperCase() || "?"}
                             </ThemedText>
                         </View>
                     )}
-                    <ThemedText style={styles.userName}>
-                        {user.name}
-                    </ThemedText>
+                    <ThemedText style={styles.userName}>{user.name}</ThemedText>
                     <ThemedText style={styles.userEmail}>
                         {user.email}
                     </ThemedText>
@@ -147,9 +144,7 @@ export default function ProfileScreen() {
                                 },
                             ]}
                         >
-                            <ThemedText style={styles.statEmoji}>
-                                📚
-                            </ThemedText>
+                            <ThemedText style={styles.statEmoji}>📚</ThemedText>
                             <ThemedText
                                 style={[
                                     styles.statNumber,
@@ -177,16 +172,12 @@ export default function ProfileScreen() {
                                 },
                             ]}
                         >
-                            <ThemedText style={styles.statEmoji}>
-                                📝
-                            </ThemedText>
+                            <ThemedText style={styles.statEmoji}>📝</ThemedText>
                             <ThemedText
                                 style={[
                                     styles.statNumber,
                                     {
-                                        color: isDark
-                                            ? "#6BE0D8"
-                                            : "#4ECDC4",
+                                        color: isDark ? "#6BE0D8" : "#4ECDC4",
                                     },
                                 ]}
                             >
@@ -211,16 +202,12 @@ export default function ProfileScreen() {
                                 },
                             ]}
                         >
-                            <ThemedText style={styles.statEmoji}>
-                                📖
-                            </ThemedText>
+                            <ThemedText style={styles.statEmoji}>📖</ThemedText>
                             <ThemedText
                                 style={[
                                     styles.statNumber,
                                     {
-                                        color: isDark
-                                            ? "#FF85B1"
-                                            : "#FF6B9D",
+                                        color: isDark ? "#FF85B1" : "#FF6B9D",
                                     },
                                 ]}
                             >
@@ -298,8 +285,7 @@ export default function ProfileScreen() {
                                             style={[
                                                 styles.classItemEmoji,
                                                 {
-                                                    backgroundColor:
-                                                        colors.bg,
+                                                    backgroundColor: colors.bg,
                                                 },
                                             ]}
                                         >
@@ -345,12 +331,7 @@ export default function ProfileScreen() {
                     </ThemedText>
 
                     <View style={styles.settingsGroup}>
-                        <View
-                            style={[
-                                styles.settingsItem,
-                                { borderColor },
-                            ]}
-                        >
+                        <View style={[styles.settingsItem, { borderColor }]}>
                             <MaterialIcons
                                 name="notifications-none"
                                 size={22}
@@ -369,12 +350,7 @@ export default function ProfileScreen() {
                             </ThemedText>
                         </View>
 
-                        <View
-                            style={[
-                                styles.settingsItem,
-                                { borderColor },
-                            ]}
-                        >
+                        <View style={[styles.settingsItem, { borderColor }]}>
                             <MaterialIcons
                                 name="info-outline"
                                 size={22}
@@ -399,9 +375,7 @@ export default function ProfileScreen() {
                         style={({ pressed }) => [
                             styles.signOutButton,
                             {
-                                backgroundColor: isDark
-                                    ? "#3A1A1A"
-                                    : "#FFE8E8",
+                                backgroundColor: isDark ? "#3A1A1A" : "#FFE8E8",
                                 opacity: pressed ? 0.85 : 1,
                                 transform: [{ scale: pressed ? 0.98 : 1 }],
                             },

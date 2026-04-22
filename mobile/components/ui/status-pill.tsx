@@ -26,13 +26,12 @@ const darkTones: Record<string, { bg: string; fg: string }> = {
 
 export function StatusPill({ label, tone }: StatusPillProps) {
     const colorScheme = useColorScheme();
-    const palette = (colorScheme === "dark" ? darkTones : lightTones)[tone] ||
+    const palette =
+        (colorScheme === "dark" ? darkTones : lightTones)[tone] ||
         lightTones.muted;
 
     return (
-        <View
-            style={[styles.pill, { backgroundColor: palette.bg }]}
-        >
+        <View style={[styles.pill, { backgroundColor: palette.bg }]}>
             <ThemedText style={[styles.label, { color: palette.fg }]}>
                 {label}
             </ThemedText>

@@ -4,6 +4,7 @@ import type {
     AttendanceMemberStatus,
     AttendanceSessionDetailPayload,
     AttendanceSessionSummary,
+    AttendanceVerificationChallenge,
     ClassroomMember,
     ClassroomDetailPayload,
     ClassroomSummary,
@@ -205,9 +206,9 @@ export async function getAttendanceSessionDetail(
     const query = classroomCode
         ? `?classroomCode=${encodeURIComponent(classroomCode)}`
         : "";
-    const response = await request<SuccessEnvelope<AttendanceSessionDetailPayload>>(
-        `/api/session/${sessionId}${query}`,
-    );
+    const response = await request<
+        SuccessEnvelope<AttendanceSessionDetailPayload>
+    >(`/api/session/${sessionId}${query}`);
 
     return response.payload;
 }
@@ -250,8 +251,36 @@ export async function setAttendancePresence(input: {
 }
 
 export async function markAttendanceByToken(token: string): Promise<void> {
-    await request<SuccessEnvelope<{ message: string }>>(`/api/session/mark/${token}`, {
+    await request<SuccessEnvelope<{ message: string }>>(
+        `/api/session/mark/${token}`,
+        {
+            method: "POST",
+        },
+    );
+}
+
+export async function createAttendanceVerificationChallenge(
+    attendanceCode: string,
+): Promise<AttendanceVerificationChallenge> {
+    const response = await request<
+        SuccessEnvelope<AttendanceVerificationChallenge>
+    >("/api/session/verify/challenge", {
         method: "POST",
+        body: { attendanceCode },
+    });
+
+    return response.payload;
+}
+
+export async function verifyAttendanceWithFace(input: {
+    attendanceCode: string;
+    challengeId: string;
+    challengeToken: string;
+    selfieBase64: string;
+}): Promise<void> {
+    await request<SuccessEnvelope<{ message: string }>>("/api/session/verify", {
+        method: "POST",
+        body: input,
     });
 }
 

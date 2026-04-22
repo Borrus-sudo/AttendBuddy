@@ -78,7 +78,11 @@ export const ClassAccentColors = {
 /** Map a class name to a friendly emoji icon. */
 export function getClassEmoji(name: string): string {
     const lower = name.toLowerCase();
-    if (lower.includes("math") || lower.includes("calculus") || lower.includes("algebra"))
+    if (
+        lower.includes("math") ||
+        lower.includes("calculus") ||
+        lower.includes("algebra")
+    )
         return "📐";
     if (lower.includes("physics")) return "🔬";
     if (lower.includes("chem")) return "🧪";

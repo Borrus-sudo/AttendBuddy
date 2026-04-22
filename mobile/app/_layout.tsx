@@ -6,7 +6,12 @@ import {
 import { PaperProvider, MD3DarkTheme, MD3LightTheme } from "react-native-paper";
 import { Stack } from "expo-router";
 import { StatusBar } from "expo-status-bar";
-import { LogBox } from "react-native";
+import {
+    KeyboardAvoidingView,
+    LogBox,
+    Platform,
+    StyleSheet,
+} from "react-native";
 import "react-native-reanimated";
 
 import { useColorScheme } from "@/hooks/use-color-scheme";
@@ -26,11 +31,22 @@ export default function RootLayout() {
             <PaperProvider
                 theme={colorScheme === "dark" ? MD3DarkTheme : MD3LightTheme}
             >
-                <AuthProvider>
-                    <Stack screenOptions={{ headerShown: false }} />
-                </AuthProvider>
+                <KeyboardAvoidingView
+                    style={styles.root}
+                    behavior={Platform.OS === "ios" ? "padding" : "height"}
+                >
+                    <AuthProvider>
+                        <Stack screenOptions={{ headerShown: false }} />
+                    </AuthProvider>
+                </KeyboardAvoidingView>
                 <StatusBar style="auto" />
             </PaperProvider>
         </ThemeProvider>
     );
 }
+
+const styles = StyleSheet.create({
+    root: {
+        flex: 1,
+    },
+});

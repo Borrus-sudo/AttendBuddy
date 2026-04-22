@@ -84,7 +84,10 @@ export default defineHandler(async (event) => {
         .from(schema.attendanceRecord)
         .where(
             and(
-                eq(schema.attendanceRecord.attendanceSessionId, attendanceSessionId),
+                eq(
+                    schema.attendanceRecord.attendanceSessionId,
+                    attendanceSessionId,
+                ),
                 eq(schema.attendanceRecord.userId, studentUserId),
             ),
         );
@@ -100,7 +103,10 @@ export default defineHandler(async (event) => {
         .from(schema.attendanceRequest)
         .where(
             and(
-                eq(schema.attendanceRequest.attendanceSessionId, attendanceSessionId),
+                eq(
+                    schema.attendanceRequest.attendanceSessionId,
+                    attendanceSessionId,
+                ),
                 eq(schema.attendanceRequest.studentUserId, studentUserId),
             ),
         );

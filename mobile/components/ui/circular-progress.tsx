@@ -47,7 +47,8 @@ export function CircularProgress({
     const colorScheme = useColorScheme();
     const isDark = colorScheme === "dark";
 
-    const colors: [string, string] = gradientColors ||
+    const colors: [string, string] =
+        gradientColors ||
         (isDark ? ["#9B7FFF", "#7BA4F7"] : ["#7C5CFC", "#5B8DEF"]);
     const track = trackColor || (isDark ? "#2A2B3A" : "#EDEDF5");
 
@@ -94,14 +95,17 @@ export function CircularProgress({
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [clamped]);
 
-    const dashOffset =
-        circumference - (displayProgress / 100) * circumference;
+    const dashOffset = circumference - (displayProgress / 100) * circumference;
 
     return (
         <Animated.View
             style={[
                 styles.container,
-                { width: size, height: size, transform: [{ scale: scaleAnim }] },
+                {
+                    width: size,
+                    height: size,
+                    transform: [{ scale: scaleAnim }],
+                },
             ]}
         >
             <Svg width={size} height={size}>
@@ -148,7 +152,10 @@ export function CircularProgress({
             {showPercentage && (
                 <View style={styles.labelWrap}>
                     <ThemedText
-                        style={[styles.percentText, { fontSize: percentageSize }]}
+                        style={[
+                            styles.percentText,
+                            { fontSize: percentageSize },
+                        ]}
                     >
                         {Math.round(displayProgress)}%
                     </ThemedText>
@@ -156,7 +163,10 @@ export function CircularProgress({
                         <ThemedText
                             style={[
                                 styles.label,
-                                { fontSize: labelSize, color: isDark ? "#6B6F82" : "#9094A6" },
+                                {
+                                    fontSize: labelSize,
+                                    color: isDark ? "#6B6F82" : "#9094A6",
+                                },
                             ]}
                         >
                             {label}
