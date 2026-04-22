@@ -1,15 +1,15 @@
 import { useEffect, useRef } from "react";
-import { Animated, StyleSheet, type ViewStyle } from "react-native";
+import { Animated, type StyleProp, type ViewStyle } from "react-native";
 
 import { useColorScheme } from "@/hooks/use-color-scheme";
 
 type SkeletonProps = {
-    width?: number | string;
+    width?: number | `${number}%` | "auto";
     height?: number;
     borderRadius?: number;
     /** If true, renders as a circle (width = height = height). */
     circle?: boolean;
-    style?: ViewStyle;
+    style?: StyleProp<ViewStyle>;
 };
 
 export function Skeleton({

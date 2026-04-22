@@ -65,11 +65,28 @@ export type AttendanceMemberStatus = {
     markedAt?: string | null;
 };
 
+export type AttendanceRequestStatus = "pending" | "approved" | "rejected";
+
+export type AttendanceRequestItem = {
+    id: string;
+    attendanceSessionId: string;
+    classroomCode: string;
+    studentUserId: string;
+    studentName: string;
+    studentEmail: string;
+    message: string;
+    status: AttendanceRequestStatus;
+    reviewNote: string | null;
+    createdAt: string;
+    reviewedAt: string | null;
+};
+
 export type AttendanceSessionDetailPayload = {
     session: AttendanceSessionSummary;
     role: "teacher" | "student";
     currentUserId: string;
     members: AttendanceMemberStatus[];
+    requests: AttendanceRequestItem[];
 };
 
 export type MemberAttendanceAnalytics = {

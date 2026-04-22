@@ -116,6 +116,29 @@ export default defineHandler(async (event) => {
             ),
         );
 
+    const attendanceRequests = await db
+        .select({
+            id: schema.attendanceRequest.id,
+            attendanceSessionId: schema.attendanceRequest.attendanceSessionId,
+            classroomCode: schema.attendanceRequest.classroomCode,
+            studentUserId: schema.attendanceRequest.studentUserId,
+            message: schema.attendanceRequest.message,
+            status: schema.attendanceRequest.status,
+            reviewNote: schema.attendanceRequest.reviewNote,
+            createdAt: schema.attendanceRequest.createdAt,
+            reviewedAt: schema.attendanceRequest.reviewedAt,
+            studentName: schema.user.name,
+            studentEmail: schema.user.email,
+        })
+        .from(schema.attendanceRequest)
+        .innerJoin(
+            schema.user,
+            eq(schema.attendanceRequest.studentUserId, schema.user.id),
+        )
+        .where(
+            eq(schema.attendanceRequest.attendanceSessionId, attendanceSessionId),
+        );
+
     const attendanceByUser = new Map<string, Date>();
     for (const record of attendanceRecords) {
         attendanceByUser.set(record.userId, record.markedAt);
@@ -139,6 +162,13 @@ export default defineHandler(async (event) => {
         role === "teacher"
             ? membersWithStatus
             : membersWithStatus.filter((member) => member.userId === userId);
+
+    const responseRequests =
+        role === "teacher"
+            ? attendanceRequests
+            : attendanceRequests.filter(
+                  (request) => request.studentUserId === userId,
+              );
 
     const presentCount = attendanceRecords.length;
     const totalCount = members.length;
@@ -169,6 +199,7 @@ export default defineHandler(async (event) => {
             role,
             currentUserId: userId,
             members: responseMembers,
+            requests: responseRequests,
         },
     };
 });

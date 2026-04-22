@@ -207,3 +207,38 @@ export const attendanceRecord = sqliteTable(
         ),
     ],
 );
+
+export const attendanceRequest = sqliteTable(
+    "attendance_request",
+    {
+        id: text("id").primaryKey(),
+        attendanceSessionId: text("attendance_session_id")
+            .notNull()
+            .references(() => attendanceSession.id, { onDelete: "cascade" }),
+        classroomCode: text("classroom_code")
+            .notNull()
+            .references(() => classroom.code, { onDelete: "cascade" }),
+        studentUserId: text("student_user_id")
+            .notNull()
+            .references(() => user.id, { onDelete: "cascade" }),
+        message: text("message").notNull(),
+        status: text("status").default("pending").notNull(),
+        reviewedByUserId: text("reviewed_by_user_id").references(() => user.id, {
+            onDelete: "set null",
+        }),
+        reviewNote: text("review_note"),
+        createdAt: integer("created_at", { mode: "timestamp_ms" })
+            .$defaultFn(() => new Date())
+            .notNull(),
+        reviewedAt: integer("reviewed_at", { mode: "timestamp_ms" }),
+    },
+    (table) => [
+        index("attendance_request_session_idx").on(table.attendanceSessionId),
+        index("attendance_request_classroom_idx").on(table.classroomCode),
+        index("attendance_request_student_idx").on(table.studentUserId),
+        uniqueIndex("attendance_request_unique_session_student").on(
+            table.attendanceSessionId,
+            table.studentUserId,
+        ),
+    ],
+);

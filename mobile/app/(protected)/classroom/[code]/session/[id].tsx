@@ -5,6 +5,7 @@ import {
     Platform,
     StyleSheet,
     Switch,
+    TextInput,
     View,
 } from "react-native";
 import { useLocalSearchParams } from "expo-router";
@@ -25,7 +26,9 @@ import {
     formatSessionLabel,
     getAttendanceSessionDetail,
     markAttendanceByToken,
+    reviewAttendanceRequest,
     setAttendancePresence,
+    submitAttendanceRequest,
 } from "@/lib/api";
 import type {
     AttendanceMemberStatus,
@@ -56,6 +59,9 @@ export default function SessionDetailScreen() {
     const [error, setError] = useState<string | null>(null);
     const [scannerOpen, setScannerOpen] = useState(false);
     const [scanLock, setScanLock] = useState(false);
+    const [requestMessage, setRequestMessage] = useState("");
+    const [isSubmittingRequest, setIsSubmittingRequest] = useState(false);
+    const [isReviewingRequest, setIsReviewingRequest] = useState(false);
     const [permission, requestPermission] = useCameraPermissions();
 
     const load = useCallback(async () => {
@@ -210,6 +216,64 @@ export default function SessionDetailScreen() {
         [classroomCode, data, scanLock, sessionId],
     );
 
+    const handleSubmitRequest = useCallback(async () => {
+        if (!data || isTeacher) {
+            return;
+        }
+
+        const trimmed = requestMessage.trim();
+        if (trimmed.length < 5) {
+            setError("Please provide at least 5 characters in your message.");
+            return;
+        }
+
+        setError(null);
+        setIsSubmittingRequest(true);
+        try {
+            await submitAttendanceRequest({
+                attendanceSessionId: sessionId,
+                classroomCode,
+                message: trimmed,
+            });
+
+            const latest = await getAttendanceSessionDetail(classroomCode, sessionId);
+            setData(latest);
+            setRequestMessage("");
+        } catch (err) {
+            setError(
+                err instanceof Error
+                    ? err.message
+                    : "Unable to submit attendance request.",
+            );
+        } finally {
+            setIsSubmittingRequest(false);
+        }
+    }, [classroomCode, data, isTeacher, requestMessage, sessionId]);
+
+    const handleReviewRequest = useCallback(
+        async (requestId: string, action: "approve" | "reject") => {
+            setError(null);
+            setIsReviewingRequest(true);
+            try {
+                await reviewAttendanceRequest({ requestId, action });
+                const latest = await getAttendanceSessionDetail(
+                    classroomCode,
+                    sessionId,
+                );
+                setData(latest);
+            } catch (err) {
+                setError(
+                    err instanceof Error
+                        ? err.message
+                        : "Unable to review attendance request.",
+                );
+            } finally {
+                setIsReviewingRequest(false);
+            }
+        },
+        [classroomCode, sessionId],
+    );
+
     if (isLoading) {
         return (
             <ThemedView style={styles.centered}>
@@ -293,30 +357,83 @@ export default function SessionDetailScreen() {
                     )}
                 </AppCard>
             ) : (
-                <AppCard style={styles.studentCard}>
-                    <ThemedText type="defaultSemiBold">Mark attendance</ThemedText>
-                    <ThemedText style={{ color: muted }}>
-                        Tap scan and point to your teacher's session QR code.
-                    </ThemedText>
+                <View style={styles.studentSection}>
+                    <AppCard style={styles.studentCard}>
+                        <ThemedText type="defaultSemiBold">Mark attendance</ThemedText>
+                        <ThemedText style={{ color: muted }}>
+                            Tap scan and point to your teacher's session QR code.
+                        </ThemedText>
 
-                    <AppButton
-                        label={scannerOpen ? "Scanning..." : "Scan Session QR"}
-                        onPress={() => {
-                            void openScanner();
-                        }}
-                    />
-
-                    {currentStudent ? (
-                        <StatusPill
-                            label={
-                                currentStudent.isPresent
-                                    ? "You are marked present"
-                                    : "You are currently absent"
-                            }
-                            tone={currentStudent.isPresent ? "success" : "danger"}
+                        <AppButton
+                            label={scannerOpen ? "Scanning..." : "Scan Session QR"}
+                            onPress={() => {
+                                void openScanner();
+                            }}
                         />
+
+                        {currentStudent ? (
+                            <StatusPill
+                                label={
+                                    currentStudent.isPresent
+                                        ? "You are marked present"
+                                        : "You are currently absent"
+                                }
+                                tone={
+                                    currentStudent.isPresent ? "success" : "danger"
+                                }
+                            />
+                        ) : null}
+                    </AppCard>
+
+                    {currentStudent && !currentStudent.isPresent ? (
+                        <AppCard style={styles.requestCard}>
+                            <ThemedText type="defaultSemiBold">
+                                Request attendance review
+                            </ThemedText>
+                            <ThemedText style={{ color: muted }}>
+                                If you were missed, send a message to your teacher.
+                            </ThemedText>
+                            <TextInput
+                                value={requestMessage}
+                                onChangeText={setRequestMessage}
+                                placeholder="Explain why you should be marked present"
+                                placeholderTextColor={muted}
+                                multiline
+                                style={[styles.requestInput, { color: muted }]}
+                            />
+                            <AppButton
+                                label="Submit Request"
+                                loading={isSubmittingRequest}
+                                onPress={() => {
+                                    void handleSubmitRequest();
+                                }}
+                            />
+                            {data.requests.length > 0 ? (
+                                <View style={styles.requestHistory}>
+                                    {data.requests.map((request) => (
+                                        <View
+                                            key={request.id}
+                                            style={styles.requestHistoryItem}
+                                        >
+                                            <StatusPill
+                                                label={request.status.toUpperCase()}
+                                                tone={
+                                                    request.status === "approved"
+                                                        ? "success"
+                                                        : request.status ===
+                                                            "rejected"
+                                                          ? "danger"
+                                                          : "muted"
+                                                }
+                                            />
+                                            <ThemedText>{request.message}</ThemedText>
+                                        </View>
+                                    ))}
+                                </View>
+                            ) : null}
+                        </AppCard>
                     ) : null}
-                </AppCard>
+                </View>
             )}
 
             {scannerOpen ? (
@@ -353,52 +470,109 @@ export default function SessionDetailScreen() {
             ) : null}
 
             {isTeacher ? (
-                <FlatList
-                    data={data.members}
-                    keyExtractor={(item) => item.userId}
-                    contentContainerStyle={styles.listContent}
-                    ListEmptyComponent={
-                        <AppCard>
-                            <ThemedText>
-                                No students found for this session.
+                <View style={styles.teacherSection}>
+                    {data.requests.length > 0 ? (
+                        <AppCard style={styles.teacherRequestsCard}>
+                            <ThemedText type="defaultSemiBold">
+                                Attendance requests
                             </ThemedText>
-                        </AppCard>
-                    }
-                    renderItem={({ item }) => (
-                        <AppListItem
-                            title={item.name}
-                            subtitle={item.email}
-                            avatarUri={item.image}
-                            rightSlot={
-                                <View style={styles.toggleSide}>
-                                    <StatusPill
-                                        label={
-                                            item.isPresent
-                                                ? "Present"
-                                                : "Absent"
-                                        }
-                                        tone={
-                                            item.isPresent
-                                                ? "success"
-                                                : "danger"
-                                        }
-                                    />
-                                    <Switch
-                                        trackColor={{
-                                            true: primary,
-                                            false: "#475569",
-                                        }}
-                                        thumbColor="#f8fafc"
-                                        value={item.isPresent}
-                                        onValueChange={(next) => {
-                                            void handleToggle(item, next);
-                                        }}
-                                    />
+                            {data.requests.map((request) => (
+                                <View key={request.id} style={styles.teacherRequestItem}>
+                                    <View style={styles.teacherRequestHeader}>
+                                        <ThemedText type="defaultSemiBold">
+                                            {request.studentName}
+                                        </ThemedText>
+                                        <StatusPill
+                                            label={request.status.toUpperCase()}
+                                            tone={
+                                                request.status === "approved"
+                                                    ? "success"
+                                                    : request.status === "rejected"
+                                                      ? "danger"
+                                                      : "muted"
+                                            }
+                                        />
+                                    </View>
+                                    <ThemedText style={{ color: muted }}>
+                                        {request.message}
+                                    </ThemedText>
+                                    {request.status === "pending" ? (
+                                        <View style={styles.teacherRequestActions}>
+                                            <AppButton
+                                                label="Reject"
+                                                variant="danger"
+                                                loading={isReviewingRequest}
+                                                onPress={() => {
+                                                    void handleReviewRequest(
+                                                        request.id,
+                                                        "reject",
+                                                    );
+                                                }}
+                                            />
+                                            <AppButton
+                                                label="Approve"
+                                                loading={isReviewingRequest}
+                                                onPress={() => {
+                                                    void handleReviewRequest(
+                                                        request.id,
+                                                        "approve",
+                                                    );
+                                                }}
+                                            />
+                                        </View>
+                                    ) : null}
                                 </View>
-                            }
-                        />
-                    )}
-                />
+                            ))}
+                        </AppCard>
+                    ) : null}
+
+                    <FlatList
+                        data={data.members}
+                        keyExtractor={(item) => item.userId}
+                        contentContainerStyle={styles.listContent}
+                        ListEmptyComponent={
+                            <AppCard>
+                                <ThemedText>
+                                    No students found for this session.
+                                </ThemedText>
+                            </AppCard>
+                        }
+                        renderItem={({ item }) => (
+                            <AppListItem
+                                title={item.name}
+                                subtitle={item.email}
+                                avatarUri={item.image}
+                                rightSlot={
+                                    <View style={styles.toggleSide}>
+                                        <StatusPill
+                                            label={
+                                                item.isPresent
+                                                    ? "Present"
+                                                    : "Absent"
+                                            }
+                                            tone={
+                                                item.isPresent
+                                                    ? "success"
+                                                    : "danger"
+                                            }
+                                        />
+                                        <Switch
+                                            trackColor={{
+                                                true: primary,
+                                                false: "#475569",
+                                            }}
+                                            thumbColor="#f8fafc"
+                                            value={item.isPresent}
+                                            onValueChange={(next) => {
+                                                void handleToggle(item, next);
+                                            }}
+                                        />
+                                    </View>
+                                }
+                            />
+                        )}
+                    />
+                </View>
             ) : (
                 <View style={styles.studentSummary}>
                     <ThemedText style={{ color: muted }}>
@@ -448,6 +622,31 @@ const styles = StyleSheet.create({
     studentCard: {
         gap: 10,
     },
+    studentSection: {
+        gap: 10,
+    },
+    requestCard: {
+        gap: 10,
+    },
+    requestInput: {
+        borderWidth: 1,
+        borderColor: "#334155",
+        borderRadius: 10,
+        minHeight: 90,
+        textAlignVertical: "top",
+        paddingHorizontal: 10,
+        paddingVertical: 10,
+    },
+    requestHistory: {
+        gap: 8,
+    },
+    requestHistoryItem: {
+        gap: 6,
+        borderWidth: 1,
+        borderColor: "#334155",
+        borderRadius: 10,
+        padding: 10,
+    },
     scannerCard: {
         gap: 10,
     },
@@ -460,5 +659,29 @@ const styles = StyleSheet.create({
     studentSummary: {
         alignItems: "center",
         paddingTop: 12,
+    },
+    teacherSection: {
+        flex: 1,
+        gap: 10,
+    },
+    teacherRequestsCard: {
+        gap: 10,
+    },
+    teacherRequestItem: {
+        borderWidth: 1,
+        borderColor: "#334155",
+        borderRadius: 10,
+        padding: 10,
+        gap: 8,
+    },
+    teacherRequestHeader: {
+        flexDirection: "row",
+        alignItems: "center",
+        justifyContent: "space-between",
+        gap: 8,
+    },
+    teacherRequestActions: {
+        flexDirection: "row",
+        gap: 8,
     },
 });

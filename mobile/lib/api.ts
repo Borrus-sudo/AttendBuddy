@@ -255,6 +255,34 @@ export async function markAttendanceByToken(token: string): Promise<void> {
     });
 }
 
+export async function submitAttendanceRequest(input: {
+    attendanceSessionId: string;
+    classroomCode: string;
+    message: string;
+}): Promise<void> {
+    await request<SuccessEnvelope<{ message: string }>>(
+        "/api/session/request",
+        {
+            method: "POST",
+            body: input,
+        },
+    );
+}
+
+export async function reviewAttendanceRequest(input: {
+    requestId: string;
+    action: "approve" | "reject";
+    reviewNote?: string;
+}): Promise<void> {
+    await request<SuccessEnvelope<{ message: string }>>(
+        "/api/session/request/review",
+        {
+            method: "POST",
+            body: input,
+        },
+    );
+}
+
 export async function getMemberAttendanceAnalytics(
     classroomCode: string,
     memberId: string,
