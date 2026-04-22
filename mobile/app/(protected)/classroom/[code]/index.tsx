@@ -4,6 +4,7 @@ import {
     FlatList,
     LayoutAnimation,
     Pressable,
+    ScrollView,
     StyleSheet,
     UIManager,
     View,
@@ -642,7 +643,11 @@ export default function ClassroomScreen() {
             )}
 
             {role === "teacher" && teacherTab === "members" ? (
-                <View style={styles.membersArea}>
+                <ScrollView
+                    style={styles.membersArea}
+                    contentContainerStyle={styles.membersScrollContent}
+                    showsVerticalScrollIndicator={false}
+                >
                     <View
                         style={[
                             styles.controlBar,
@@ -746,15 +751,18 @@ export default function ClassroomScreen() {
                                 />
                             </View>
                         ) : (
-                            <FlatList
-                                data={filteredMemberRows}
-                                keyExtractor={(item) => item.id}
-                                renderItem={renderMemberRow}
-                                contentContainerStyle={styles.memberRowsContent}
-                            />
+                            <View style={styles.memberRowsWrap}>
+                                <FlatList
+                                    nestedScrollEnabled
+                                    data={filteredMemberRows}
+                                    keyExtractor={(item) => item.id}
+                                    renderItem={renderMemberRow}
+                                    contentContainerStyle={styles.memberRowsContent}
+                                />
+                            </View>
                         )}
                     </View>
-                </View>
+                </ScrollView>
             ) : null}
 
             {((role === "teacher" && teacherTab === "sessions") ||
@@ -1043,6 +1051,10 @@ const styles = StyleSheet.create({
         flex: 1,
         gap: 10,
     },
+    membersScrollContent: {
+        paddingBottom: 16,
+        gap: 10,
+    },
     controlBar: {
         borderWidth: 1,
         borderRadius: 14,
@@ -1112,6 +1124,9 @@ const styles = StyleSheet.create({
     },
     memberRowsContent: {
         paddingBottom: 14,
+    },
+    memberRowsWrap: {
+        maxHeight: 430,
     },
     memberEmptyArea: {
         padding: 16,

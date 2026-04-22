@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import {
     ActivityIndicator,
     FlatList,
-    Platform,
+    ScrollView,
     StyleSheet,
     Switch,
     TextInput,
@@ -10,7 +10,6 @@ import {
 } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { CameraView, useCameraPermissions } from "expo-camera";
 import QRCode from "react-native-qrcode-svg";
 
 import { ThemedText } from "@/components/themed-text";
@@ -20,7 +19,6 @@ import { AppCard } from "@/components/ui/app-card";
 import { AppListItem } from "@/components/ui/app-list-item";
 import { ScreenHeader } from "@/components/ui/screen-header";
 import { StatusPill } from "@/components/ui/status-pill";
-import { WebQrScanner } from "@/components/qr/web-qr-scanner";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import {
     formatSessionLabel,
@@ -57,12 +55,11 @@ export default function SessionDetailScreen() {
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
     const [error, setError] = useState<string | null>(null);
-    const [scannerOpen, setScannerOpen] = useState(false);
-    const [scanLock, setScanLock] = useState(false);
+    const [attendanceCode, setAttendanceCode] = useState("");
+    const [isSubmittingCode, setIsSubmittingCode] = useState(false);
     const [requestMessage, setRequestMessage] = useState("");
     const [isSubmittingRequest, setIsSubmittingRequest] = useState(false);
     const [isReviewingRequest, setIsReviewingRequest] = useState(false);
-    const [permission, requestPermission] = useCameraPermissions();
 
     const load = useCallback(async () => {
         if (!classroomCode || !sessionId) {
@@ -165,56 +162,31 @@ export default function SessionDetailScreen() {
         [classroomCode, data, isTeacher, sessionId],
     );
 
-    const openScanner = useCallback(async () => {
-        if (permission?.granted) {
-            setScannerOpen(true);
+    const handleMarkByCode = useCallback(async () => {
+        const code = attendanceCode.trim();
+        if (!code) {
+            setError("Please enter the attendance code.");
             return;
         }
 
-        const result = await requestPermission();
-        if (result.granted) {
-            setScannerOpen(true);
-        } else {
-            setError("Camera permission is required to scan attendance QR.");
+        setError(null);
+        setIsSubmittingCode(true);
+
+        try {
+            await markAttendanceByToken(code);
+            const latest = await getAttendanceSessionDetail(classroomCode, sessionId);
+            setData(latest);
+            setAttendanceCode("");
+        } catch (err) {
+            setError(
+                err instanceof Error
+                    ? err.message
+                    : "Unable to mark attendance with this code.",
+            );
+        } finally {
+            setIsSubmittingCode(false);
         }
-    }, [permission?.granted, requestPermission]);
-
-    const handleScan = useCallback(
-        async ({ data: qrData }: { data: string }) => {
-            if (!data || scanLock) {
-                return;
-            }
-
-            setScanLock(true);
-            setError(null);
-
-            const expectedToken = data.session.token;
-            if (!expectedToken || qrData !== expectedToken) {
-                setError("Invalid QR code for this attendance session.");
-                setScanLock(false);
-                return;
-            }
-
-            try {
-                await markAttendanceByToken(expectedToken);
-                const latest = await getAttendanceSessionDetail(
-                    classroomCode,
-                    sessionId,
-                );
-                setData(latest);
-                setScannerOpen(false);
-            } catch (err) {
-                setError(
-                    err instanceof Error
-                        ? err.message
-                        : "Unable to mark attendance from QR.",
-                );
-            } finally {
-                setScanLock(false);
-            }
-        },
-        [classroomCode, data, scanLock, sessionId],
-    );
+    }, [attendanceCode, classroomCode, sessionId]);
 
     const handleSubmitRequest = useCallback(async () => {
         if (!data || isTeacher) {
@@ -336,7 +308,7 @@ export default function SessionDetailScreen() {
                         ? "Syncing latest attendance updates..."
                         : isTeacher
                           ? "Teacher controls are synced with database."
-                          : "Scan the session QR to mark your attendance."}
+                          : "Enter the attendance code shared by your teacher."}
                 </ThemedText>
             </AppCard>
 
@@ -347,7 +319,10 @@ export default function SessionDetailScreen() {
                         <View style={styles.qrWrap}>
                             <QRCode value={data.session.token} size={180} />
                             <ThemedText style={{ color: muted }}>
-                                Students scan this to mark attendance.
+                                Students use this code to mark attendance.
+                            </ThemedText>
+                            <ThemedText type="defaultSemiBold">
+                                Code: {data.session.token}
                             </ThemedText>
                         </View>
                     ) : (
@@ -361,13 +336,23 @@ export default function SessionDetailScreen() {
                     <AppCard style={styles.studentCard}>
                         <ThemedText type="defaultSemiBold">Mark attendance</ThemedText>
                         <ThemedText style={{ color: muted }}>
-                            Tap scan and point to your teacher's session QR code.
+                            Enter the attendance code shared by your teacher.
                         </ThemedText>
 
+                        <TextInput
+                            value={attendanceCode}
+                            onChangeText={setAttendanceCode}
+                            placeholder="Enter session code"
+                            placeholderTextColor={muted}
+                            autoCapitalize="none"
+                            style={[styles.requestInput, { color: muted }]}
+                        />
+
                         <AppButton
-                            label={scannerOpen ? "Scanning..." : "Scan Session QR"}
+                            label="Submit Attendance Code"
+                            loading={isSubmittingCode}
                             onPress={() => {
-                                void openScanner();
+                                void handleMarkByCode();
                             }}
                         />
 
@@ -435,39 +420,6 @@ export default function SessionDetailScreen() {
                     ) : null}
                 </View>
             )}
-
-            {scannerOpen ? (
-                <AppCard style={styles.scannerCard}>
-                    <ThemedText type="defaultSemiBold">QR Scanner</ThemedText>
-                    <View style={styles.cameraFrame}>
-                        {Platform.OS === "web" ? (
-                            <WebQrScanner
-                                active={scannerOpen}
-                                onScan={(payload) => {
-                                    void handleScan({ data: payload });
-                                }}
-                            />
-                        ) : (
-                            <CameraView
-                                style={StyleSheet.absoluteFill}
-                                barcodeScannerSettings={{
-                                    barcodeTypes: ["qr"],
-                                }}
-                                onBarcodeScanned={
-                                    scanLock || !data.session.token
-                                        ? undefined
-                                        : handleScan
-                                }
-                            />
-                        )}
-                    </View>
-                    <AppButton
-                        label="Cancel Scan"
-                        variant="secondary"
-                        onPress={() => setScannerOpen(false)}
-                    />
-                </AppCard>
-            ) : null}
 
             {isTeacher ? (
                 <View style={styles.teacherSection}>
@@ -574,11 +526,17 @@ export default function SessionDetailScreen() {
                     />
                 </View>
             ) : (
-                <View style={styles.studentSummary}>
-                    <ThemedText style={{ color: muted }}>
-                        Attendance for students is QR-based only.
-                    </ThemedText>
-                </View>
+                <ScrollView
+                    style={styles.studentScroll}
+                    contentContainerStyle={styles.studentScrollContent}
+                    showsVerticalScrollIndicator={false}
+                >
+                    <View style={styles.studentSummary}>
+                        <ThemedText style={{ color: muted }}>
+                            Attendance for students is code-based for this session.
+                        </ThemedText>
+                    </View>
+                </ScrollView>
             )}
         </ThemedView>
     );
@@ -647,18 +605,15 @@ const styles = StyleSheet.create({
         borderRadius: 10,
         padding: 10,
     },
-    scannerCard: {
-        gap: 10,
-    },
-    cameraFrame: {
-        height: 260,
-        borderRadius: 14,
-        overflow: "hidden",
-        backgroundColor: "#0f172a",
-    },
     studentSummary: {
         alignItems: "center",
         paddingTop: 12,
+    },
+    studentScroll: {
+        flex: 1,
+    },
+    studentScrollContent: {
+        paddingBottom: 20,
     },
     teacherSection: {
         flex: 1,
