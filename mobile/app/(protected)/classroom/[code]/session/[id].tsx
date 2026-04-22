@@ -112,6 +112,17 @@ export default function SessionDetailScreen() {
         return data.members[0] ?? null;
     }, [data, isTeacher]);
 
+    const displaySessionCode = useMemo(() => {
+        const token = data?.session.token;
+        if (!token) {
+            return "";
+        }
+        if (token.length <= 8) {
+            return token;
+        }
+        return `${token.slice(0, 3)}...${token.slice(-2)}`;
+    }, [data?.session.token]);
+
     const handleToggle = useCallback(
         async (member: AttendanceMemberStatus, nextPresent: boolean) => {
             if (!data || !isTeacher) {
@@ -321,8 +332,11 @@ export default function SessionDetailScreen() {
                             <ThemedText style={{ color: muted }}>
                                 Students use this code to mark attendance.
                             </ThemedText>
-                            <ThemedText type="defaultSemiBold">
-                                Code: {data.session.token}
+                            <ThemedText
+                                type="defaultSemiBold"
+                                style={styles.codeLabel}
+                            >
+                                Code: {displaySessionCode}
                             </ThemedText>
                         </View>
                     ) : (
@@ -576,6 +590,11 @@ const styles = StyleSheet.create({
     qrWrap: {
         alignItems: "center",
         gap: 10,
+    },
+    codeLabel: {
+        fontSize: 12,
+        lineHeight: 16,
+        letterSpacing: 0.3,
     },
     studentCard: {
         gap: 10,

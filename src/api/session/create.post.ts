@@ -6,6 +6,38 @@ import * as z from "zod";
 
 import { db, schema } from "@/src/lib/db";
 
+const SESSION_CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+const SESSION_CODE_LENGTH = 8;
+
+function randomSessionCode(length: number): string {
+    let code = "";
+    for (let index = 0; index < length; index += 1) {
+        const nextIndex = Math.floor(
+            Math.random() * SESSION_CODE_ALPHABET.length,
+        );
+        code += SESSION_CODE_ALPHABET[nextIndex]!;
+    }
+    return code;
+}
+
+async function getUniqueSessionCode(): Promise<string> {
+    for (let attempt = 0; attempt < 20; attempt += 1) {
+        const token = randomSessionCode(SESSION_CODE_LENGTH);
+        const existing = await db
+            .select({ token: schema.attendanceSession.token })
+            .from(schema.attendanceSession)
+            .where(eq(schema.attendanceSession.token, token));
+
+        if (existing.length === 0) {
+            return token;
+        }
+    }
+
+    throw HTTPError.status(500, "Internal Server Error", {
+        message: "Failed to generate a unique attendance code.",
+    });
+}
+
 const Body = z.object({
     classroomCode: z.string().min(1),
     durationMinutes: z
@@ -51,7 +83,7 @@ export default defineHandler(async (event) => {
     const now = Date.now();
     const expiresAt = new Date(now + durationMinutes * 60 * 1000);
     const attendanceSessionId = uuid();
-    const attendanceToken = uuid();
+    const attendanceToken = await getUniqueSessionCode();
 
     await db.insert(schema.attendanceSession).values({
         id: attendanceSessionId,

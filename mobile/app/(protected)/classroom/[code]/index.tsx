@@ -337,11 +337,11 @@ export default function ClassroomScreen() {
     }, [classroomCode, durationMinutes]);
 
     const displayClassroomCode = useMemo(() => {
-        if (classroomCode.length <= 10) {
+        if (classroomCode.length <= 8) {
             return classroomCode;
         }
 
-        return `${classroomCode.slice(0, 4)}...${classroomCode.slice(-4)}`;
+        return `${classroomCode.slice(0, 3)}...${classroomCode.slice(-2)}`;
     }, [classroomCode]);
 
     const handleCopyClassroomCode = useCallback(async () => {
@@ -594,6 +594,7 @@ export default function ClassroomScreen() {
                 showBack
                 title={classroom.name}
                 subtitle={`Code: ${displayClassroomCode}`}
+                subtitleStyle={styles.codeSubtitle}
                 rightSlot={
                     <View style={styles.headerButtons}>
                         <AppButton
@@ -768,70 +769,82 @@ export default function ClassroomScreen() {
             {((role === "teacher" && teacherTab === "sessions") ||
                 (role === "student" && studentTab === "sessions") ||
                 (role === "student" && studentTab === "attendance")) && (
-                <FlatList
-                    data={sessions}
-                    keyExtractor={(item) => item.id}
-                    contentContainerStyle={styles.listContent}
-                    ListEmptyComponent={
-                        <AppCard>
-                            <ThemedText>No sessions yet.</ThemedText>
-                        </AppCard>
-                    }
-                    renderItem={({ item }) => {
-                        const isExpired =
-                            item.isClosed ||
-                            new Date(item.expiresAt).getTime() < Date.now();
+                <View style={styles.sessionsArea}>
+                    <View style={styles.sessionsActionRow}>
+                        <AppButton
+                            label={isRefreshing ? "Refreshing..." : "Refresh Sessions"}
+                            variant="secondary"
+                            onPress={() => {
+                                void refresh();
+                            }}
+                        />
+                    </View>
 
-                        return (
-                            <AppCard style={styles.sessionCard}>
-                                <View style={styles.sessionRow}>
-                                    <View style={styles.sessionDetails}>
-                                        <ThemedText type="defaultSemiBold">
-                                            {formatSessionLabel(item.createdAt)}
-                                        </ThemedText>
-                                        <ThemedText style={{ color: muted }}>
-                                            {item.presentCount}/{item.totalCount} students present
-                                        </ThemedText>
-                                    </View>
-                                    <View style={styles.sessionPills}>
-                                        <StatusPill
-                                            label={isExpired ? "Expired" : "Active"}
-                                            tone={isExpired ? "danger" : "success"}
-                                        />
-                                        {role === "student" ? (
-                                            <StatusPill
-                                                label={
-                                                    item.status === "present"
-                                                        ? "Present"
-                                                        : item.status === "absent"
-                                                          ? "Absent"
-                                                          : "Unknown"
-                                                }
-                                                tone={
-                                                    item.status === "present"
-                                                        ? "success"
-                                                        : item.status === "absent"
-                                                          ? "danger"
-                                                          : "muted"
-                                                }
-                                            />
-                                        ) : null}
-                                    </View>
-                                </View>
-
-                                <AppButton
-                                    label="Open Session"
-                                    variant="secondary"
-                                    onPress={() => {
-                                        router.push(
-                                            `/classroom/${classroomCode}/session/${item.id}` as never,
-                                        );
-                                    }}
-                                />
+                    <FlatList
+                        data={sessions}
+                        keyExtractor={(item) => item.id}
+                        contentContainerStyle={styles.listContent}
+                        ListEmptyComponent={
+                            <AppCard>
+                                <ThemedText>No sessions yet.</ThemedText>
                             </AppCard>
-                        );
-                    }}
-                />
+                        }
+                        renderItem={({ item }) => {
+                            const isExpired =
+                                item.isClosed ||
+                                new Date(item.expiresAt).getTime() < Date.now();
+
+                            return (
+                                <AppCard style={styles.sessionCard}>
+                                    <View style={styles.sessionRow}>
+                                        <View style={styles.sessionDetails}>
+                                            <ThemedText type="defaultSemiBold">
+                                                {formatSessionLabel(item.createdAt)}
+                                            </ThemedText>
+                                            <ThemedText style={{ color: muted }}>
+                                                {item.presentCount}/{item.totalCount} students present
+                                            </ThemedText>
+                                        </View>
+                                        <View style={styles.sessionPills}>
+                                            <StatusPill
+                                                label={isExpired ? "Expired" : "Active"}
+                                                tone={isExpired ? "danger" : "success"}
+                                            />
+                                            {role === "student" ? (
+                                                <StatusPill
+                                                    label={
+                                                        item.status === "present"
+                                                            ? "Present"
+                                                            : item.status === "absent"
+                                                              ? "Absent"
+                                                              : "Unknown"
+                                                    }
+                                                    tone={
+                                                        item.status === "present"
+                                                            ? "success"
+                                                            : item.status === "absent"
+                                                              ? "danger"
+                                                              : "muted"
+                                                    }
+                                                />
+                                            ) : null}
+                                        </View>
+                                    </View>
+
+                                    <AppButton
+                                        label="Open Session"
+                                        variant="secondary"
+                                        onPress={() => {
+                                            router.push(
+                                                `/classroom/${classroomCode}/session/${item.id}` as never,
+                                            );
+                                        }}
+                                    />
+                                </AppCard>
+                            );
+                        }}
+                    />
+                </View>
             )}
 
             {role === "teacher" && teacherTab === "create" ? (
@@ -1043,6 +1056,11 @@ const styles = StyleSheet.create({
         gap: 10,
         paddingBottom: 18,
     },
+    codeSubtitle: {
+        fontSize: 12,
+        lineHeight: 16,
+        letterSpacing: 0.3,
+    },
     headerButtons: {
         alignItems: "flex-end",
         gap: 8,
@@ -1159,6 +1177,13 @@ const styles = StyleSheet.create({
     },
     sessionCard: {
         gap: 10,
+    },
+    sessionsArea: {
+        flex: 1,
+        gap: 8,
+    },
+    sessionsActionRow: {
+        alignItems: "flex-end",
     },
     sessionRow: {
         flexDirection: "row",

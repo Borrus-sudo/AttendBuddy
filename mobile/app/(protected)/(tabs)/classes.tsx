@@ -385,8 +385,11 @@ export default function ClassesScreen() {
                                             styles.codeText,
                                             { color: colors.accent },
                                         ]}
+                                        numberOfLines={1}
                                     >
-                                        {item.code}
+                                        {item.code.length > 8
+                                            ? `${item.code.slice(0, 3)}...${item.code.slice(-2)}`
+                                            : item.code}
                                     </ThemedText>
                                 </View>
                             </Pressable>

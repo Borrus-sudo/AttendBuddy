@@ -1,4 +1,10 @@
-import { Pressable, StyleSheet, View, type ViewStyle } from "react-native";
+import {
+    Pressable,
+    StyleSheet,
+    View,
+    type TextStyle,
+    type ViewStyle,
+} from "react-native";
 import type { ReactNode } from "react";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { router } from "expo-router";
@@ -9,6 +15,7 @@ import { useThemeColor } from "@/hooks/use-theme-color";
 type ScreenHeaderProps = {
     title: string;
     subtitle?: string;
+    subtitleStyle?: TextStyle;
     rightSlot?: ReactNode;
     style?: ViewStyle;
     /** Show a back-arrow + label above the title */
@@ -22,6 +29,7 @@ type ScreenHeaderProps = {
 export function ScreenHeader({
     title,
     subtitle,
+    subtitleStyle,
     rightSlot,
     style,
     showBack = false,
@@ -63,7 +71,7 @@ export function ScreenHeader({
                     </ThemedText>
                     {subtitle ? (
                         <ThemedText
-                            style={[styles.subtitle, { color: muted }]}
+                            style={[styles.subtitle, { color: muted }, subtitleStyle]}
                         >
                             {subtitle}
                         </ThemedText>

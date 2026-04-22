@@ -3,26 +3,40 @@ import { HTTPError, readBody } from "h3";
 import { db, schema } from "@/src/lib/db";
 import { eq } from "drizzle-orm";
 import * as z from "zod";
-import { v4 as uuid } from "uuid";
+
+const CODE_ALPHABET = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+const CLASSROOM_CODE_LENGTH = 6;
 
 const Params = z.object({
     name: z.string().nonempty(),
     description: z.string(),
 });
 
-async function getUniqueUUID() {
-    do {
-        let code = uuid();
-        const pres =
-            (
-                await db
-                    .select({ code: schema.classroom.code })
-                    .from(schema.classroom)
-                    .where(eq(schema.classroom.code, code))
-            ).length != 0;
-        if (pres) continue;
-        return code;
-    } while (true);
+function randomCode(length: number): string {
+    let code = "";
+    for (let index = 0; index < length; index += 1) {
+        const nextIndex = Math.floor(Math.random() * CODE_ALPHABET.length);
+        code += CODE_ALPHABET[nextIndex]!;
+    }
+    return code;
+}
+
+async function getUniqueClassroomCode(): Promise<string> {
+    for (let attempt = 0; attempt < 20; attempt += 1) {
+        const code = randomCode(CLASSROOM_CODE_LENGTH);
+        const existing = await db
+            .select({ code: schema.classroom.code })
+            .from(schema.classroom)
+            .where(eq(schema.classroom.code, code));
+
+        if (existing.length === 0) {
+            return code;
+        }
+    }
+
+    throw HTTPError.status(500, "Internal Server Error", {
+        message: "Failed to generate a unique classroom code.",
+    });
 }
 export default defineHandler(async (event) => {
     const { id: userId } = event.context.user;
@@ -34,7 +48,7 @@ export default defineHandler(async (event) => {
         });
     }
     const classroom = {
-        code: await getUniqueUUID(),
+        code: await getUniqueClassroomCode(),
         creatorId: userId,
         name: parsed.data.name,
         description: parsed.data.description,
