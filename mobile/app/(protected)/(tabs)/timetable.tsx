@@ -225,9 +225,7 @@ export default function TimetableScreen() {
     /* ---------- render ---------- */
 
     return (
-        <ThemedView
-            style={[styles.container, { paddingTop: insets.top + 12 }]}
-        >
+        <ThemedView style={[styles.container, { paddingTop: insets.top + 20 }]}>
             <ScrollView
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={styles.scrollContent}

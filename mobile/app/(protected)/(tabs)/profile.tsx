@@ -15,7 +15,7 @@ import { Skeleton } from "@/components/ui/skeleton-loader";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { useAuth } from "@/providers/auth-provider";
-import { getUserProfile } from "@/lib/api";
+import { getClassroomSessions, getUserProfile } from "@/lib/api";
 import {
     ClassAccentColors,
     getClassEmoji,
@@ -25,6 +25,11 @@ import {
     CONTENT_BOTTOM_PAD,
 } from "@/constants/theme";
 import type { ClassroomSummary } from "@/types/api";
+
+type ClassroomMetric = {
+    studentAttendancePct?: number;
+    teacherSessionCount?: number;
+};
 
 export default function ProfileScreen() {
     const { user, loading } = useAuth();
@@ -41,13 +46,76 @@ export default function ProfileScreen() {
         : ClassAccentColors.light;
 
     const [classrooms, setClassrooms] = useState<ClassroomSummary[]>([]);
+    const [classroomMetrics, setClassroomMetrics] = useState<
+        Record<string, ClassroomMetric>
+    >({});
     const [isLoading, setIsLoading] = useState(true);
 
     const loadData = useCallback(async () => {
         if (!user) return;
         try {
             const response = await getUserProfile(user.id);
-            setClassrooms(response.payload.classrooms || []);
+            const userClassrooms = response.payload.classrooms || [];
+            setClassrooms(userClassrooms);
+
+            const metricEntries = await Promise.all(
+                userClassrooms.map(async (classroom) => {
+                    try {
+                        const role =
+                            classroom.role ||
+                            (classroom.creatorId === user.id
+                                ? "teacher"
+                                : "member");
+                        const sessions = await getClassroomSessions(
+                            classroom.code,
+                        );
+
+                        if (role === "teacher" || role === "creator") {
+                            const teacherSessionCount = sessions.filter(
+                                (session) =>
+                                    session.createdByUserId === user.id,
+                            ).length;
+
+                            return [
+                                classroom.code,
+                                {
+                                    teacherSessionCount,
+                                } satisfies ClassroomMetric,
+                            ] as const;
+                        }
+
+                        const markedSessions = sessions.filter(
+                            (session) =>
+                                session.status === "present" ||
+                                session.status === "absent",
+                        );
+                        const presentCount = markedSessions.filter(
+                            (session) => session.status === "present",
+                        ).length;
+                        const studentAttendancePct =
+                            markedSessions.length > 0
+                                ? Math.round(
+                                      (presentCount / markedSessions.length) *
+                                          100,
+                                  )
+                                : 0;
+
+                        return [
+                            classroom.code,
+                            {
+                                studentAttendancePct,
+                            } satisfies ClassroomMetric,
+                        ] as const;
+                    } catch {
+                        return [
+                            classroom.code,
+                            {} satisfies ClassroomMetric,
+                        ] as const;
+                    }
+                }),
+            );
+
+            setClassroomMetrics(Object.fromEntries(metricEntries));
         } catch {
             /* degrade gracefully */
         } finally {
@@ -260,6 +328,12 @@ export default function ProfileScreen() {
                                     (classroom.creatorId === user.id
                                         ? "teacher"
                                         : "member");
+                                const metric = classroomMetrics[classroom.code];
+
+                                const roleMetricLabel =
+                                    role === "teacher" || role === "creator"
+                                        ? `Sessions taken: ${metric?.teacherSessionCount ?? 0}`
+                                        : `Attendance: ${metric?.studentAttendancePct ?? 0}%`;
                                 return (
                                     <Pressable
                                         key={classroom.code}
@@ -317,6 +391,14 @@ export default function ProfileScreen() {
                                                     ? "Teaching"
                                                     : "Student"}{" "}
                                                 · {classroom.code}
+                                            </ThemedText>
+                                            <ThemedText
+                                                style={{
+                                                    color: mutedColor,
+                                                    fontSize: 12,
+                                                }}
+                                            >
+                                                {roleMetricLabel}
                                             </ThemedText>
                                         </View>
                                         <MaterialIcons

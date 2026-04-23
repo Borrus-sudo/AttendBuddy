@@ -12,6 +12,7 @@ import {
 } from "react-native";
 import { router, useLocalSearchParams } from "expo-router";
 import * as Clipboard from "expo-clipboard";
+import * as Haptics from "expo-haptics";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import { ThemedText } from "@/components/themed-text";
@@ -119,6 +120,7 @@ export default function ClassroomScreen() {
     const [isRefreshing, setIsRefreshing] = useState(false);
     const [isStartingSession, setIsStartingSession] = useState(false);
     const [isCopyingCode, setIsCopyingCode] = useState(false);
+    const [didCopyCode, setDidCopyCode] = useState(false);
     const [isMemberRowsLoading, setIsMemberRowsLoading] = useState(false);
 
     const [error, setError] = useState<string | null>(null);
@@ -188,6 +190,33 @@ export default function ClassroomScreen() {
                     ? Math.round((presentCount / sessions.length) * 100)
                     : 0,
         };
+    }, [sessions]);
+
+    const activeSessions = useMemo(() => {
+        const now = Date.now();
+        return sessions.filter(
+            (item) =>
+                !item.isClosed && new Date(item.expiresAt).getTime() >= now,
+        );
+    }, [sessions]);
+
+    const currentActiveSession = useMemo(() => {
+        if (activeSessions.length === 0) {
+            return null;
+        }
+
+        return [...activeSessions].sort(
+            (a, b) =>
+                new Date(b.createdAt).getTime() -
+                new Date(a.createdAt).getTime(),
+        )[0]!;
+    }, [activeSessions]);
+
+    const pastSessions = useMemo(() => {
+        const now = Date.now();
+        return sessions.filter(
+            (item) => item.isClosed || new Date(item.expiresAt).getTime() < now,
+        );
     }, [sessions]);
 
     const hydrateTeacherMemberRows = useCallback(
@@ -363,10 +392,26 @@ export default function ClassroomScreen() {
         setIsCopyingCode(true);
         try {
             await Clipboard.setStringAsync(classroomCode);
+            setDidCopyCode(true);
+            if (Platform.OS !== "web") {
+                await Haptics.notificationAsync(
+                    Haptics.NotificationFeedbackType.Success,
+                );
+            }
+            setTimeout(() => {
+                setDidCopyCode(false);
+            }, 1500);
         } finally {
             setIsCopyingCode(false);
         }
     }, [classroomCode]);
+
+    const handleRefresh = useCallback(async () => {
+        if (Platform.OS !== "web") {
+            await Haptics.selectionAsync();
+        }
+        await refresh();
+    }, [refresh]);
 
     const filteredMemberRows = useMemo(() => {
         const minValue = Number(minPct);
@@ -615,37 +660,43 @@ export default function ClassroomScreen() {
     }
 
     return (
-        <ThemedView style={[styles.container, { paddingTop: insets.top + 12 }]}>
+        <ThemedView style={[styles.container, { paddingTop: insets.top + 20 }]}>
             <ScreenHeader
                 showBack
                 title={classroom.name}
                 subtitle={`Code: ${displayClassroomCode}`}
                 subtitleStyle={styles.codeSubtitle}
                 rightSlot={
-                    <View style={styles.headerButtons}>
-                        <AppButton
-                            label={isCopyingCode ? "Copied" : "Copy Code"}
-                            variant="secondary"
-                            onPress={() => {
-                                void handleCopyClassroomCode();
-                            }}
-                        />
-                        <AppButton
-                            label={isRefreshing ? "Refreshing..." : "Refresh"}
-                            variant="ghost"
-                            onPress={() => {
-                                void refresh();
-                            }}
-                        />
-                    </View>
+                    <StatusPill
+                        label={role === "teacher" ? "Teacher" : "Student"}
+                        tone="muted"
+                    />
                 }
             />
 
-            <AppCard>
-                <ThemedText style={{ color: muted }}>
-                    {classroom.description || "No class description provided."}
-                </ThemedText>
-            </AppCard>
+            <View style={styles.topActionRow}>
+                <AppButton
+                    label={
+                        isCopyingCode
+                            ? "Copying..."
+                            : didCopyCode
+                              ? "Code copied"
+                              : `Copy Code (${displayClassroomCode})`
+                    }
+                    variant="secondary"
+                    style={styles.copyCodeButton}
+                    onPress={() => {
+                        void handleCopyClassroomCode();
+                    }}
+                />
+                <AppButton
+                    label={isRefreshing ? "Refreshing..." : "Refresh"}
+                    variant="ghost"
+                    onPress={() => {
+                        void handleRefresh();
+                    }}
+                />
+            </View>
 
             {role === "teacher" ? (
                 <SegmentedControl<TeacherTab>
@@ -663,7 +714,7 @@ export default function ClassroomScreen() {
                     onChange={setStudentTab}
                     options={[
                         { label: "Sessions", value: "sessions" },
-                        { label: "My Attendance", value: "attendance" },
+                        { label: "Attendance", value: "attendance" },
                         { label: "Analytics", value: "analytics" },
                     ]}
                 />
@@ -822,18 +873,32 @@ export default function ClassroomScreen() {
                             }
                             variant="secondary"
                             onPress={() => {
-                                void refresh();
+                                void handleRefresh();
                             }}
                         />
                     </View>
 
                     <FlatList
-                        data={sessions}
+                        data={
+                            role === "teacher"
+                                ? sessions
+                                : studentTab === "sessions"
+                                  ? currentActiveSession
+                                      ? [currentActiveSession]
+                                      : []
+                                  : pastSessions
+                        }
                         keyExtractor={(item) => item.id}
                         contentContainerStyle={styles.listContent}
                         ListEmptyComponent={
                             <AppCard>
-                                <ThemedText>No sessions yet.</ThemedText>
+                                <ThemedText>
+                                    {role === "teacher"
+                                        ? "No sessions yet."
+                                        : studentTab === "sessions"
+                                          ? "No active session right now."
+                                          : "No past attendance sessions yet."}
+                                </ThemedText>
                             </AppCard>
                         }
                         renderItem={({ item }) => {
@@ -1144,9 +1209,13 @@ const styles = StyleSheet.create({
         lineHeight: 16,
         letterSpacing: 0.3,
     },
-    headerButtons: {
-        alignItems: "flex-end",
+    topActionRow: {
+        flexDirection: "row",
+        alignItems: "center",
         gap: Spacing.sm,
+    },
+    copyCodeButton: {
+        flex: 1,
     },
     membersArea: {
         flex: 1,

@@ -100,7 +100,7 @@ export default function MemberDetailScreen() {
     const insets = useSafeAreaInsets();
 
     return (
-        <ThemedView style={[styles.container, { paddingTop: insets.top + 12 }]}>
+        <ThemedView style={[styles.container, { paddingTop: insets.top + 20 }]}>
             <ScreenHeader
                 showBack
                 title={analytics.member.name}

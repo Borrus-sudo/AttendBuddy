@@ -63,9 +63,7 @@ export default function SignInScreen() {
         <ThemedView style={styles.container}>
             <LinearGradient
                 colors={
-                    isDark
-                        ? ["#13141B", "#1E1F2B"]
-                        : ["#F7F8FC", "#F0EAFF"]
+                    isDark ? ["#13141B", "#1E1F2B"] : ["#F7F8FC", "#F0EAFF"]
                 }
                 style={[styles.gradient, { paddingTop: insets.top + 40 }]}
             >
@@ -75,9 +73,7 @@ export default function SignInScreen() {
                         style={[
                             styles.iconCircle,
                             {
-                                backgroundColor: isDark
-                                    ? "#22203A"
-                                    : "#F0EAFF",
+                                backgroundColor: isDark ? "#22203A" : "#F0EAFF",
                             },
                         ]}
                     >
@@ -127,9 +123,7 @@ export default function SignInScreen() {
                         style={({ pressed }) => [
                             styles.button,
                             {
-                                backgroundColor: isDark
-                                    ? "#9B7FFF"
-                                    : "#7C5CFC",
+                                backgroundColor: isDark ? "#9B7FFF" : "#7C5CFC",
                                 opacity: disabled ? 0.6 : 1,
                                 transform: [
                                     { scale: pressed && !disabled ? 0.97 : 1 },

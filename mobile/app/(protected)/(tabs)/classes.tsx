@@ -4,6 +4,7 @@ import {
     FlatList,
     Pressable,
     StyleSheet,
+    useWindowDimensions,
     View,
 } from "react-native";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
@@ -38,6 +39,9 @@ export default function ClassesScreen() {
     const insets = useSafeAreaInsets();
     const colorScheme = useColorScheme();
     const isDark = colorScheme === "dark";
+    const { width, height } = useWindowDimensions();
+    const isSmallScreen = width < 460;
+    const cardMinHeight = isSmallScreen ? Math.max(188, height * 0.28) : 200;
 
     const [classrooms, setClassrooms] = useState<ClassroomSummary[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -192,9 +196,7 @@ export default function ClassesScreen() {
     /* ---------- render ---------- */
 
     return (
-        <ThemedView
-            style={[styles.container, { paddingTop: insets.top + 12 }]}
-        >
+        <ThemedView style={[styles.container, { paddingTop: insets.top + 20 }]}>
             {/* Header */}
             <View style={styles.headerRow}>
                 <View>
@@ -279,8 +281,11 @@ export default function ClassesScreen() {
             <FlatList
                 data={classrooms}
                 keyExtractor={(item) => item.code}
-                numColumns={2}
-                columnWrapperStyle={styles.columnWrapper}
+                key={isSmallScreen ? "single-column" : "two-column"}
+                numColumns={isSmallScreen ? 1 : 2}
+                columnWrapperStyle={
+                    isSmallScreen ? undefined : styles.columnWrapper
+                }
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={styles.listContent}
                 ListEmptyComponent={
@@ -312,12 +317,16 @@ export default function ClassesScreen() {
                         <View
                             style={[
                                 styles.gridItem,
-                                index % 2 === 0 ? styles.gridItemLeft : null,
+                                isSmallScreen ? styles.gridItemSingle : null,
+                                !isSmallScreen && index % 2 === 0
+                                    ? styles.gridItemLeft
+                                    : null,
                             ]}
                         >
                             <Pressable
                                 style={({ pressed }) => [
                                     styles.classCard,
+                                    { minHeight: cardMinHeight },
                                     {
                                         backgroundColor: colors.bg,
                                         opacity: pressed ? 0.9 : 1,
@@ -522,6 +531,9 @@ const styles = StyleSheet.create({
         flex: 1,
         maxWidth: "50%",
     },
+    gridItemSingle: {
+        maxWidth: "100%",
+    },
     gridItemLeft: {
         paddingRight: 0,
     },
@@ -530,7 +542,7 @@ const styles = StyleSheet.create({
     classCard: {
         borderRadius: Radii.xxl,
         padding: Spacing.lg,
-        gap: Spacing.sm,
+        gap: Spacing.md,
         minHeight: 200,
         ...Shadows.sm,
     },
@@ -550,8 +562,8 @@ const styles = StyleSheet.create({
     className: { fontSize: 15, lineHeight: 20 },
     description: {
         fontSize: 12,
-        lineHeight: 16,
-        minHeight: 48,
+        lineHeight: 18,
+        minHeight: 40,
     },
     classFooter: {
         flexDirection: "row",

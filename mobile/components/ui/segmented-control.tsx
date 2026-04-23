@@ -26,12 +26,7 @@ export function SegmentedControl<T extends string>({
     const muted = useThemeColor({}, "muted");
 
     return (
-        <View
-            style={[
-                styles.container,
-                { backgroundColor: card },
-            ]}
-        >
+        <View style={[styles.container, { backgroundColor: card }]}>
             {options.map((option) => {
                 const active = option.value === value;
                 return (

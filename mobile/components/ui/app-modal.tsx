@@ -1,6 +1,7 @@
-import { Modal, Pressable, StyleSheet, View } from "react-native";
+import { Modal, Pressable, ScrollView, StyleSheet, View } from "react-native";
 import type { ReactNode } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { X } from "lucide-react-native";
 
 import { ThemedText } from "@/components/themed-text";
 import { useThemeColor } from "@/hooks/use-theme-color";
@@ -16,6 +17,7 @@ type AppModalProps = {
 export function AppModal({ visible, title, onClose, children }: AppModalProps) {
     const card = useThemeColor({}, "card");
     const muted = useThemeColor({}, "muted");
+    const border = useThemeColor({}, "border");
     const insets = useSafeAreaInsets();
 
     return (
@@ -41,17 +43,27 @@ export function AppModal({ visible, title, onClose, children }: AppModalProps) {
                         <ThemedText type="subtitle">{title}</ThemedText>
                         <Pressable
                             onPress={onClose}
-                            style={styles.closeButton}
-                            hitSlop={12}
+                            style={({ pressed }) => [
+                                styles.closeButton,
+                                {
+                                    backgroundColor: pressed
+                                        ? "rgba(128, 128, 128, 0.15)"
+                                        : "rgba(128, 128, 128, 0.08)",
+                                },
+                            ]}
+                            hitSlop={8}
                         >
-                            <ThemedText
-                                style={[styles.closeText, { color: muted }]}
-                            >
-                                Close
-                            </ThemedText>
+                            <X size={18} color={muted} strokeWidth={2.5} />
                         </Pressable>
                     </View>
-                    {children}
+                    <ScrollView
+                        style={styles.scrollBody}
+                        contentContainerStyle={styles.scrollContent}
+                        showsVerticalScrollIndicator={false}
+                        bounces={false}
+                    >
+                        {children}
+                    </ScrollView>
                 </View>
             </View>
         </Modal>
@@ -73,6 +85,7 @@ const styles = StyleSheet.create({
         paddingHorizontal: Spacing.xl,
         paddingTop: Spacing.md,
         gap: Spacing.lg,
+        maxHeight: "85%",
         ...Shadows.lg,
     },
     handleBar: {
@@ -89,14 +102,16 @@ const styles = StyleSheet.create({
         justifyContent: "space-between",
     },
     closeButton: {
-        minHeight: 44,
-        minWidth: 44,
+        width: 36,
+        height: 36,
+        borderRadius: 18,
         justifyContent: "center",
-        alignItems: "flex-end",
+        alignItems: "center",
     },
-    closeText: {
-        fontSize: 14,
-        lineHeight: 18,
-        fontWeight: "700",
+    scrollBody: {
+        flexGrow: 0,
+    },
+    scrollContent: {
+        paddingBottom: Spacing.md,
     },
 });

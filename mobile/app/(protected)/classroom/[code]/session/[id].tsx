@@ -17,12 +17,25 @@ import { useLocalSearchParams } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { CameraView, useCameraPermissions } from "expo-camera";
 import QRCode from "react-native-qrcode-svg";
+import {
+    Clock,
+    Send,
+    FileText,
+    CheckCircle2,
+    XCircle,
+    AlertCircle,
+    Lock,
+    MessageSquarePlus,
+    ShieldAlert,
+    History,
+} from "lucide-react-native";
 
 import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { AppButton } from "@/components/ui/app-button";
 import { AppCard } from "@/components/ui/app-card";
 import { AppListItem } from "@/components/ui/app-list-item";
+import { AppModal } from "@/components/ui/app-modal";
 import { ScreenHeader } from "@/components/ui/screen-header";
 import { StatusPill } from "@/components/ui/status-pill";
 import { useThemeColor } from "@/hooks/use-theme-color";
@@ -57,7 +70,10 @@ export default function SessionDetailScreen() {
     const primary = useThemeColor({}, "primary");
     const muted = useThemeColor({}, "muted");
     const danger = useThemeColor({}, "danger");
+    const success = useThemeColor({}, "success");
     const card = useThemeColor({}, "card");
+    const border = useThemeColor({}, "border");
+    const text = useThemeColor({}, "text");
     const colorScheme = useColorScheme();
     const isDark = colorScheme === "dark";
 
@@ -77,6 +93,7 @@ export default function SessionDetailScreen() {
     const [requestMessage, setRequestMessage] = useState("");
     const [isSubmittingRequest, setIsSubmittingRequest] = useState(false);
     const [isReviewingRequest, setIsReviewingRequest] = useState(false);
+    const [showRequestModal, setShowRequestModal] = useState(false);
     const [isCameraReady, setIsCameraReady] = useState(false);
     const cameraRef = useRef<CameraView | null>(null);
     const insets = useSafeAreaInsets();
@@ -125,6 +142,14 @@ export default function SessionDetailScreen() {
     }, [data]);
 
     const isTeacher = data?.role === "teacher";
+    const isSessionExpired = useMemo(() => {
+        if (!data) return false;
+        return (
+            data.session.isClosed ||
+            new Date(data.session.expiresAt).getTime() < Date.now()
+        );
+    }, [data]);
+
     const currentStudent = useMemo(() => {
         if (!data || isTeacher) {
             return null;
@@ -329,6 +354,7 @@ export default function SessionDetailScreen() {
             );
             setData(latest);
             setRequestMessage("");
+            setShowRequestModal(false);
         } catch (err) {
             setError(
                 err instanceof Error
@@ -384,27 +410,15 @@ export default function SessionDetailScreen() {
     }
 
     return (
-        <ThemedView style={[styles.container, { paddingTop: insets.top + 12 }]}>
+        <ThemedView style={[styles.container, { paddingTop: insets.top + 20 }]}>
             <ScreenHeader
                 showBack
                 title="Session Detail"
                 subtitle={formatSessionLabel(data.session.createdAt)}
                 rightSlot={
                     <StatusPill
-                        label={
-                            data.session.isClosed ||
-                            new Date(data.session.expiresAt).getTime() <
-                                Date.now()
-                                ? "Expired"
-                                : "Active"
-                        }
-                        tone={
-                            data.session.isClosed ||
-                            new Date(data.session.expiresAt).getTime() <
-                                Date.now()
-                                ? "danger"
-                                : "success"
-                        }
+                        label={isSessionExpired ? "Expired" : "Active"}
+                        tone={isSessionExpired ? "danger" : "success"}
                     />
                 }
             />
@@ -522,65 +536,71 @@ export default function SessionDetailScreen() {
                             ) : null}
                         </AppCard>
 
-                        {currentStudent && !currentStudent.isPresent ? (
-                            <AppCard style={styles.requestCard}>
-                                <ThemedText type="defaultSemiBold">
-                                    Request attendance review
-                                </ThemedText>
-                                <ThemedText style={{ color: muted }}>
-                                    If you were missed, send a message to your
-                                    teacher.
-                                </ThemedText>
-                                <TextInput
-                                    value={requestMessage}
-                                    onChangeText={setRequestMessage}
-                                    placeholder="Explain why you should be marked present"
-                                    placeholderTextColor={muted}
-                                    multiline
+                        {/* Request Attendance — only if session is expired AND student absent */}
+                        {currentStudent &&
+                        !currentStudent.isPresent &&
+                        isSessionExpired ? (
+                            <Pressable
+                                onPress={() => setShowRequestModal(true)}
+                                style={({ pressed }) => [
+                                    styles.requestTrigger,
+                                    {
+                                        backgroundColor: isDark
+                                            ? "rgba(155, 127, 255, 0.08)"
+                                            : "rgba(124, 92, 252, 0.06)",
+                                        borderColor: isDark
+                                            ? "rgba(155, 127, 255, 0.2)"
+                                            : "rgba(124, 92, 252, 0.15)",
+                                        transform: [
+                                            { scale: pressed ? 0.97 : 1 },
+                                        ],
+                                        opacity: pressed ? 0.85 : 1,
+                                    },
+                                ]}
+                            >
+                                <View style={styles.requestTriggerIcon}>
+                                    <MessageSquarePlus
+                                        size={22}
+                                        color={primary}
+                                        strokeWidth={2}
+                                    />
+                                </View>
+                                <View style={styles.requestTriggerTextWrap}>
+                                    <ThemedText
+                                        type="defaultSemiBold"
+                                        style={{ fontSize: 15 }}
+                                    >
+                                        Request Attendance
+                                    </ThemedText>
+                                    <ThemedText
+                                        style={{
+                                            color: muted,
+                                            fontSize: 13,
+                                            lineHeight: 18,
+                                        }}
+                                    >
+                                        Session expired — ask your teacher to
+                                        mark you present
+                                    </ThemedText>
+                                </View>
+                                <View
                                     style={[
-                                        styles.requestInput,
-                                        { color: muted },
+                                        styles.requestTriggerBadge,
+                                        {
+                                            backgroundColor: isDark
+                                                ? "rgba(155, 127, 255, 0.15)"
+                                                : "rgba(124, 92, 252, 0.1)",
+                                        },
                                     ]}
-                                />
-                                <AppButton
-                                    label="Submit Request"
-                                    loading={isSubmittingRequest}
-                                    onPress={() => {
-                                        void handleSubmitRequest();
-                                    }}
-                                />
-                                {data.requests.length > 0 ? (
-                                    <View style={styles.requestHistory}>
-                                        {data.requests.map((request) => (
-                                            <View
-                                                key={request.id}
-                                                style={
-                                                    styles.requestHistoryItem
-                                                }
-                                            >
-                                                <StatusPill
-                                                    label={request.status.toUpperCase()}
-                                                    tone={
-                                                        request.status ===
-                                                        "approved"
-                                                            ? "success"
-                                                            : request.status ===
-                                                                "rejected"
-                                                              ? "danger"
-                                                              : "muted"
-                                                    }
-                                                />
-                                                <ThemedText>
-                                                    {request.message}
-                                                </ThemedText>
-                                            </View>
-                                        ))}
-                                    </View>
-                                ) : null}
-                            </AppCard>
+                                >
+                                    <Clock
+                                        size={14}
+                                        color={primary}
+                                        strokeWidth={2.5}
+                                    />
+                                </View>
+                            </Pressable>
                         ) : null}
-
-
 
                         <View style={styles.studentSummary}>
                             <ThemedText style={{ color: muted }}>
@@ -762,9 +782,16 @@ export default function SessionDetailScreen() {
                     </View>
 
                     {/* Hint */}
-                    <ThemedText style={styles.selfieHint}>
-                        🔒 Photo is used only for verification
-                    </ThemedText>
+                    <View style={styles.selfieHintRow}>
+                        <Lock
+                            size={12}
+                            color="rgba(255, 255, 255, 0.4)"
+                            strokeWidth={2.5}
+                        />
+                        <ThemedText style={styles.selfieHint}>
+                            Photo is used only for verification
+                        </ThemedText>
+                    </View>
 
                     {/* Shutter + Cancel */}
                     <View style={styles.selfieControls}>
@@ -774,8 +801,11 @@ export default function SessionDetailScreen() {
                                 void handleTakeSelfie();
                             }}
                             style={({ pressed }) => ({
-                                opacity:
-                                    !isCameraReady ? 0.4 : pressed ? 0.85 : 1,
+                                opacity: !isCameraReady
+                                    ? 0.4
+                                    : pressed
+                                      ? 0.85
+                                      : 1,
                             })}
                         >
                             <Animated.View
@@ -783,9 +813,7 @@ export default function SessionDetailScreen() {
                                     styles.shutterOuter,
                                     {
                                         borderColor: primary,
-                                        transform: [
-                                            { scale: shutterScale },
-                                        ],
+                                        transform: [{ scale: shutterScale }],
                                     },
                                 ]}
                             >
@@ -813,6 +841,200 @@ export default function SessionDetailScreen() {
                     </Pressable>
                 </View>
             </Modal>
+
+            {/* ---- Attendance Request Modal ---- */}
+            <AppModal
+                visible={showRequestModal}
+                title="Request Attendance"
+                onClose={() => setShowRequestModal(false)}
+            >
+                <View style={styles.requestModalContent}>
+                    {/* Header illustration */}
+                    <View
+                        style={[
+                            styles.requestModalIconWrap,
+                            {
+                                backgroundColor: isDark
+                                    ? "rgba(155, 127, 255, 0.12)"
+                                    : "rgba(124, 92, 252, 0.08)",
+                            },
+                        ]}
+                    >
+                        <ShieldAlert
+                            size={32}
+                            color={primary}
+                            strokeWidth={1.8}
+                        />
+                    </View>
+                    <ThemedText
+                        style={{
+                            color: muted,
+                            fontSize: 14,
+                            lineHeight: 20,
+                            textAlign: "center",
+                        }}
+                    >
+                        This session has expired and you are marked absent. Send
+                        a message to your teacher explaining why you should be
+                        marked present.
+                    </ThemedText>
+
+                    {/* Message input */}
+                    <View style={styles.requestModalInputWrap}>
+                        <View style={styles.requestModalInputLabel}>
+                            <FileText size={14} color={muted} strokeWidth={2} />
+                            <ThemedText
+                                style={{
+                                    color: muted,
+                                    fontSize: 12,
+                                    fontWeight: "600",
+                                    letterSpacing: 0.3,
+                                }}
+                            >
+                                YOUR MESSAGE
+                            </ThemedText>
+                        </View>
+                        <TextInput
+                            value={requestMessage}
+                            onChangeText={setRequestMessage}
+                            placeholder="Explain why you should be marked present..."
+                            placeholderTextColor={
+                                isDark
+                                    ? "rgba(107, 111, 130, 0.7)"
+                                    : "rgba(144, 148, 166, 0.7)"
+                            }
+                            multiline
+                            numberOfLines={4}
+                            style={[
+                                styles.requestModalInput,
+                                {
+                                    color: text,
+                                    backgroundColor: isDark
+                                        ? "rgba(42, 43, 58, 0.5)"
+                                        : "rgba(237, 237, 245, 0.6)",
+                                    borderColor: isDark
+                                        ? "rgba(42, 43, 58, 0.8)"
+                                        : "rgba(237, 237, 245, 1)",
+                                },
+                            ]}
+                        />
+                    </View>
+
+                    {/* Error display */}
+                    {error ? (
+                        <View style={styles.requestModalError}>
+                            <AlertCircle
+                                size={14}
+                                color={danger}
+                                strokeWidth={2.5}
+                            />
+                            <ThemedText
+                                style={{
+                                    color: danger,
+                                    fontSize: 13,
+                                    flex: 1,
+                                }}
+                            >
+                                {error}
+                            </ThemedText>
+                        </View>
+                    ) : null}
+
+                    {/* Submit button */}
+                    <AppButton
+                        label="Send Request"
+                        loading={isSubmittingRequest}
+                        leftIcon={
+                            <Send size={16} color="#f8fafc" strokeWidth={2.5} />
+                        }
+                        onPress={() => {
+                            void handleSubmitRequest();
+                        }}
+                    />
+
+                    {/* Previous requests history */}
+                    {data.requests.length > 0 ? (
+                        <View style={styles.requestModalHistory}>
+                            <View style={styles.requestModalHistoryHeader}>
+                                <History
+                                    size={14}
+                                    color={muted}
+                                    strokeWidth={2.5}
+                                />
+                                <ThemedText
+                                    style={{
+                                        color: muted,
+                                        fontSize: 12,
+                                        fontWeight: "600",
+                                        letterSpacing: 0.3,
+                                    }}
+                                >
+                                    PREVIOUS REQUESTS
+                                </ThemedText>
+                            </View>
+                            {data.requests.map((request) => (
+                                <View
+                                    key={request.id}
+                                    style={[
+                                        styles.requestModalHistoryItem,
+                                        {
+                                            backgroundColor: isDark
+                                                ? "rgba(42, 43, 58, 0.35)"
+                                                : "rgba(237, 237, 245, 0.5)",
+                                        },
+                                    ]}
+                                >
+                                    <View
+                                        style={
+                                            styles.requestModalHistoryItemHeader
+                                        }
+                                    >
+                                        {request.status === "approved" ? (
+                                            <CheckCircle2
+                                                size={16}
+                                                color={success}
+                                                strokeWidth={2.5}
+                                            />
+                                        ) : request.status === "rejected" ? (
+                                            <XCircle
+                                                size={16}
+                                                color={danger}
+                                                strokeWidth={2.5}
+                                            />
+                                        ) : (
+                                            <Clock
+                                                size={16}
+                                                color={muted}
+                                                strokeWidth={2.5}
+                                            />
+                                        )}
+                                        <StatusPill
+                                            label={request.status.toUpperCase()}
+                                            tone={
+                                                request.status === "approved"
+                                                    ? "success"
+                                                    : request.status ===
+                                                        "rejected"
+                                                      ? "danger"
+                                                      : "muted"
+                                            }
+                                        />
+                                    </View>
+                                    <ThemedText
+                                        style={{
+                                            fontSize: 13,
+                                            lineHeight: 18,
+                                            color: muted,
+                                        }}
+                                    >
+                                        {request.message}
+                                    </ThemedText>
+                                </View>
+                            ))}
+                        </View>
+                    ) : null}
+                </View>
+            </AppModal>
         </ThemedView>
     );
 }
@@ -865,8 +1087,32 @@ const styles = StyleSheet.create({
     studentSection: {
         gap: Spacing.md,
     },
-    requestCard: {
+    requestTrigger: {
+        flexDirection: "row",
+        alignItems: "center",
         gap: Spacing.md,
+        borderRadius: Radii.xxl,
+        borderWidth: 1,
+        padding: Spacing.lg,
+    },
+    requestTriggerIcon: {
+        width: 44,
+        height: 44,
+        borderRadius: 22,
+        backgroundColor: "rgba(155, 127, 255, 0.12)",
+        alignItems: "center",
+        justifyContent: "center",
+    },
+    requestTriggerTextWrap: {
+        flex: 1,
+        gap: 2,
+    },
+    requestTriggerBadge: {
+        width: 32,
+        height: 32,
+        borderRadius: 16,
+        alignItems: "center",
+        justifyContent: "center",
     },
     requestInput: {
         borderRadius: Radii.lg,
@@ -926,10 +1172,15 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         backgroundColor: "rgba(15, 23, 42, 0.6)",
     },
+    selfieHintRow: {
+        flexDirection: "row",
+        alignItems: "center",
+        gap: 6,
+        marginTop: Spacing.sm,
+    },
     selfieHint: {
         fontSize: 12,
         color: "rgba(255, 255, 255, 0.4)",
-        marginTop: Spacing.sm,
     },
     selfieControls: {
         marginTop: Spacing.xxl,
@@ -958,15 +1209,6 @@ const styles = StyleSheet.create({
         color: "rgba(255, 255, 255, 0.6)",
         fontSize: 15,
         fontWeight: "600",
-    },
-    requestHistory: {
-        gap: Spacing.sm,
-    },
-    requestHistoryItem: {
-        gap: Spacing.sm,
-        borderRadius: Radii.lg,
-        padding: Spacing.md,
-        backgroundColor: "rgba(42, 43, 58, 0.35)",
     },
     studentSummary: {
         alignItems: "center",
@@ -1000,6 +1242,67 @@ const styles = StyleSheet.create({
     },
     teacherRequestActions: {
         flexDirection: "row",
+        gap: Spacing.sm,
+    },
+    /* ---- Request Modal ---- */
+    requestModalContent: {
+        gap: Spacing.lg,
+        alignItems: "center",
+    },
+    requestModalIconWrap: {
+        width: 64,
+        height: 64,
+        borderRadius: 32,
+        alignItems: "center",
+        justifyContent: "center",
+    },
+    requestModalInputWrap: {
+        width: "100%",
+        gap: Spacing.sm,
+    },
+    requestModalInputLabel: {
+        flexDirection: "row",
+        alignItems: "center",
+        gap: 6,
+    },
+    requestModalInput: {
+        borderRadius: Radii.lg,
+        minHeight: 100,
+        textAlignVertical: "top",
+        paddingHorizontal: Spacing.lg,
+        paddingVertical: Spacing.md,
+        borderWidth: 1,
+        fontSize: 14,
+        lineHeight: 20,
+    },
+    requestModalError: {
+        flexDirection: "row",
+        alignItems: "center",
+        gap: Spacing.sm,
+        width: "100%",
+        paddingHorizontal: Spacing.md,
+        paddingVertical: Spacing.sm,
+        borderRadius: Radii.md,
+        backgroundColor: "rgba(255, 107, 107, 0.08)",
+    },
+    requestModalHistory: {
+        width: "100%",
+        gap: Spacing.sm,
+    },
+    requestModalHistoryHeader: {
+        flexDirection: "row",
+        alignItems: "center",
+        gap: 6,
+        marginBottom: Spacing.xs,
+    },
+    requestModalHistoryItem: {
+        gap: Spacing.sm,
+        borderRadius: Radii.lg,
+        padding: Spacing.md,
+    },
+    requestModalHistoryItemHeader: {
+        flexDirection: "row",
+        alignItems: "center",
         gap: Spacing.sm,
     },
 });
