@@ -20,7 +20,6 @@ export function Skeleton({
     style,
 }: SkeletonProps) {
     const colorScheme = useColorScheme();
-    const isDark = colorScheme === "dark";
     const opacity = useRef(new Animated.Value(0.35)).current;
 
     useEffect(() => {
@@ -51,7 +50,7 @@ export function Skeleton({
                     width: circle ? size : width,
                     height,
                     borderRadius: circle ? height / 2 : borderRadius,
-                    backgroundColor: isDark ? "#2A2B3A" : "#E4E5EE",
+                    backgroundColor: "#E4E5EE",
                     opacity,
                 },
                 style,

@@ -55,7 +55,6 @@ export default function HomeScreen() {
     const { user } = useAuth();
     const insets = useSafeAreaInsets();
     const colorScheme = useColorScheme();
-    const isDark = colorScheme === "dark";
 
     const cardColor = useThemeColor({}, "card");
     const mutedColor = useThemeColor({}, "muted");
@@ -65,9 +64,7 @@ export default function HomeScreen() {
     const [isLoading, setIsLoading] = useState(true);
     const [isRefreshing, setIsRefreshing] = useState(false);
 
-    const accentColors = isDark
-        ? ClassAccentColors.dark
-        : ClassAccentColors.light;
+    const accentColors = ClassAccentColors.light;
 
     /* ---------- data ---------- */
 
@@ -196,11 +193,8 @@ export default function HomeScreen() {
                     </ThemedText>
                 </View>
 
-                {/* ---- Overview Card ---- */}
                 <LinearGradient
-                    colors={
-                        isDark ? ["#22203A", "#1C2A3C"] : ["#7C5CFC", "#5B8DEF"]
-                    }
+                    colors={["#C9996B", "#DFB892"]}
                     start={{ x: 0, y: 0 }}
                     end={{ x: 1, y: 1 }}
                     style={styles.overviewCard}
@@ -259,7 +253,7 @@ export default function HomeScreen() {
                         style={({ pressed }) => [
                             styles.quickAction,
                             {
-                                backgroundColor: isDark ? "#22203A" : "#F0EAFF",
+                                backgroundColor: "#F0EAE3",
                                 opacity: pressed ? 0.8 : 1,
                                 transform: [{ scale: pressed ? 0.95 : 1 }],
                             },
@@ -274,7 +268,7 @@ export default function HomeScreen() {
                         <ThemedText
                             style={[
                                 styles.quickActionLabel,
-                                { color: primaryColor },
+                                { color: "#C9996B" },
                             ]}
                         >
                             Create
@@ -285,7 +279,7 @@ export default function HomeScreen() {
                         style={({ pressed }) => [
                             styles.quickAction,
                             {
-                                backgroundColor: isDark ? "#1C322F" : "#E5FAF6",
+                                backgroundColor: "#E6EBE8",
                                 opacity: pressed ? 0.8 : 1,
                                 transform: [{ scale: pressed ? 0.95 : 1 }],
                             },
@@ -300,9 +294,7 @@ export default function HomeScreen() {
                         <ThemedText
                             style={[
                                 styles.quickActionLabel,
-                                {
-                                    color: isDark ? "#6BE0D8" : "#4ECDC4",
-                                },
+                                { color: "#5C766D" },
                             ]}
                         >
                             Join
@@ -313,7 +305,7 @@ export default function HomeScreen() {
                         style={({ pressed }) => [
                             styles.quickAction,
                             {
-                                backgroundColor: isDark ? "#3A1C2A" : "#FFF0F5",
+                                backgroundColor: "#F3EAE8",
                                 opacity: pressed ? 0.8 : 1,
                                 transform: [{ scale: pressed ? 0.95 : 1 }],
                             },
@@ -330,9 +322,7 @@ export default function HomeScreen() {
                         <ThemedText
                             style={[
                                 styles.quickActionLabel,
-                                {
-                                    color: isDark ? "#FF85B1" : "#FF6B9D",
-                                },
+                                { color: "#BE7F72" },
                             ]}
                         >
                             Schedule
@@ -533,11 +523,12 @@ const styles = StyleSheet.create({
     },
     greeting: {
         fontSize: 28,
-        fontWeight: "800",
+        fontWeight: "600",
         lineHeight: 34,
     },
     dateText: {
         fontSize: 14,
+        fontWeight: "500",
         lineHeight: 20,
     },
 
@@ -575,13 +566,13 @@ const styles = StyleSheet.create({
     },
     statValue: {
         fontSize: 22,
-        fontWeight: "800",
+        fontWeight: "600",
         color: "#FFFFFF",
     },
     statLabel: {
         fontSize: 11,
-        color: "rgba(255,255,255,0.7)",
-        fontWeight: "600",
+        color: "rgba(255,255,255,0.8)",
+        fontWeight: "500",
         marginTop: 2,
     },
     statDivider: {
@@ -617,7 +608,7 @@ const styles = StyleSheet.create({
     },
     quickActionLabel: {
         fontSize: 12,
-        fontWeight: "700",
+        fontWeight: "600",
     },
 
     /* section header */
@@ -628,7 +619,7 @@ const styles = StyleSheet.create({
     },
     sectionTitle: {
         fontSize: 20,
-        fontWeight: "700",
+        fontWeight: "600",
     },
     seeAllButton: {
         minHeight: 44,
@@ -637,7 +628,7 @@ const styles = StyleSheet.create({
     },
     seeAll: {
         fontSize: 14,
-        fontWeight: "600",
+        fontWeight: "500",
     },
 
     /* class grid */
@@ -686,7 +677,7 @@ const styles = StyleSheet.create({
     },
     classCode: {
         fontSize: 11,
-        fontWeight: "700",
+        fontWeight: "600",
         letterSpacing: 0.5,
     },
 

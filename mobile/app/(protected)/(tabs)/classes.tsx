@@ -38,7 +38,6 @@ export default function ClassesScreen() {
     const { user, loading } = useAuth();
     const insets = useSafeAreaInsets();
     const colorScheme = useColorScheme();
-    const isDark = colorScheme === "dark";
     const { width, height } = useWindowDimensions();
     const isSmallScreen = width < 460;
     const cardMinHeight = isSmallScreen ? Math.max(188, height * 0.28) : 200;
@@ -58,9 +57,7 @@ export default function ClassesScreen() {
     const primaryColor = useThemeColor({}, "primary");
     const cardColor = useThemeColor({}, "card");
 
-    const accentColors = isDark
-        ? ClassAccentColors.dark
-        : ClassAccentColors.light;
+    const accentColors = ClassAccentColors.light;
 
     /* ---------- data ---------- */
 
@@ -212,7 +209,7 @@ export default function ClassesScreen() {
                         style={({ pressed }) => [
                             styles.actionChip,
                             {
-                                backgroundColor: isDark ? "#22203A" : "#F0EAFF",
+                                backgroundColor: "rgba(201, 153, 107, 0.15)",
                                 opacity: pressed ? 0.8 : 1,
                                 transform: [{ scale: pressed ? 0.95 : 1 }],
                             },
@@ -240,7 +237,7 @@ export default function ClassesScreen() {
                         style={({ pressed }) => [
                             styles.actionChip,
                             {
-                                backgroundColor: isDark ? "#1C322F" : "#E5FAF6",
+                                backgroundColor: "rgba(92, 118, 109, 0.15)",
                                 opacity: pressed ? 0.8 : 1,
                                 transform: [{ scale: pressed ? 0.95 : 1 }],
                             },
@@ -250,15 +247,11 @@ export default function ClassesScreen() {
                             setJoinModalVisible(true);
                         }}
                     >
-                        <MaterialIcons
-                            name="link"
-                            size={15}
-                            color={isDark ? "#6BE0D8" : "#4ECDC4"}
-                        />
+                        <MaterialIcons name="link" size={15} color="#5C766D" />
                         <ThemedText
                             style={[
                                 styles.actionChipLabel,
-                                { color: isDark ? "#6BE0D8" : "#4ECDC4" },
+                                { color: "#5C766D" },
                             ]}
                         >
                             Join
@@ -489,7 +482,7 @@ const styles = StyleSheet.create({
     },
     titleText: {
         fontSize: 28,
-        fontWeight: "800",
+        fontWeight: "600",
         lineHeight: 34,
     },
     subtitleText: {
@@ -511,7 +504,7 @@ const styles = StyleSheet.create({
     },
     actionChipLabel: {
         fontSize: 13,
-        fontWeight: "700",
+        fontWeight: "600",
     },
 
     /* error */
@@ -573,7 +566,7 @@ const styles = StyleSheet.create({
     },
     codeText: {
         fontSize: 11,
-        fontWeight: "700",
+        fontWeight: "600",
         letterSpacing: 0.5,
     },
 

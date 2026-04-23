@@ -18,7 +18,6 @@ export default function SignInScreen() {
     const [error, setError] = useState<string | null>(null);
     const insets = useSafeAreaInsets();
     const colorScheme = useColorScheme();
-    const isDark = colorScheme === "dark";
 
     if (loading) {
         return (
@@ -62,9 +61,7 @@ export default function SignInScreen() {
     return (
         <ThemedView style={styles.container}>
             <LinearGradient
-                colors={
-                    isDark ? ["#13141B", "#1E1F2B"] : ["#F7F8FC", "#F0EAFF"]
-                }
+                colors={["#EDE9E6", "#EDE9E6"]}
                 style={[styles.gradient, { paddingTop: insets.top + 40 }]}
             >
                 {/* Hero */}
@@ -72,25 +69,18 @@ export default function SignInScreen() {
                     <View
                         style={[
                             styles.iconCircle,
-                            {
-                                backgroundColor: isDark ? "#22203A" : "#F0EAFF",
-                            },
+                            { backgroundColor: "rgba(201, 153, 107, 0.15)" },
                         ]}
                     >
                         <ThemedText style={styles.iconEmoji}>📚</ThemedText>
                     </View>
-                    <ThemedText
-                        style={[
-                            styles.appName,
-                            { color: isDark ? "#E8E9F0" : "#2D3142" },
-                        ]}
-                    >
+                    <ThemedText style={[styles.appName, { color: "#5C4F4A" }]}>
                         AttendBuddy
                     </ThemedText>
                     <ThemedText
                         style={[
                             styles.tagline,
-                            { color: isDark ? "#6B6F82" : "#9094A6" },
+                            { color: "rgba(92, 79, 74, 0.65)" },
                         ]}
                     >
                         Track attendance effortlessly.{"\n"}Stay on top of your
@@ -103,7 +93,7 @@ export default function SignInScreen() {
                     style={[
                         styles.card,
                         {
-                            backgroundColor: isDark ? "#1E1F2B" : "#FFFFFF",
+                            backgroundColor: "#FFFFFF",
                         },
                     ]}
                 >
@@ -113,7 +103,7 @@ export default function SignInScreen() {
                     <ThemedText
                         style={[
                             styles.cardSubtitle,
-                            { color: isDark ? "#6B6F82" : "#9094A6" },
+                            { color: "rgba(92, 79, 74, 0.65)" },
                         ]}
                     >
                         Sign in with your Google account to continue.
@@ -123,7 +113,7 @@ export default function SignInScreen() {
                         style={({ pressed }) => [
                             styles.button,
                             {
-                                backgroundColor: isDark ? "#9B7FFF" : "#7C5CFC",
+                                backgroundColor: "#C9996B",
                                 opacity: disabled ? 0.6 : 1,
                                 transform: [
                                     { scale: pressed && !disabled ? 0.97 : 1 },
@@ -156,10 +146,7 @@ export default function SignInScreen() {
 
                 {/* Footer */}
                 <ThemedText
-                    style={[
-                        styles.footer,
-                        { color: isDark ? "#4A4D5E" : "#BFC2D0" },
-                    ]}
+                    style={[styles.footer, { color: "rgba(92, 79, 74, 0.5)" }]}
                 >
                     By signing in, you agree to our terms and privacy policy.
                 </ThemedText>
@@ -198,7 +185,7 @@ const styles = StyleSheet.create({
     },
     appName: {
         fontSize: 32,
-        fontWeight: "800",
+        fontWeight: "600",
         lineHeight: 38,
     },
     tagline: {
@@ -216,7 +203,7 @@ const styles = StyleSheet.create({
     },
     cardTitle: {
         fontSize: 22,
-        fontWeight: "700",
+        fontWeight: "600",
     },
     cardSubtitle: {
         fontSize: 15,
@@ -239,7 +226,7 @@ const styles = StyleSheet.create({
     },
     buttonText: {
         color: "#ffffff",
-        fontWeight: "700",
+        fontWeight: "600",
         fontSize: 16,
     },
 

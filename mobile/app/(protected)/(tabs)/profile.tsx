@@ -35,15 +35,12 @@ export default function ProfileScreen() {
     const { user, loading } = useAuth();
     const insets = useSafeAreaInsets();
     const colorScheme = useColorScheme();
-    const isDark = colorScheme === "dark";
 
     const cardColor = useThemeColor({}, "card");
     const mutedColor = useThemeColor({}, "muted");
     const primaryColor = useThemeColor({}, "primary");
 
-    const accentColors = isDark
-        ? ClassAccentColors.dark
-        : ClassAccentColors.light;
+    const accentColors = ClassAccentColors.light;
 
     const [classrooms, setClassrooms] = useState<ClassroomSummary[]>([]);
     const [classroomMetrics, setClassroomMetrics] = useState<
@@ -175,9 +172,7 @@ export default function ProfileScreen() {
             >
                 {/* ---- Gradient Header ---- */}
                 <LinearGradient
-                    colors={
-                        isDark ? ["#22203A", "#1C2A3C"] : ["#7C5CFC", "#9B7FFF"]
-                    }
+                    colors={["#C9996B", "#DFB892"]}
                     start={{ x: 0, y: 0 }}
                     end={{ x: 1, y: 1 }}
                     style={[
@@ -212,9 +207,8 @@ export default function ProfileScreen() {
                             style={[
                                 styles.statCard,
                                 {
-                                    backgroundColor: isDark
-                                        ? "#22203A"
-                                        : "#F0EAFF",
+                                    backgroundColor:
+                                        "rgba(201, 153, 107, 0.15)",
                                 },
                             ]}
                         >
@@ -240,9 +234,7 @@ export default function ProfileScreen() {
                             style={[
                                 styles.statCard,
                                 {
-                                    backgroundColor: isDark
-                                        ? "#1C322F"
-                                        : "#E5FAF6",
+                                    backgroundColor: "rgba(92, 118, 109, 0.15)",
                                 },
                             ]}
                         >
@@ -250,9 +242,7 @@ export default function ProfileScreen() {
                             <ThemedText
                                 style={[
                                     styles.statNumber,
-                                    {
-                                        color: isDark ? "#6BE0D8" : "#4ECDC4",
-                                    },
+                                    { color: "#5C766D" },
                                 ]}
                             >
                                 {teachingCount}
@@ -270,9 +260,8 @@ export default function ProfileScreen() {
                             style={[
                                 styles.statCard,
                                 {
-                                    backgroundColor: isDark
-                                        ? "#3A1C2A"
-                                        : "#FFF0F5",
+                                    backgroundColor:
+                                        "rgba(142, 130, 121, 0.15)",
                                 },
                             ]}
                         >
@@ -280,9 +269,7 @@ export default function ProfileScreen() {
                             <ThemedText
                                 style={[
                                     styles.statNumber,
-                                    {
-                                        color: isDark ? "#FF85B1" : "#FF6B9D",
-                                    },
+                                    { color: "#8E8279" },
                                 ]}
                             >
                                 {classrooms.length - teachingCount}
@@ -428,9 +415,8 @@ export default function ProfileScreen() {
                                 style={[
                                     styles.settingsIcon,
                                     {
-                                        backgroundColor: isDark
-                                            ? "#22203A"
-                                            : "#F0EAFF",
+                                        backgroundColor:
+                                            "rgba(201, 153, 107, 0.15)",
                                     },
                                 ]}
                             >
@@ -460,16 +446,15 @@ export default function ProfileScreen() {
                                 style={[
                                     styles.settingsIcon,
                                     {
-                                        backgroundColor: isDark
-                                            ? "#1C322F"
-                                            : "#E5FAF6",
+                                        backgroundColor:
+                                            "rgba(92, 118, 109, 0.15)",
                                     },
                                 ]}
                             >
                                 <MaterialIcons
                                     name="info-outline"
                                     size={20}
-                                    color={isDark ? "#6BE0D8" : "#4ECDC4"}
+                                    color="#5C766D"
                                 />
                             </View>
                             <ThemedText style={styles.settingsLabel}>
@@ -491,7 +476,7 @@ export default function ProfileScreen() {
                         style={({ pressed }) => [
                             styles.signOutButton,
                             {
-                                backgroundColor: isDark ? "#3A1A1A" : "#FFE8E8",
+                                backgroundColor: "rgba(229, 62, 62, 0.15)",
                                 opacity: pressed ? 0.85 : 1,
                                 transform: [{ scale: pressed ? 0.98 : 1 }],
                             },
@@ -503,15 +488,10 @@ export default function ProfileScreen() {
                         <MaterialIcons
                             name="logout"
                             size={18}
-                            color={isDark ? "#FF8585" : "#E53E3E"}
+                            color="#E53E3E"
                         />
                         <ThemedText
-                            style={[
-                                styles.signOutText,
-                                {
-                                    color: isDark ? "#FF8585" : "#E53E3E",
-                                },
-                            ]}
+                            style={[styles.signOutText, { color: "#E53E3E" }]}
                         >
                             Sign out
                         </ThemedText>
@@ -558,12 +538,12 @@ const styles = StyleSheet.create({
     },
     avatarInitial: {
         fontSize: 34,
-        fontWeight: "800",
+        fontWeight: "600",
         color: "#FFFFFF",
     },
     userName: {
         fontSize: 22,
-        fontWeight: "800",
+        fontWeight: "600",
         color: "#FFFFFF",
     },
     userEmail: {
@@ -586,7 +566,7 @@ const styles = StyleSheet.create({
     statEmoji: { fontSize: 20 },
     statNumber: {
         fontSize: 22,
-        fontWeight: "800",
+        fontWeight: "600",
     },
     statCaption: {
         fontSize: 11,
@@ -596,7 +576,7 @@ const styles = StyleSheet.create({
     /* section */
     sectionTitle: {
         fontSize: 18,
-        fontWeight: "700",
+        fontWeight: "600",
     },
 
     /* classes */
@@ -673,7 +653,7 @@ const styles = StyleSheet.create({
         gap: Spacing.sm,
     },
     signOutText: {
-        fontWeight: "700",
+        fontWeight: "600",
         fontSize: 15,
     },
 });
