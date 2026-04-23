@@ -307,8 +307,7 @@ export default function SessionDetailScreen() {
         try {
             const photo = await cameraRef.current.takePictureAsync({
                 base64: true,
-                quality: 0.5,
-                skipProcessing: true,
+                quality: 0.7,
             });
 
             if (!photo?.base64) {

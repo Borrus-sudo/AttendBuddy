@@ -52,12 +52,7 @@ export function ThemedText({
         fontFamily = "Outfit-Medium";
     }
 
-    return (
-        <Text
-            style={[flattenedStyle, { fontFamily }]}
-            {...rest}
-        />
-    );
+    return <Text style={[flattenedStyle, { fontFamily }]} {...rest} />;
 }
 
 const styles = StyleSheet.create({

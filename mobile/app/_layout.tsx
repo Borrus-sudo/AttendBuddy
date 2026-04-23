@@ -34,7 +34,7 @@ SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
     const colorScheme = useColorScheme();
-    
+
     const [loaded, error] = useFonts({
         "Outfit-Regular": Outfit_400Regular,
         "Outfit-Medium": Outfit_500Medium,

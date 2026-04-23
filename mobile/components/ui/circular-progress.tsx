@@ -44,8 +44,7 @@ export function CircularProgress({
     labelSize = 12,
     duration = 1200,
 }: CircularProgressProps) {
-    const colors: [string, string] =
-        gradientColors || ["#C9996B", "#C9996B"];
+    const colors: [string, string] = gradientColors || ["#C9996B", "#C9996B"];
     const track = trackColor || "#EAE5E0";
 
     const radius = (size - strokeWidth) / 2;
