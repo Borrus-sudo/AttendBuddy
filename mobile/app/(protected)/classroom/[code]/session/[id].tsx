@@ -75,7 +75,6 @@ export default function SessionDetailScreen() {
     const border = useThemeColor({}, "border");
     const text = useThemeColor({}, "text");
     const colorScheme = useColorScheme();
-    const isDark = colorScheme === "dark";
 
     const shutterScale = useRef(new Animated.Value(1)).current;
 
@@ -545,12 +544,9 @@ export default function SessionDetailScreen() {
                                 style={({ pressed }) => [
                                     styles.requestTrigger,
                                     {
-                                        backgroundColor: isDark
-                                            ? "rgba(155, 127, 255, 0.08)"
-                                            : "rgba(124, 92, 252, 0.06)",
-                                        borderColor: isDark
-                                            ? "rgba(155, 127, 255, 0.2)"
-                                            : "rgba(124, 92, 252, 0.15)",
+                                        backgroundColor:
+                                            "rgba(201, 153, 107, 0.08)",
+                                        borderColor: "rgba(201, 153, 107, 0.2)",
                                         transform: [
                                             { scale: pressed ? 0.97 : 1 },
                                         ],
@@ -587,9 +583,8 @@ export default function SessionDetailScreen() {
                                     style={[
                                         styles.requestTriggerBadge,
                                         {
-                                            backgroundColor: isDark
-                                                ? "rgba(155, 127, 255, 0.15)"
-                                                : "rgba(124, 92, 252, 0.1)",
+                                            backgroundColor:
+                                                "rgba(201, 153, 107, 0.15)",
                                         },
                                     ]}
                                 >
@@ -854,9 +849,7 @@ export default function SessionDetailScreen() {
                         style={[
                             styles.requestModalIconWrap,
                             {
-                                backgroundColor: isDark
-                                    ? "rgba(155, 127, 255, 0.12)"
-                                    : "rgba(124, 92, 252, 0.08)",
+                                backgroundColor: "rgba(201, 153, 107, 0.12)",
                             },
                         ]}
                     >
@@ -898,23 +891,15 @@ export default function SessionDetailScreen() {
                             value={requestMessage}
                             onChangeText={setRequestMessage}
                             placeholder="Explain why you should be marked present..."
-                            placeholderTextColor={
-                                isDark
-                                    ? "rgba(107, 111, 130, 0.7)"
-                                    : "rgba(144, 148, 166, 0.7)"
-                            }
+                            placeholderTextColor="rgba(142, 130, 121, 0.7)"
                             multiline
                             numberOfLines={4}
                             style={[
                                 styles.requestModalInput,
                                 {
                                     color: text,
-                                    backgroundColor: isDark
-                                        ? "rgba(42, 43, 58, 0.5)"
-                                        : "rgba(237, 237, 245, 0.6)",
-                                    borderColor: isDark
-                                        ? "rgba(42, 43, 58, 0.8)"
-                                        : "rgba(237, 237, 245, 1)",
+                                    backgroundColor: "rgba(237, 233, 230, 0.6)",
+                                    borderColor: "rgba(237, 233, 230, 1)",
                                 },
                             ]}
                         />
@@ -978,9 +963,8 @@ export default function SessionDetailScreen() {
                                     style={[
                                         styles.requestModalHistoryItem,
                                         {
-                                            backgroundColor: isDark
-                                                ? "rgba(42, 43, 58, 0.35)"
-                                                : "rgba(237, 237, 245, 0.5)",
+                                            backgroundColor:
+                                                "rgba(237, 233, 230, 0.5)",
                                         },
                                     ]}
                                 >
@@ -1120,7 +1104,8 @@ const styles = StyleSheet.create({
         textAlignVertical: "top",
         paddingHorizontal: Spacing.lg,
         paddingVertical: Spacing.md,
-        backgroundColor: "rgba(42, 43, 58, 0.5)",
+        backgroundColor: "rgba(240, 241, 245, 0.6)",
+        fontFamily: "Outfit-Regular",
     },
     mobileActionRow: {
         flexDirection: "row",
@@ -1153,7 +1138,7 @@ const styles = StyleSheet.create({
         borderWidth: 3,
         borderRadius: SELFIE_SIZE / 2 + 6,
         padding: 4,
-        shadowColor: "#9B7FFF",
+        shadowColor: "#C9996B",
         shadowOpacity: 0.35,
         shadowRadius: 20,
         shadowOffset: { width: 0, height: 0 },
@@ -1232,7 +1217,7 @@ const styles = StyleSheet.create({
         borderRadius: Radii.lg,
         padding: Spacing.md,
         gap: Spacing.sm,
-        backgroundColor: "rgba(42, 43, 58, 0.35)",
+        backgroundColor: "rgba(240, 241, 245, 0.6)",
     },
     teacherRequestHeader: {
         flexDirection: "row",
@@ -1274,6 +1259,7 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         fontSize: 14,
         lineHeight: 20,
+        fontFamily: "Outfit-Regular",
     },
     requestModalError: {
         flexDirection: "row",

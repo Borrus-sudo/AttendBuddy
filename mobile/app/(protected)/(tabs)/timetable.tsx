@@ -149,16 +149,13 @@ export default function TimetableScreen() {
     const { user } = useAuth();
     const insets = useSafeAreaInsets();
     const colorScheme = useColorScheme();
-    const isDark = colorScheme === "dark";
 
     const cardColor = useThemeColor({}, "card");
     const mutedColor = useThemeColor({}, "muted");
     const primaryColor = useThemeColor({}, "primary");
     const borderColor = useThemeColor({}, "border");
 
-    const accentColors = isDark
-        ? ClassAccentColors.dark
-        : ClassAccentColors.light;
+    const accentColors = ClassAccentColors.light;
 
     const [classrooms, setClassrooms] = useState<ClassroomSummary[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -254,9 +251,7 @@ export default function TimetableScreen() {
                                     {
                                         backgroundColor: isSelected
                                             ? primaryColor
-                                            : isDark
-                                              ? "#1E1F2B"
-                                              : "#F0F1F5",
+                                            : "#F0F1F5",
                                         opacity: pressed ? 0.85 : 1,
                                         transform: [
                                             { scale: pressed ? 0.95 : 1 },
@@ -497,7 +492,7 @@ const styles = StyleSheet.create({
 
     /* header */
     header: { gap: Spacing.xs },
-    title: { fontSize: 28, fontWeight: "800", lineHeight: 34 },
+    title: { fontSize: 28, fontWeight: "600", lineHeight: 34 },
     subtitle: { fontSize: 14, lineHeight: 20 },
 
     /* day selector */
@@ -514,8 +509,8 @@ const styles = StyleSheet.create({
         gap: Spacing.xs,
         minHeight: 72,
     },
-    dayLabel: { fontSize: 13, fontWeight: "700" },
-    dayBlockCount: { fontSize: 11, fontWeight: "600" },
+    dayLabel: { fontSize: 13, fontWeight: "600" },
+    dayBlockCount: { fontSize: 11, fontWeight: "500" },
     todayDot: {
         width: 5,
         height: 5,
@@ -542,7 +537,7 @@ const styles = StyleSheet.create({
     },
     timeText: {
         fontSize: 12,
-        fontWeight: "700",
+        fontWeight: "600",
     },
     timeLine: {
         width: 2,
@@ -578,7 +573,7 @@ const styles = StyleSheet.create({
     liveText: {
         color: "#FFFFFF",
         fontSize: 10,
-        fontWeight: "800",
+        fontWeight: "600",
         letterSpacing: 0.5,
     },
     roomText: { fontSize: 13 },

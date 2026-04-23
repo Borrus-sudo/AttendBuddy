@@ -25,20 +25,36 @@ export function ThemedText({
 }: ThemedTextProps) {
     const color = useThemeColor({ light: lightColor, dark: darkColor }, "text");
 
+    const flattenedStyle: any = StyleSheet.flatten([
+        { color },
+        type === "default" ? styles.default : undefined,
+        type === "title" ? styles.title : undefined,
+        type === "defaultSemiBold" ? styles.defaultSemiBold : undefined,
+        type === "subtitle" ? styles.subtitle : undefined,
+        type === "link" ? styles.link : undefined,
+        type === "heading" ? styles.heading : undefined,
+        type === "caption" ? styles.caption : undefined,
+        type === "label" ? styles.label : undefined,
+        style,
+    ]);
+
+    let fontFamily = "Outfit-Regular";
+    if (
+        flattenedStyle.fontWeight === "bold" ||
+        flattenedStyle.fontWeight === "700" ||
+        flattenedStyle.fontWeight === "800" ||
+        flattenedStyle.fontWeight === "900"
+    ) {
+        fontFamily = "Outfit-Bold";
+    } else if (flattenedStyle.fontWeight === "600") {
+        fontFamily = "Outfit-SemiBold";
+    } else if (flattenedStyle.fontWeight === "500") {
+        fontFamily = "Outfit-Medium";
+    }
+
     return (
         <Text
-            style={[
-                { color },
-                type === "default" ? styles.default : undefined,
-                type === "title" ? styles.title : undefined,
-                type === "defaultSemiBold" ? styles.defaultSemiBold : undefined,
-                type === "subtitle" ? styles.subtitle : undefined,
-                type === "link" ? styles.link : undefined,
-                type === "heading" ? styles.heading : undefined,
-                type === "caption" ? styles.caption : undefined,
-                type === "label" ? styles.label : undefined,
-                style,
-            ]}
+            style={[flattenedStyle, { fontFamily }]}
             {...rest}
         />
     );

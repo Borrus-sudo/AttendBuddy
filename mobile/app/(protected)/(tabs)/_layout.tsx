@@ -8,9 +8,7 @@ import { Colors } from "@/constants/theme";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 
 export default function TabLayout() {
-    const colorScheme = useColorScheme();
-    const isDark = colorScheme === "dark";
-    const palette = Colors[colorScheme ?? "light"];
+    const palette = Colors["light"];
     const insets = useSafeAreaInsets();
 
     return (
@@ -23,8 +21,8 @@ export default function TabLayout() {
                     backgroundColor: palette.card,
                     borderTopWidth: 0,
                     elevation: 16,
-                    shadowColor: isDark ? "#000" : "#7C5CFC",
-                    shadowOpacity: isDark ? 0.4 : 0.1,
+                    shadowColor: "#000",
+                    shadowOpacity: 0.1,
                     shadowRadius: 24,
                     shadowOffset: { width: 0, height: -8 },
                     height: 64 + Math.max(insets.bottom, 8),

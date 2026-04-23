@@ -1,77 +1,77 @@
 /**
- * Attend Buddy — Premium Pastel Theme
+ * Attend Buddy — Premium Aesthetic Theme
  *
- * Soft, friendly palette inspired by modern EdTech dashboards.
- * Every existing key is preserved for backward compatibility.
+ * Sophisticated, earthy palette with a focus on elegance and clarity.
+ * Dark Mode is disabled to enforce this premium light aesthetic.
  */
 
 import { Platform } from "react-native";
 
-const tintColorLight = "#7C5CFC";
-const tintColorDark = "#9B7FFF";
+const tintColorLight = "#C9996B";
 
 export const Colors = {
     light: {
-        text: "#2D3142",
-        background: "#F7F8FC",
+        text: "#5C4F4A",
+        background: "#EDE9E6",
         tint: tintColorLight,
-        icon: "#9094A6",
-        tabIconDefault: "#BFC2D0",
+        icon: "#8E8279",
+        tabIconDefault: "#B1A8A1",
         tabIconSelected: tintColorLight,
-        card: "#FFFFFF",
-        border: "#EDEDF5",
-        muted: "#9094A6",
-        primary: "#7C5CFC",
-        secondary: "#5B8DEF",
-        accent: "#FF6B9D",
-        mint: "#4ECDC4",
-        danger: "#FF6B6B",
-        warning: "#FFB84D",
-        success: "#4ECDC4",
+        card: "#F8F6F4",
+        border: "#DCD5CF",
+        muted: "#8E8279",
+        primary: "#C9996B",
+        secondary: "#5C766D",
+        accent: "#C9996B",
+        mint: "#5C766D",
+        danger: "#E07A5F",
+        warning: "#E2A862",
+        success: "#5C766D",
         surfaceElevated: "#FFFFFF",
-        gradientStart: "#7C5CFC",
-        gradientEnd: "#5B8DEF",
+        gradientStart: "#C9996B",
+        gradientEnd: "#DFB892",
     },
     dark: {
-        text: "#E8E9F0",
-        background: "#13141B",
-        tint: tintColorDark,
-        icon: "#6B6F82",
-        tabIconDefault: "#4A4D5E",
-        tabIconSelected: tintColorDark,
-        card: "#1E1F2B",
-        border: "#2A2B3A",
-        muted: "#6B6F82",
-        primary: "#9B7FFF",
-        secondary: "#7BA4F7",
-        accent: "#FF85B1",
-        mint: "#6BE0D8",
-        danger: "#FF8585",
-        warning: "#FFC76B",
-        success: "#6BE0D8",
-        surfaceElevated: "#252636",
-        gradientStart: "#9B7FFF",
-        gradientEnd: "#7BA4F7",
+        // Dark mode disabled; mapping to light
+        text: "#5C4F4A",
+        background: "#EDE9E6",
+        tint: tintColorLight,
+        icon: "#8E8279",
+        tabIconDefault: "#B1A8A1",
+        tabIconSelected: tintColorLight,
+        card: "#F8F6F4",
+        border: "#DCD5CF",
+        muted: "#8E8279",
+        primary: "#C9996B",
+        secondary: "#5C766D",
+        accent: "#C9996B",
+        mint: "#5C766D",
+        danger: "#E07A5F",
+        warning: "#E2A862",
+        success: "#5C766D",
+        surfaceElevated: "#FFFFFF",
+        gradientStart: "#C9996B",
+        gradientEnd: "#DFB892",
     },
 };
 
-/** Per-card pastel accent colors — cycle through by index. */
+/** Per-card earthy accent colors. */
 export const ClassAccentColors = {
     light: [
-        { bg: "#F0EAFF", accent: "#7C5CFC" },
-        { bg: "#E8F4FD", accent: "#5B8DEF" },
-        { bg: "#E5FAF6", accent: "#4ECDC4" },
-        { bg: "#FFF0F5", accent: "#FF6B9D" },
-        { bg: "#FFF7E8", accent: "#FFB84D" },
-        { bg: "#F0FBF0", accent: "#6BCB77" },
+        { bg: "#F0EAE3", accent: "#C9996B" }, // Warm Beige / Gold
+        { bg: "#E6EBE8", accent: "#5C766D" }, // Soft Sage / Deep Sage
+        { bg: "#F3EAE8", accent: "#BE7F72" }, // Soft Blush / Terracotta
+        { bg: "#EBEAE6", accent: "#7B746E" }, // Warm Gray / Charcoal
+        { bg: "#F1EEDB", accent: "#B6A75E" }, // Ivory / Ochre
+        { bg: "#E9EDEE", accent: "#63808B" }, // Dust Blue / Steel
     ],
     dark: [
-        { bg: "#22203A", accent: "#9B7FFF" },
-        { bg: "#1C2A3C", accent: "#7BA4F7" },
-        { bg: "#1C322F", accent: "#6BE0D8" },
-        { bg: "#3A1C2A", accent: "#FF85B1" },
-        { bg: "#3A3220", accent: "#FFC76B" },
-        { bg: "#1E3322", accent: "#7FDF8A" },
+        { bg: "#F0EAE3", accent: "#C9996B" },
+        { bg: "#E6EBE8", accent: "#5C766D" },
+        { bg: "#F3EAE8", accent: "#BE7F72" },
+        { bg: "#EBEAE6", accent: "#7B746E" },
+        { bg: "#F1EEDB", accent: "#B6A75E" },
+        { bg: "#E9EDEE", accent: "#63808B" },
     ],
 };
 
@@ -84,10 +84,10 @@ export function getClassEmoji(name: string): string {
         lower.includes("algebra")
     )
         return "📐";
-    if (lower.includes("physics")) return "🔬";
+    if (lower.includes("physics")) return "🔭";
     if (lower.includes("chem")) return "🧪";
-    if (lower.includes("bio")) return "🧬";
-    if (lower.includes("english") || lower.includes("literature")) return "📝";
+    if (lower.includes("bio")) return "🌿";
+    if (lower.includes("english") || lower.includes("literature")) return "🖋️";
     if (lower.includes("history")) return "📜";
     if (lower.includes("geo")) return "🌍";
     if (
@@ -98,28 +98,24 @@ export function getClassEmoji(name: string): string {
     )
         return "💻";
     if (lower.includes("art") || lower.includes("design")) return "🎨";
-    if (lower.includes("music")) return "🎵";
-    if (lower.includes("econ")) return "📊";
+    if (lower.includes("music")) return "🎼";
+    if (lower.includes("econ")) return "📈";
     if (lower.includes("psych")) return "🧠";
-    if (lower.includes("philo")) return "💭";
+    if (lower.includes("philo")) return "🏛️";
     return "📚";
 }
 
 export const Fonts = Platform.select({
     ios: {
-        /** iOS `UIFontDescriptorSystemDesignDefault` */
-        sans: "system-ui",
-        /** iOS `UIFontDescriptorSystemDesignSerif` */
-        serif: "ui-serif",
-        /** iOS `UIFontDescriptorSystemDesignRounded` */
-        rounded: "ui-rounded",
-        /** iOS `UIFontDescriptorSystemDesignMonospaced` */
-        mono: "ui-monospace",
+        sans: "Avenir Next",
+        serif: "Georgia",
+        rounded: "Avenir Next",
+        mono: "Menlo",
     },
     default: {
-        sans: "normal",
+        sans: "sans-serif",
         serif: "serif",
-        rounded: "normal",
+        rounded: "sans-serif",
         mono: "monospace",
     },
     web: {
@@ -136,21 +132,13 @@ export const Fonts = Platform.select({
 /* ------------------------------------------------------------------ */
 
 export const Spacing = {
-    /** 4 */
     xs: 4,
-    /** 8 */
     sm: 8,
-    /** 12 */
     md: 12,
-    /** 16 */
     lg: 16,
-    /** 20 — default horizontal page padding */
     xl: 20,
-    /** 24 */
     xxl: 24,
-    /** 32 */
     xxxl: 32,
-    /** 40 */
     huge: 40,
 } as const;
 
@@ -159,19 +147,12 @@ export const Spacing = {
 /* ------------------------------------------------------------------ */
 
 export const Radii = {
-    /** 8 */
     sm: 8,
-    /** 12 */
     md: 12,
-    /** 16 */
     lg: 16,
-    /** 20 */
     xl: 20,
-    /** 24 — default for cards */
     xxl: 24,
-    /** 32 — large feature cards */
     xxxl: 32,
-    /** 999 — pill / fully rounded */
     full: 999,
 } as const;
 
@@ -180,38 +161,42 @@ export const Radii = {
 /* ------------------------------------------------------------------ */
 
 export const Type = {
-    /** 32 / 38 — main screen title */
-    title: { fontSize: 32, lineHeight: 38, fontWeight: "800" as const },
-    /** 24 / 30 — section heading */
-    heading: { fontSize: 24, lineHeight: 30, fontWeight: "700" as const },
-    /** 20 / 26 — subtitle */
-    subtitle: { fontSize: 20, lineHeight: 26, fontWeight: "700" as const },
-    /** 16 / 24 — body */
+    title: {
+        fontSize: 32,
+        lineHeight: 38,
+        fontWeight: "600" as const,
+        letterSpacing: -0.5,
+    },
+    heading: {
+        fontSize: 24,
+        lineHeight: 30,
+        fontWeight: "500" as const,
+        letterSpacing: -0.3,
+    },
+    subtitle: {
+        fontSize: 20,
+        lineHeight: 26,
+        fontWeight: "500" as const,
+        letterSpacing: -0.2,
+    },
     body: { fontSize: 16, lineHeight: 24, fontWeight: "400" as const },
-    /** 16 / 24 — body semi-bold */
-    bodySemiBold: { fontSize: 16, lineHeight: 24, fontWeight: "600" as const },
-    /** 14 / 20 — secondary text */
+    bodySemiBold: { fontSize: 16, lineHeight: 24, fontWeight: "500" as const },
     secondary: { fontSize: 14, lineHeight: 20, fontWeight: "400" as const },
-    /** 13 / 18 — label */
     label: {
         fontSize: 13,
         lineHeight: 18,
-        fontWeight: "600" as const,
-        letterSpacing: 0.3,
+        fontWeight: "500" as const,
+        letterSpacing: 0.5,
+        textTransform: "uppercase" as const,
     },
-    /** 12 / 16 — caption */
-    caption: { fontSize: 12, lineHeight: 16, fontWeight: "500" as const },
-    /** 11 / 14 — tiny label */
-    tiny: { fontSize: 11, lineHeight: 14, fontWeight: "600" as const },
+    caption: { fontSize: 12, lineHeight: 16, fontWeight: "400" as const },
+    tiny: { fontSize: 11, lineHeight: 14, fontWeight: "500" as const },
 } as const;
 
 /* ------------------------------------------------------------------ */
 /*  Layout                                                             */
 /* ------------------------------------------------------------------ */
 
-/** Estimated tab bar height used for bottom padding.
- *  The actual tab bar height is 56 + safeArea bottom inset.
- *  Use this as a minimum bottom padding for scrollable content. */
 export const TAB_BAR_HEIGHT = 56;
 export const CONTENT_BOTTOM_PAD = 96;
 
@@ -220,28 +205,25 @@ export const CONTENT_BOTTOM_PAD = 96;
 /* ------------------------------------------------------------------ */
 
 export const Shadows = {
-    /** Low elevation — subtle lift */
     sm: {
-        shadowColor: "#7C5CFC",
-        shadowOpacity: 0.05,
-        shadowRadius: 10,
+        shadowColor: "#5C4F4A",
+        shadowOpacity: 0.04,
+        shadowRadius: 12,
         shadowOffset: { width: 0, height: 4 },
         elevation: 2,
     },
-    /** Medium — default card */
     md: {
-        shadowColor: "#7C5CFC",
-        shadowOpacity: 0.08,
-        shadowRadius: 16,
-        shadowOffset: { width: 0, height: 6 },
+        shadowColor: "#5C4F4A",
+        shadowOpacity: 0.06,
+        shadowRadius: 20,
+        shadowOffset: { width: 0, height: 8 },
         elevation: 4,
     },
-    /** High — feature cards, modals */
     lg: {
-        shadowColor: "#7C5CFC",
-        shadowOpacity: 0.12,
-        shadowRadius: 24,
-        shadowOffset: { width: 0, height: 10 },
+        shadowColor: "#5C4F4A",
+        shadowOpacity: 0.08,
+        shadowRadius: 32,
+        shadowOffset: { width: 0, height: 12 },
         elevation: 8,
     },
 } as const;

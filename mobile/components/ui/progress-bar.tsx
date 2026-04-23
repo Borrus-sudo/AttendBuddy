@@ -25,16 +25,15 @@ export function ProgressBar({
 }: ProgressBarProps) {
     const muted = useThemeColor({}, "muted");
     const colorScheme = useColorScheme();
-    const isDark = colorScheme === "dark";
 
     const ratio = max > 0 ? Math.min(1, Math.max(0, value / max)) : 0;
     const percent = Math.round(ratio * 100);
 
     function getBarColor(): string {
         if (color) return color;
-        if (percent >= 85) return isDark ? "#6BE0D8" : "#4ECDC4";
-        if (percent >= 70) return isDark ? "#FFC76B" : "#FFB84D";
-        return isDark ? "#FF8585" : "#FF6B6B";
+        if (percent >= 85) return "#5C766D";
+        if (percent >= 70) return "#C9996B";
+        return "#E53E3E";
     }
 
     return (
@@ -55,7 +54,7 @@ export function ProgressBar({
                     styles.track,
                     {
                         height,
-                        backgroundColor: isDark ? "#2A2B3A" : "#EDEDF5",
+                        backgroundColor: "#EAE5E0",
                     },
                 ]}
             >

@@ -25,7 +25,6 @@ export function AppInput({
     const text = useThemeColor({}, "text");
     const muted = useThemeColor({}, "muted");
     const colorScheme = useColorScheme();
-    const isDark = colorScheme === "dark";
 
     return (
         <View style={styles.container}>
@@ -38,9 +37,7 @@ export function AppInput({
                     multiline ? styles.multiline : null,
                     {
                         color: text,
-                        backgroundColor: isDark
-                            ? "rgba(42, 43, 58, 0.5)"
-                            : "rgba(240, 241, 245, 0.6)",
+                        backgroundColor: "rgba(240, 241, 245, 0.6)",
                     },
                 ]}
                 placeholder={placeholder}
@@ -67,6 +64,7 @@ const styles = StyleSheet.create({
         fontSize: 15,
         lineHeight: 20,
         minHeight: 48,
+        fontFamily: "Outfit-Regular",
     },
     multiline: {
         minHeight: 92,

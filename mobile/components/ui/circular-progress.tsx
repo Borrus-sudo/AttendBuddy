@@ -44,13 +44,9 @@ export function CircularProgress({
     labelSize = 12,
     duration = 1200,
 }: CircularProgressProps) {
-    const colorScheme = useColorScheme();
-    const isDark = colorScheme === "dark";
-
     const colors: [string, string] =
-        gradientColors ||
-        (isDark ? ["#9B7FFF", "#7BA4F7"] : ["#7C5CFC", "#5B8DEF"]);
-    const track = trackColor || (isDark ? "#2A2B3A" : "#EDEDF5");
+        gradientColors || ["#C9996B", "#C9996B"];
+    const track = trackColor || "#EAE5E0";
 
     const radius = (size - strokeWidth) / 2;
     const circumference = 2 * Math.PI * radius;
@@ -165,7 +161,7 @@ export function CircularProgress({
                                 styles.label,
                                 {
                                     fontSize: labelSize,
-                                    color: isDark ? "#6B6F82" : "#9094A6",
+                                    color: "#8E8279",
                                 },
                             ]}
                         >

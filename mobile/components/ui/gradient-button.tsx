@@ -26,11 +26,7 @@ export function GradientButton({
     disabled = false,
     loading = false,
 }: GradientButtonProps) {
-    const colorScheme = useColorScheme();
-    const isDark = colorScheme === "dark";
-    const defaultColors: [string, string] = isDark
-        ? ["#9B7FFF", "#7BA4F7"]
-        : ["#7C5CFC", "#5B8DEF"];
+    const defaultColors: [string, string] = ["#C9996B", "#DFB892"];
 
     const isDisabled = disabled || loading;
 
@@ -78,7 +74,7 @@ const styles = StyleSheet.create({
     label: {
         color: "#FFFFFF",
         fontSize: 16,
-        fontWeight: "700",
+        fontWeight: "600",
         letterSpacing: 0.3,
     },
 });
