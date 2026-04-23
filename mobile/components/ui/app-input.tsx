@@ -2,6 +2,8 @@ import { StyleSheet, TextInput, View } from "react-native";
 
 import { ThemedText } from "@/components/themed-text";
 import { useThemeColor } from "@/hooks/use-theme-color";
+import { useColorScheme } from "@/hooks/use-color-scheme";
+import { Radii, Spacing } from "@/constants/theme";
 
 type AppInputProps = {
     label: string;
@@ -22,7 +24,8 @@ export function AppInput({
 }: AppInputProps) {
     const text = useThemeColor({}, "text");
     const muted = useThemeColor({}, "muted");
-    const border = useThemeColor({}, "border");
+    const colorScheme = useColorScheme();
+    const isDark = colorScheme === "dark";
 
     return (
         <View style={styles.container}>
@@ -33,7 +36,12 @@ export function AppInput({
                 style={[
                     styles.input,
                     multiline ? styles.multiline : null,
-                    { color: text, borderColor: border },
+                    {
+                        color: text,
+                        backgroundColor: isDark
+                            ? "rgba(42, 43, 58, 0.5)"
+                            : "rgba(240, 241, 245, 0.6)",
+                    },
                 ]}
                 placeholder={placeholder}
                 placeholderTextColor={muted}
@@ -46,22 +54,23 @@ export function AppInput({
 
 const styles = StyleSheet.create({
     container: {
-        gap: 8,
+        gap: Spacing.sm,
     },
     label: {
         fontSize: 13,
         fontWeight: "600",
     },
     input: {
-        borderWidth: 1,
-        borderRadius: 12,
-        paddingHorizontal: 12,
-        paddingVertical: 10,
+        borderRadius: Radii.lg,
+        paddingHorizontal: Spacing.lg,
+        paddingVertical: Spacing.md,
         fontSize: 15,
         lineHeight: 20,
+        minHeight: 48,
     },
     multiline: {
         minHeight: 92,
         textAlignVertical: "top",
+        paddingTop: Spacing.md,
     },
 });

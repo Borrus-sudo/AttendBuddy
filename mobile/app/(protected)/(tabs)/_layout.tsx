@@ -22,18 +22,22 @@ export default function TabLayout() {
                 tabBarStyle: {
                     backgroundColor: palette.card,
                     borderTopWidth: 0,
-                    elevation: 12,
+                    elevation: 16,
                     shadowColor: isDark ? "#000" : "#7C5CFC",
-                    shadowOpacity: isDark ? 0.3 : 0.08,
-                    shadowRadius: 20,
-                    shadowOffset: { width: 0, height: -4 },
-                    height: 56 + Math.max(insets.bottom, 8),
+                    shadowOpacity: isDark ? 0.4 : 0.1,
+                    shadowRadius: 24,
+                    shadowOffset: { width: 0, height: -8 },
+                    height: 64 + Math.max(insets.bottom, 8),
                     paddingBottom: Math.max(insets.bottom, 8),
-                    paddingTop: 6,
+                    paddingTop: 8,
                 },
                 tabBarLabelStyle: {
                     fontSize: 11,
                     fontWeight: "600",
+                    marginTop: 2,
+                },
+                tabBarIconStyle: {
+                    marginBottom: -2,
                 },
                 tabBarInactiveTintColor: palette.tabIconDefault,
             }}

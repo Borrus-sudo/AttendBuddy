@@ -10,7 +10,14 @@ import { useThemeColor } from "@/hooks/use-theme-color";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { useAuth } from "@/providers/auth-provider";
 import { getUserProfile } from "@/lib/api";
-import { ClassAccentColors, getClassEmoji } from "@/constants/theme";
+import {
+    ClassAccentColors,
+    getClassEmoji,
+    Spacing,
+    Radii,
+    Shadows,
+    CONTENT_BOTTOM_PAD,
+} from "@/constants/theme";
 import type { ClassroomSummary } from "@/types/api";
 
 /* ------------------------------------------------------------------ */
@@ -185,9 +192,9 @@ export default function TimetableScreen() {
     if (isLoading) {
         return (
             <ThemedView
-                style={[styles.container, { paddingTop: insets.top + 16 }]}
+                style={[styles.container, { paddingTop: insets.top + 20 }]}
             >
-                <View style={styles.header}>
+                <View style={styles.skeletonContent}>
                     <Skeleton width={160} height={32} borderRadius={8} />
                     <Skeleton
                         width={180}
@@ -195,20 +202,22 @@ export default function TimetableScreen() {
                         borderRadius={6}
                         style={{ marginTop: 8 }}
                     />
+                    <View style={[styles.dayRow, { marginTop: 24 }]}>
+                        {SHORT_DAYS.map((d) => (
+                            <Skeleton
+                                key={d}
+                                width={48}
+                                height={72}
+                                borderRadius={20}
+                            />
+                        ))}
+                    </View>
+                    <View style={{ gap: 12, marginTop: 16 }}>
+                        <Skeleton height={100} borderRadius={24} />
+                        <Skeleton height={100} borderRadius={24} />
+                        <Skeleton height={100} borderRadius={24} />
+                    </View>
                 </View>
-                <View style={styles.dayRow}>
-                    {SHORT_DAYS.map((d) => (
-                        <Skeleton
-                            key={d}
-                            width={48}
-                            height={64}
-                            borderRadius={16}
-                        />
-                    ))}
-                </View>
-                <Skeleton height={100} borderRadius={20} />
-                <Skeleton height={100} borderRadius={20} />
-                <Skeleton height={100} borderRadius={20} />
             </ThemedView>
         );
     }
@@ -216,7 +225,9 @@ export default function TimetableScreen() {
     /* ---------- render ---------- */
 
     return (
-        <ThemedView style={[styles.container, { paddingTop: insets.top + 8 }]}>
+        <ThemedView
+            style={[styles.container, { paddingTop: insets.top + 12 }]}
+        >
             <ScrollView
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={styles.scrollContent}
@@ -253,6 +264,7 @@ export default function TimetableScreen() {
                                             { scale: pressed ? 0.95 : 1 },
                                         ],
                                     },
+                                    isSelected ? Shadows.md : null,
                                 ]}
                             >
                                 <ThemedText
@@ -302,7 +314,7 @@ export default function TimetableScreen() {
                     <View
                         style={[
                             styles.emptyDay,
-                            { backgroundColor: cardColor, borderColor },
+                            { backgroundColor: cardColor },
                         ]}
                     >
                         <ThemedText style={styles.emptyEmoji}>🌴</ThemedText>
@@ -338,8 +350,8 @@ export default function TimetableScreen() {
                                             backgroundColor: block.bgColor,
                                             borderColor: active
                                                 ? block.accentColor
-                                                : block.accentColor + "25",
-                                            borderWidth: active ? 2 : 1,
+                                                : "transparent",
+                                            borderWidth: active ? 2 : 0,
                                             opacity: pressed ? 0.9 : 1,
                                             transform: [
                                                 { scale: pressed ? 0.98 : 1 },
@@ -350,14 +362,14 @@ export default function TimetableScreen() {
                                                   shadowColor:
                                                       block.accentColor,
                                                   shadowOpacity: 0.3,
-                                                  shadowRadius: 12,
+                                                  shadowRadius: 16,
                                                   shadowOffset: {
                                                       width: 0,
-                                                      height: 4,
+                                                      height: 6,
                                                   },
-                                                  elevation: 6,
+                                                  elevation: 8,
                                               }
-                                            : null,
+                                            : Shadows.sm,
                                     ]}
                                 >
                                     <View style={styles.blockRow}>
@@ -456,7 +468,7 @@ export default function TimetableScreen() {
 
                 {/* Info footer */}
                 {classrooms.length > 0 ? (
-                    <View style={[styles.infoFooter, { borderColor }]}>
+                    <View style={styles.infoFooter}>
                         <ThemedText
                             style={[styles.infoText, { color: mutedColor }]}
                         >
@@ -477,28 +489,32 @@ export default function TimetableScreen() {
 const styles = StyleSheet.create({
     container: { flex: 1 },
     scrollContent: {
-        paddingHorizontal: 20,
-        paddingBottom: 32,
-        gap: 16,
+        paddingHorizontal: Spacing.xl,
+        paddingBottom: CONTENT_BOTTOM_PAD,
+        gap: Spacing.xl,
+    },
+    skeletonContent: {
+        paddingHorizontal: Spacing.xl,
     },
 
     /* header */
-    header: { gap: 4 },
+    header: { gap: Spacing.xs },
     title: { fontSize: 28, fontWeight: "800", lineHeight: 34 },
     subtitle: { fontSize: 14, lineHeight: 20 },
 
     /* day selector */
     dayRow: {
         flexDirection: "row",
-        gap: 8,
+        gap: Spacing.sm,
     },
     dayButton: {
         flex: 1,
-        borderRadius: 16,
-        paddingVertical: 12,
+        borderRadius: Radii.xl,
+        paddingVertical: Spacing.md,
         alignItems: "center",
         justifyContent: "center",
-        gap: 4,
+        gap: Spacing.xs,
+        minHeight: 72,
     },
     dayLabel: { fontSize: 13, fontWeight: "700" },
     dayBlockCount: { fontSize: 11, fontWeight: "600" },
@@ -512,19 +528,19 @@ const styles = StyleSheet.create({
     dayTitle: { fontSize: 17 },
 
     /* blocks */
-    blockList: { gap: 12 },
+    blockList: { gap: Spacing.md },
     blockCard: {
-        borderRadius: 20,
-        padding: 16,
+        borderRadius: Radii.xxl,
+        padding: Spacing.lg,
     },
     blockRow: {
         flexDirection: "row",
-        gap: 16,
+        gap: Spacing.lg,
     },
     timeColumn: {
         alignItems: "center",
         width: 56,
-        gap: 4,
+        gap: Spacing.xs,
     },
     timeText: {
         fontSize: 12,
@@ -542,7 +558,7 @@ const styles = StyleSheet.create({
     },
     blockContent: {
         flex: 1,
-        gap: 6,
+        gap: Spacing.sm,
     },
     blockHeaderRow: {
         flexDirection: "row",
@@ -550,16 +566,16 @@ const styles = StyleSheet.create({
         justifyContent: "space-between",
     },
     blockEmoji: {
-        width: 36,
-        height: 36,
-        borderRadius: 12,
+        width: 38,
+        height: 38,
+        borderRadius: Radii.md,
         alignItems: "center",
         justifyContent: "center",
     },
     liveBadge: {
-        paddingHorizontal: 10,
-        paddingVertical: 3,
-        borderRadius: 999,
+        paddingHorizontal: Spacing.md,
+        paddingVertical: 4,
+        borderRadius: Radii.full,
     },
     liveText: {
         color: "#FFFFFF",
@@ -571,20 +587,18 @@ const styles = StyleSheet.create({
 
     /* empty day */
     emptyDay: {
-        borderWidth: 1,
-        borderRadius: 24,
-        padding: 32,
+        borderRadius: Radii.xxl,
+        padding: Spacing.xxxl,
         alignItems: "center",
-        gap: 8,
+        gap: Spacing.sm,
+        ...Shadows.md,
     },
-    emptyEmoji: { fontSize: 48, marginBottom: 4 },
+    emptyEmoji: { fontSize: 48, marginBottom: Spacing.xs },
     emptyText: { textAlign: "center", fontSize: 14, lineHeight: 20 },
 
     /* info */
     infoFooter: {
-        borderTopWidth: 1,
-        paddingTop: 16,
-        marginTop: 8,
+        paddingTop: Spacing.lg,
     },
     infoText: { fontSize: 12, lineHeight: 18, textAlign: "center" },
 });

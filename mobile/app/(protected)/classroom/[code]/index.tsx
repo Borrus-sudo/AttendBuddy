@@ -4,6 +4,7 @@ import {
     FlatList,
     LayoutAnimation,
     Pressable,
+    Platform,
     ScrollView,
     StyleSheet,
     UIManager,
@@ -24,6 +25,7 @@ import { ScreenHeader } from "@/components/ui/screen-header";
 import { SegmentedControl } from "@/components/ui/segmented-control";
 import { StatusPill } from "@/components/ui/status-pill";
 import { useThemeColor } from "@/hooks/use-theme-color";
+import { Spacing, Radii, Shadows, CONTENT_BOTTOM_PAD } from "@/constants/theme";
 import {
     createAttendanceSession,
     formatSessionLabel,
@@ -100,6 +102,7 @@ export default function ClassroomScreen() {
     const params = useLocalSearchParams<{ code: string }>();
     const classroomCode = normalizeParam(params.code);
     const { user } = useAuth();
+    const insets = useSafeAreaInsets();
 
     const muted = useThemeColor({}, "muted");
     const danger = useThemeColor({}, "danger");
@@ -143,7 +146,13 @@ export default function ClassroomScreen() {
     });
 
     useEffect(() => {
-        if (UIManager.setLayoutAnimationEnabledExperimental) {
+        if (
+            Platform.OS === "android" &&
+            UIManager.setLayoutAnimationEnabledExperimental &&
+            // No-op in Fabric / New Architecture.
+            !(global as { nativeFabricUIManager?: unknown })
+                .nativeFabricUIManager
+        ) {
             UIManager.setLayoutAnimationEnabledExperimental(true);
         }
     }, []);
@@ -605,10 +614,8 @@ export default function ClassroomScreen() {
         );
     }
 
-    const insets = useSafeAreaInsets();
-
     return (
-        <ThemedView style={[styles.container, { paddingTop: insets.top + 8 }]}>
+        <ThemedView style={[styles.container, { paddingTop: insets.top + 12 }]}>
             <ScreenHeader
                 showBack
                 title={classroom.name}
@@ -1117,20 +1124,20 @@ export default function ClassroomScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        paddingHorizontal: 16,
-        paddingTop: 16,
-        gap: 12,
+        paddingHorizontal: Spacing.xl,
+        paddingTop: Spacing.lg,
+        gap: Spacing.lg,
     },
     centered: {
         flex: 1,
         alignItems: "center",
         justifyContent: "center",
-        gap: 12,
-        paddingHorizontal: 16,
+        gap: Spacing.md,
+        paddingHorizontal: Spacing.xl,
     },
     listContent: {
-        gap: 10,
-        paddingBottom: 18,
+        gap: Spacing.md,
+        paddingBottom: CONTENT_BOTTOM_PAD,
     },
     codeSubtitle: {
         fontSize: 12,
@@ -1139,39 +1146,41 @@ const styles = StyleSheet.create({
     },
     headerButtons: {
         alignItems: "flex-end",
-        gap: 8,
+        gap: Spacing.sm,
     },
     membersArea: {
         flex: 1,
-        gap: 10,
+        gap: Spacing.md,
     },
     membersScrollContent: {
-        paddingBottom: 16,
-        gap: 10,
+        paddingBottom: CONTENT_BOTTOM_PAD,
+        gap: Spacing.md,
     },
     controlBar: {
-        borderWidth: 1,
-        borderRadius: 14,
-        padding: 12,
-        gap: 10,
+        borderRadius: Radii.xl,
+        padding: Spacing.lg,
+        gap: Spacing.md,
+        ...Shadows.sm,
     },
     searchWrap: {
-        gap: 6,
+        gap: Spacing.sm,
     },
     controlButtonsRow: {
         flexDirection: "row",
-        gap: 8,
+        gap: Spacing.sm,
     },
     activeMetaRow: {
         flexDirection: "row",
         flexWrap: "wrap",
-        gap: 8,
+        gap: Spacing.sm,
     },
     filterChip: {
         backgroundColor: "rgba(51, 65, 85, 0.55)",
-        borderRadius: 999,
-        paddingHorizontal: 10,
-        paddingVertical: 5,
+        borderRadius: Radii.full,
+        paddingHorizontal: Spacing.md,
+        paddingVertical: Spacing.xs + 1,
+        minHeight: 32,
+        justifyContent: "center",
     },
     filterChipText: {
         fontSize: 12,
@@ -1179,16 +1188,16 @@ const styles = StyleSheet.create({
     },
     tableShell: {
         flex: 1,
-        borderWidth: 1,
-        borderRadius: 14,
+        borderRadius: Radii.xl,
         overflow: "hidden",
+        ...Shadows.sm,
     },
     tableHeader: {
         flexDirection: "row",
         alignItems: "center",
         borderBottomWidth: 1,
-        paddingHorizontal: 10,
-        paddingVertical: 8,
+        paddingHorizontal: Spacing.md,
+        paddingVertical: Spacing.sm,
         backgroundColor: "rgba(15, 23, 42, 0.95)",
     },
     tableHeaderName: {
@@ -1207,41 +1216,40 @@ const styles = StyleSheet.create({
         textTransform: "uppercase",
     },
     skeletonWrap: {
-        padding: 10,
-        gap: 8,
+        padding: Spacing.md,
+        gap: Spacing.sm,
     },
     skeletonRow: {
         height: 56,
-        borderWidth: 1,
-        borderRadius: 10,
+        borderRadius: Radii.md,
         backgroundColor: "rgba(51, 65, 85, 0.3)",
     },
     memberRowsContent: {
-        paddingBottom: 14,
+        paddingBottom: Spacing.lg,
     },
     memberRowsWrap: {
         maxHeight: 430,
     },
     memberEmptyArea: {
-        padding: 16,
-        gap: 10,
+        padding: Spacing.lg,
+        gap: Spacing.md,
         alignItems: "flex-start",
     },
     tableRow: {
         flexDirection: "row",
         flexWrap: "wrap",
         alignItems: "center",
-        paddingHorizontal: 10,
-        paddingVertical: 10,
+        paddingHorizontal: Spacing.md,
+        paddingVertical: Spacing.md,
         borderBottomWidth: 1,
-        borderBottomColor: "rgba(51, 65, 85, 0.35)",
+        borderBottomColor: "rgba(51, 65, 85, 0.2)",
     },
     tableCellBase: {
-        paddingRight: 8,
+        paddingRight: Spacing.sm,
     },
     tableCellName: {
         flex: 2.8,
-        gap: 4,
+        gap: Spacing.xs,
     },
     tableCellSmall: {
         flex: 1,
@@ -1249,14 +1257,14 @@ const styles = StyleSheet.create({
     },
     expandArea: {
         width: "100%",
-        marginTop: 10,
+        marginTop: Spacing.md,
     },
     sessionCard: {
-        gap: 10,
+        gap: Spacing.md,
     },
     sessionsArea: {
         flex: 1,
-        gap: 8,
+        gap: Spacing.md,
     },
     sessionsActionRow: {
         alignItems: "flex-end",
@@ -1265,48 +1273,48 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         alignItems: "center",
         justifyContent: "space-between",
-        gap: 12,
+        gap: Spacing.md,
     },
     sessionPills: {
         alignItems: "flex-end",
-        gap: 6,
+        gap: Spacing.sm,
     },
     sessionDetails: {
         flex: 1,
         gap: 2,
     },
     createArea: {
-        gap: 12,
+        gap: Spacing.md,
     },
     durationRow: {
         flexDirection: "row",
         flexWrap: "wrap",
-        gap: 8,
-        marginTop: 10,
-        marginBottom: 12,
+        gap: Spacing.sm,
+        marginTop: Spacing.md,
+        marginBottom: Spacing.lg,
     },
     durationButton: {
-        minHeight: 36,
-        paddingHorizontal: 12,
+        minHeight: 40,
+        paddingHorizontal: Spacing.lg,
     },
     analyticsArea: {
-        gap: 10,
+        gap: Spacing.md,
     },
     analyticsSummary: {
-        marginTop: 6,
-        gap: 4,
+        marginTop: Spacing.sm,
+        gap: Spacing.xs,
     },
     modalBody: {
-        gap: 12,
+        gap: Spacing.md,
     },
     statusChipRow: {
         flexDirection: "row",
         flexWrap: "wrap",
-        gap: 8,
+        gap: Spacing.sm,
     },
     filterActions: {
         flexDirection: "row",
-        gap: 10,
+        gap: Spacing.md,
     },
     goodPercent: {
         color: "#4ade80",

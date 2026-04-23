@@ -2,6 +2,7 @@ import { Pressable, StyleSheet, View } from "react-native";
 
 import { ThemedText } from "@/components/themed-text";
 import { useThemeColor } from "@/hooks/use-theme-color";
+import { Radii, Spacing } from "@/constants/theme";
 
 export type SegmentOption<T extends string> = {
     label: string;
@@ -19,16 +20,16 @@ export function SegmentedControl<T extends string>({
     options,
     onChange,
 }: SegmentedControlProps<T>) {
-    const border = useThemeColor({}, "border");
     const card = useThemeColor({}, "card");
     const primary = useThemeColor({}, "primary");
     const text = useThemeColor({}, "text");
+    const muted = useThemeColor({}, "muted");
 
     return (
         <View
             style={[
                 styles.container,
-                { borderColor: border, backgroundColor: card },
+                { backgroundColor: card },
             ]}
         >
             {options.map((option) => {
@@ -49,7 +50,7 @@ export function SegmentedControl<T extends string>({
                     >
                         <ThemedText
                             style={{
-                                color: active ? "#ecfeff" : text,
+                                color: active ? "#ecfeff" : muted,
                                 fontWeight: active ? "700" : "600",
                                 fontSize: 13,
                             }}
@@ -65,18 +66,22 @@ export function SegmentedControl<T extends string>({
 
 const styles = StyleSheet.create({
     container: {
-        borderWidth: 1,
-        borderRadius: 14,
-        padding: 4,
+        borderRadius: Radii.xl,
+        padding: Spacing.xs + 1,
         flexDirection: "row",
-        gap: 4,
+        gap: Spacing.xs,
+        shadowColor: "#7C5CFC",
+        shadowOpacity: 0.05,
+        shadowRadius: 10,
+        shadowOffset: { width: 0, height: 4 },
+        elevation: 2,
     },
     segment: {
         flex: 1,
-        minHeight: 34,
-        borderRadius: 10,
+        minHeight: 40,
+        borderRadius: Radii.lg,
         alignItems: "center",
         justifyContent: "center",
-        paddingHorizontal: 6,
+        paddingHorizontal: Spacing.sm,
     },
 });

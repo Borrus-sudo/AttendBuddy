@@ -130,3 +130,118 @@ export const Fonts = Platform.select({
         mono: "SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
     },
 });
+
+/* ------------------------------------------------------------------ */
+/*  8-pt Spacing System                                                */
+/* ------------------------------------------------------------------ */
+
+export const Spacing = {
+    /** 4 */
+    xs: 4,
+    /** 8 */
+    sm: 8,
+    /** 12 */
+    md: 12,
+    /** 16 */
+    lg: 16,
+    /** 20 — default horizontal page padding */
+    xl: 20,
+    /** 24 */
+    xxl: 24,
+    /** 32 */
+    xxxl: 32,
+    /** 40 */
+    huge: 40,
+} as const;
+
+/* ------------------------------------------------------------------ */
+/*  Border Radius Scale                                                */
+/* ------------------------------------------------------------------ */
+
+export const Radii = {
+    /** 8 */
+    sm: 8,
+    /** 12 */
+    md: 12,
+    /** 16 */
+    lg: 16,
+    /** 20 */
+    xl: 20,
+    /** 24 — default for cards */
+    xxl: 24,
+    /** 32 — large feature cards */
+    xxxl: 32,
+    /** 999 — pill / fully rounded */
+    full: 999,
+} as const;
+
+/* ------------------------------------------------------------------ */
+/*  Typography Scale                                                   */
+/* ------------------------------------------------------------------ */
+
+export const Type = {
+    /** 32 / 38 — main screen title */
+    title: { fontSize: 32, lineHeight: 38, fontWeight: "800" as const },
+    /** 24 / 30 — section heading */
+    heading: { fontSize: 24, lineHeight: 30, fontWeight: "700" as const },
+    /** 20 / 26 — subtitle */
+    subtitle: { fontSize: 20, lineHeight: 26, fontWeight: "700" as const },
+    /** 16 / 24 — body */
+    body: { fontSize: 16, lineHeight: 24, fontWeight: "400" as const },
+    /** 16 / 24 — body semi-bold */
+    bodySemiBold: { fontSize: 16, lineHeight: 24, fontWeight: "600" as const },
+    /** 14 / 20 — secondary text */
+    secondary: { fontSize: 14, lineHeight: 20, fontWeight: "400" as const },
+    /** 13 / 18 — label */
+    label: {
+        fontSize: 13,
+        lineHeight: 18,
+        fontWeight: "600" as const,
+        letterSpacing: 0.3,
+    },
+    /** 12 / 16 — caption */
+    caption: { fontSize: 12, lineHeight: 16, fontWeight: "500" as const },
+    /** 11 / 14 — tiny label */
+    tiny: { fontSize: 11, lineHeight: 14, fontWeight: "600" as const },
+} as const;
+
+/* ------------------------------------------------------------------ */
+/*  Layout                                                             */
+/* ------------------------------------------------------------------ */
+
+/** Estimated tab bar height used for bottom padding.
+ *  The actual tab bar height is 56 + safeArea bottom inset.
+ *  Use this as a minimum bottom padding for scrollable content. */
+export const TAB_BAR_HEIGHT = 56;
+export const CONTENT_BOTTOM_PAD = 96;
+
+/* ------------------------------------------------------------------ */
+/*  Shadow Presets                                                     */
+/* ------------------------------------------------------------------ */
+
+export const Shadows = {
+    /** Low elevation — subtle lift */
+    sm: {
+        shadowColor: "#7C5CFC",
+        shadowOpacity: 0.05,
+        shadowRadius: 10,
+        shadowOffset: { width: 0, height: 4 },
+        elevation: 2,
+    },
+    /** Medium — default card */
+    md: {
+        shadowColor: "#7C5CFC",
+        shadowOpacity: 0.08,
+        shadowRadius: 16,
+        shadowOffset: { width: 0, height: 6 },
+        elevation: 4,
+    },
+    /** High — feature cards, modals */
+    lg: {
+        shadowColor: "#7C5CFC",
+        shadowOpacity: 0.12,
+        shadowRadius: 24,
+        shadowOffset: { width: 0, height: 10 },
+        elevation: 8,
+    },
+} as const;

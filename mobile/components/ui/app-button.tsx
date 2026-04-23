@@ -9,6 +9,7 @@ import type { ReactNode } from "react";
 
 import { ThemedText } from "@/components/themed-text";
 import { useThemeColor } from "@/hooks/use-theme-color";
+import { Radii, Shadows, Spacing } from "@/constants/theme";
 
 type Variant = "primary" | "secondary" | "ghost" | "danger";
 
@@ -72,8 +73,9 @@ export function AppButton({
                     backgroundColor: palette.backgroundColor,
                     borderColor: palette.borderColor,
                     opacity: isDisabled ? 0.55 : 1,
-                    transform: [{ scale: pressed ? 0.98 : 1 }],
+                    transform: [{ scale: pressed ? 0.97 : 1 }],
                 },
+                variant === "primary" ? Shadows.sm : null,
                 style,
             ]}
             onPress={onPress}
@@ -96,10 +98,10 @@ export function AppButton({
 
 const styles = StyleSheet.create({
     button: {
-        minHeight: 44,
-        borderRadius: 12,
+        minHeight: 48,
+        borderRadius: Radii.lg,
         borderWidth: 1,
-        paddingHorizontal: 14,
+        paddingHorizontal: Spacing.lg,
         alignItems: "center",
         justifyContent: "center",
     },
@@ -107,7 +109,7 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         alignItems: "center",
         justifyContent: "center",
-        gap: 8,
+        gap: Spacing.sm,
     },
     label: {
         fontSize: 14,

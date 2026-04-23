@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 
 import { ThemedText } from "@/components/themed-text";
 import { useThemeColor } from "@/hooks/use-theme-color";
+import { Radii, Shadows, Spacing } from "@/constants/theme";
 
 type AppListItemProps = {
     title: string;
@@ -20,7 +21,6 @@ export function AppListItem({
     rightSlot,
     onPress,
 }: AppListItemProps) {
-    const border = useThemeColor({}, "border");
     const muted = useThemeColor({}, "muted");
     const card = useThemeColor({}, "card");
 
@@ -31,8 +31,8 @@ export function AppListItem({
                 styles.container,
                 {
                     backgroundColor: card,
-                    borderColor: border,
                     opacity: pressed ? 0.92 : 1,
+                    transform: [{ scale: pressed ? 0.98 : 1 }],
                 },
             ]}
         >
@@ -64,26 +64,26 @@ export function AppListItem({
 
 const styles = StyleSheet.create({
     container: {
-        borderWidth: 1,
-        borderRadius: 14,
+        borderRadius: Radii.xl,
         minHeight: 64,
-        paddingHorizontal: 12,
-        paddingVertical: 10,
+        paddingHorizontal: Spacing.lg,
+        paddingVertical: Spacing.md,
         flexDirection: "row",
         alignItems: "center",
         justifyContent: "space-between",
-        gap: 12,
+        gap: Spacing.md,
+        ...Shadows.sm,
     },
     left: {
         flex: 1,
         flexDirection: "row",
         alignItems: "center",
-        gap: 10,
+        gap: Spacing.md,
     },
     avatar: {
-        width: 38,
-        height: 38,
-        borderRadius: 19,
+        width: 40,
+        height: 40,
+        borderRadius: 20,
     },
     avatarFallback: {
         alignItems: "center",
@@ -96,6 +96,7 @@ const styles = StyleSheet.create({
     },
     textBlock: {
         flex: 1,
+        gap: 2,
     },
     subtitle: {
         fontSize: 13,

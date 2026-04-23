@@ -1,8 +1,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
     ActivityIndicator,
+    Animated,
+    Dimensions,
     FlatList,
+    Modal,
     Platform,
+    Pressable,
     ScrollView,
     StyleSheet,
     Switch,
@@ -22,6 +26,8 @@ import { AppListItem } from "@/components/ui/app-list-item";
 import { ScreenHeader } from "@/components/ui/screen-header";
 import { StatusPill } from "@/components/ui/status-pill";
 import { useThemeColor } from "@/hooks/use-theme-color";
+import { useColorScheme } from "@/hooks/use-color-scheme";
+import { Spacing, Radii, Shadows, CONTENT_BOTTOM_PAD } from "@/constants/theme";
 import {
     formatSessionLabel,
     createAttendanceVerificationChallenge,
@@ -51,6 +57,11 @@ export default function SessionDetailScreen() {
     const primary = useThemeColor({}, "primary");
     const muted = useThemeColor({}, "muted");
     const danger = useThemeColor({}, "danger");
+    const card = useThemeColor({}, "card");
+    const colorScheme = useColorScheme();
+    const isDark = colorScheme === "dark";
+
+    const shutterScale = useRef(new Animated.Value(1)).current;
 
     const [data, setData] = useState<AttendanceSessionDetailPayload | null>(
         null,
@@ -253,6 +264,21 @@ export default function SessionDetailScreen() {
             return;
         }
 
+        // Shutter press animation
+        Animated.sequence([
+            Animated.timing(shutterScale, {
+                toValue: 0.8,
+                duration: 80,
+                useNativeDriver: true,
+            }),
+            Animated.spring(shutterScale, {
+                toValue: 1,
+                useNativeDriver: true,
+                tension: 60,
+                friction: 6,
+            }),
+        ]).start();
+
         setError(null);
         try {
             const photo = await cameraRef.current.takePictureAsync({
@@ -275,7 +301,7 @@ export default function SessionDetailScreen() {
                     : "Unable to capture selfie.",
             );
         }
-    }, [isCameraReady]);
+    }, [isCameraReady, shutterScale]);
 
     const handleSubmitRequest = useCallback(async () => {
         if (!data || isTeacher) {
@@ -358,7 +384,7 @@ export default function SessionDetailScreen() {
     }
 
     return (
-        <ThemedView style={[styles.container, { paddingTop: insets.top + 8 }]}>
+        <ThemedView style={[styles.container, { paddingTop: insets.top + 12 }]}>
             <ScreenHeader
                 showBack
                 title="Session Detail"
@@ -554,54 +580,7 @@ export default function SessionDetailScreen() {
                             </AppCard>
                         ) : null}
 
-                        {showCamera ? (
-                            <AppCard style={styles.captureCard}>
-                                <ThemedText type="defaultSemiBold">
-                                    Capture Selfie
-                                </ThemedText>
-                                <View style={styles.cameraPreviewFrame}>
-                                    <CameraView
-                                        ref={cameraRef}
-                                        style={StyleSheet.absoluteFill}
-                                        facing="front"
-                                        mirror
-                                        onCameraReady={() => {
-                                            setIsCameraReady(true);
-                                        }}
-                                        onMountError={() => {
-                                            setIsCameraReady(false);
-                                            setError(
-                                                Platform.OS === "web"
-                                                    ? "Unable to start camera on web. Ensure camera permission is allowed and the site runs on HTTPS or localhost."
-                                                    : "Unable to start camera preview.",
-                                            );
-                                            setShowCamera(false);
-                                        }}
-                                    />
-                                </View>
-                                <ThemedText style={{ color: muted }}>
-                                    Use a well-lit face photo for best
-                                    verification.
-                                </ThemedText>
-                                <View style={styles.mobileActionRow}>
-                                    <AppButton
-                                        label="Capture Photo"
-                                        disabled={!isCameraReady}
-                                        onPress={() => {
-                                            void handleTakeSelfie();
-                                        }}
-                                    />
-                                    <AppButton
-                                        label="Cancel"
-                                        variant="secondary"
-                                        onPress={() => {
-                                            setShowCamera(false);
-                                            setIsCameraReady(false);
-                                        }}
-                                    />
-                                </View>
-                            </AppCard>
-                        ) : null}
+
 
                         <View style={styles.studentSummary}>
                             <ThemedText style={{ color: muted }}>
@@ -724,44 +703,156 @@ export default function SessionDetailScreen() {
                     />
                 </View>
             ) : null}
+            {/* ---- Selfie Capture Modal ---- */}
+            <Modal
+                visible={showCamera}
+                animationType="fade"
+                transparent
+                onRequestClose={() => {
+                    setShowCamera(false);
+                    setIsCameraReady(false);
+                }}
+            >
+                <View style={styles.selfieOverlay}>
+                    {/* Title */}
+                    <ThemedText style={styles.selfieTitle}>
+                        Take a selfie
+                    </ThemedText>
+                    <ThemedText style={styles.selfieSubtitle}>
+                        Position your face inside the circle
+                    </ThemedText>
+
+                    {/* Circular camera viewport */}
+                    <View style={styles.selfieRingOuter}>
+                        <View
+                            style={[
+                                styles.selfieRingGlow,
+                                { borderColor: primary },
+                            ]}
+                        >
+                            <View style={styles.selfieCircle}>
+                                <CameraView
+                                    ref={cameraRef}
+                                    style={StyleSheet.absoluteFill}
+                                    facing="front"
+                                    mirror
+                                    onCameraReady={() => {
+                                        setIsCameraReady(true);
+                                    }}
+                                    onMountError={() => {
+                                        setIsCameraReady(false);
+                                        setError(
+                                            Platform.OS === "web"
+                                                ? "Unable to start camera on web. Ensure camera permission is allowed and the site runs on HTTPS or localhost."
+                                                : "Unable to start camera preview.",
+                                        );
+                                        setShowCamera(false);
+                                    }}
+                                />
+                                {!isCameraReady ? (
+                                    <View style={styles.selfieLoading}>
+                                        <ActivityIndicator
+                                            size="large"
+                                            color={primary}
+                                        />
+                                    </View>
+                                ) : null}
+                            </View>
+                        </View>
+                    </View>
+
+                    {/* Hint */}
+                    <ThemedText style={styles.selfieHint}>
+                        🔒 Photo is used only for verification
+                    </ThemedText>
+
+                    {/* Shutter + Cancel */}
+                    <View style={styles.selfieControls}>
+                        <Pressable
+                            disabled={!isCameraReady}
+                            onPress={() => {
+                                void handleTakeSelfie();
+                            }}
+                            style={({ pressed }) => ({
+                                opacity:
+                                    !isCameraReady ? 0.4 : pressed ? 0.85 : 1,
+                            })}
+                        >
+                            <Animated.View
+                                style={[
+                                    styles.shutterOuter,
+                                    {
+                                        borderColor: primary,
+                                        transform: [
+                                            { scale: shutterScale },
+                                        ],
+                                    },
+                                ]}
+                            >
+                                <View
+                                    style={[
+                                        styles.shutterInner,
+                                        { backgroundColor: primary },
+                                    ]}
+                                />
+                            </Animated.View>
+                        </Pressable>
+                    </View>
+
+                    <Pressable
+                        onPress={() => {
+                            setShowCamera(false);
+                            setIsCameraReady(false);
+                        }}
+                        hitSlop={16}
+                        style={styles.selfieCancelButton}
+                    >
+                        <ThemedText style={styles.selfieCancelText}>
+                            Cancel
+                        </ThemedText>
+                    </Pressable>
+                </View>
+            </Modal>
         </ThemedView>
     );
 }
 
+const SELFIE_SIZE = Math.min(Dimensions.get("window").width * 0.65, 260);
+
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        paddingHorizontal: 16,
-        paddingTop: 16,
-        gap: 12,
+        paddingHorizontal: Spacing.xl,
+        paddingTop: Spacing.lg,
+        gap: Spacing.lg,
     },
     centered: {
         flex: 1,
         alignItems: "center",
         justifyContent: "center",
-        gap: 12,
-        paddingHorizontal: 16,
+        gap: Spacing.md,
+        paddingHorizontal: Spacing.xl,
     },
     statsRow: {
         flexDirection: "row",
         alignItems: "center",
         justifyContent: "space-between",
-        marginBottom: 6,
+        marginBottom: Spacing.sm,
     },
     listContent: {
-        gap: 10,
-        paddingBottom: 20,
+        gap: Spacing.md,
+        paddingBottom: CONTENT_BOTTOM_PAD,
     },
     toggleSide: {
         alignItems: "flex-end",
-        gap: 8,
+        gap: Spacing.sm,
     },
     qrCard: {
-        gap: 10,
+        gap: Spacing.md,
     },
     qrWrap: {
         alignItems: "center",
-        gap: 10,
+        gap: Spacing.md,
     },
     codeLabel: {
         fontSize: 12,
@@ -769,79 +860,146 @@ const styles = StyleSheet.create({
         letterSpacing: 0.3,
     },
     studentCard: {
-        gap: 10,
+        gap: Spacing.md,
     },
     studentSection: {
-        gap: 10,
+        gap: Spacing.md,
     },
     requestCard: {
-        gap: 10,
+        gap: Spacing.md,
     },
     requestInput: {
-        borderWidth: 1,
-        borderColor: "#334155",
-        borderRadius: 10,
+        borderRadius: Radii.lg,
         minHeight: 90,
         textAlignVertical: "top",
-        paddingHorizontal: 10,
-        paddingVertical: 10,
+        paddingHorizontal: Spacing.lg,
+        paddingVertical: Spacing.md,
+        backgroundColor: "rgba(42, 43, 58, 0.5)",
     },
     mobileActionRow: {
         flexDirection: "row",
-        gap: 8,
+        gap: Spacing.sm,
     },
-    captureCard: {
-        gap: 10,
+    /* ---- Selfie capture modal ---- */
+    selfieOverlay: {
+        flex: 1,
+        backgroundColor: "rgba(2, 6, 23, 0.92)",
+        alignItems: "center",
+        justifyContent: "center",
+        paddingHorizontal: Spacing.xxl,
+        gap: Spacing.lg,
     },
-    cameraPreviewFrame: {
-        height: 220,
-        borderRadius: 12,
+    selfieTitle: {
+        fontSize: 24,
+        fontWeight: "800",
+        color: "#FFFFFF",
+    },
+    selfieSubtitle: {
+        fontSize: 14,
+        color: "rgba(255, 255, 255, 0.55)",
+        marginBottom: Spacing.sm,
+    },
+    selfieRingOuter: {
+        alignItems: "center",
+        justifyContent: "center",
+    },
+    selfieRingGlow: {
+        borderWidth: 3,
+        borderRadius: SELFIE_SIZE / 2 + 6,
+        padding: 4,
+        shadowColor: "#9B7FFF",
+        shadowOpacity: 0.35,
+        shadowRadius: 20,
+        shadowOffset: { width: 0, height: 0 },
+        elevation: 12,
+    },
+    selfieCircle: {
+        width: SELFIE_SIZE,
+        height: SELFIE_SIZE,
+        borderRadius: SELFIE_SIZE / 2,
         overflow: "hidden",
         backgroundColor: "#0f172a",
     },
+    selfieLoading: {
+        ...StyleSheet.absoluteFillObject,
+        alignItems: "center",
+        justifyContent: "center",
+        backgroundColor: "rgba(15, 23, 42, 0.6)",
+    },
+    selfieHint: {
+        fontSize: 12,
+        color: "rgba(255, 255, 255, 0.4)",
+        marginTop: Spacing.sm,
+    },
+    selfieControls: {
+        marginTop: Spacing.xxl,
+        alignItems: "center",
+    },
+    shutterOuter: {
+        width: 72,
+        height: 72,
+        borderRadius: 36,
+        borderWidth: 4,
+        alignItems: "center",
+        justifyContent: "center",
+    },
+    shutterInner: {
+        width: 56,
+        height: 56,
+        borderRadius: 28,
+    },
+    selfieCancelButton: {
+        marginTop: Spacing.md,
+        minHeight: 44,
+        justifyContent: "center",
+        paddingHorizontal: Spacing.xl,
+    },
+    selfieCancelText: {
+        color: "rgba(255, 255, 255, 0.6)",
+        fontSize: 15,
+        fontWeight: "600",
+    },
     requestHistory: {
-        gap: 8,
+        gap: Spacing.sm,
     },
     requestHistoryItem: {
-        gap: 6,
-        borderWidth: 1,
-        borderColor: "#334155",
-        borderRadius: 10,
-        padding: 10,
+        gap: Spacing.sm,
+        borderRadius: Radii.lg,
+        padding: Spacing.md,
+        backgroundColor: "rgba(42, 43, 58, 0.35)",
     },
     studentSummary: {
         alignItems: "center",
-        paddingTop: 12,
+        paddingTop: Spacing.md,
     },
     studentScroll: {
         flex: 1,
     },
     studentScrollContent: {
-        gap: 10,
-        paddingBottom: 20,
+        gap: Spacing.md,
+        paddingBottom: CONTENT_BOTTOM_PAD,
     },
     teacherSection: {
         flex: 1,
-        gap: 10,
+        gap: Spacing.md,
     },
     teacherRequestsCard: {
-        gap: 10,
+        gap: Spacing.md,
     },
     teacherRequestItem: {
-        borderWidth: 1,
-        borderColor: "#334155",
-        borderRadius: 10,
-        padding: 10,
-        gap: 8,
+        borderRadius: Radii.lg,
+        padding: Spacing.md,
+        gap: Spacing.sm,
+        backgroundColor: "rgba(42, 43, 58, 0.35)",
     },
     teacherRequestHeader: {
         flexDirection: "row",
         alignItems: "center",
         justifyContent: "space-between",
-        gap: 8,
+        gap: Spacing.sm,
     },
     teacherRequestActions: {
         flexDirection: "row",
-        gap: 8,
+        gap: Spacing.sm,
     },
 });

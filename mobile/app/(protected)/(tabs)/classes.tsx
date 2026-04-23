@@ -23,7 +23,14 @@ import { ThemedText } from "@/components/themed-text";
 import { ThemedView } from "@/components/themed-view";
 import { Skeleton } from "@/components/ui/skeleton-loader";
 import { useAuth } from "@/providers/auth-provider";
-import { ClassAccentColors, getClassEmoji } from "@/constants/theme";
+import {
+    ClassAccentColors,
+    getClassEmoji,
+    Spacing,
+    Radii,
+    Shadows,
+    CONTENT_BOTTOM_PAD,
+} from "@/constants/theme";
 import type { ClassroomSummary } from "@/types/api";
 
 export default function ClassesScreen() {
@@ -46,7 +53,6 @@ export default function ClassesScreen() {
     const dangerColor = useThemeColor({}, "danger");
     const primaryColor = useThemeColor({}, "primary");
     const cardColor = useThemeColor({}, "card");
-    const borderColor = useThemeColor({}, "border");
 
     const accentColors = isDark
         ? ClassAccentColors.dark
@@ -140,7 +146,7 @@ export default function ClassesScreen() {
     if (isLoading) {
         return (
             <ThemedView
-                style={[styles.container, { paddingTop: insets.top + 16 }]}
+                style={[styles.container, { paddingTop: insets.top + 20 }]}
             >
                 <View style={styles.header}>
                     <Skeleton width={150} height={32} borderRadius={8} />
@@ -158,24 +164,24 @@ export default function ClassesScreen() {
                 <View style={styles.columnWrapper}>
                     <Skeleton
                         height={200}
-                        borderRadius={20}
+                        borderRadius={24}
                         style={{ flex: 1 }}
                     />
                     <Skeleton
                         height={200}
-                        borderRadius={20}
+                        borderRadius={24}
                         style={{ flex: 1 }}
                     />
                 </View>
                 <View style={styles.columnWrapper}>
                     <Skeleton
                         height={200}
-                        borderRadius={20}
+                        borderRadius={24}
                         style={{ flex: 1 }}
                     />
                     <Skeleton
                         height={200}
-                        borderRadius={20}
+                        borderRadius={24}
                         style={{ flex: 1 }}
                     />
                 </View>
@@ -186,7 +192,9 @@ export default function ClassesScreen() {
     /* ---------- render ---------- */
 
     return (
-        <ThemedView style={[styles.container, { paddingTop: insets.top + 8 }]}>
+        <ThemedView
+            style={[styles.container, { paddingTop: insets.top + 12 }]}
+        >
             {/* Header */}
             <View style={styles.headerRow}>
                 <View>
@@ -204,6 +212,7 @@ export default function ClassesScreen() {
                             {
                                 backgroundColor: isDark ? "#22203A" : "#F0EAFF",
                                 opacity: pressed ? 0.8 : 1,
+                                transform: [{ scale: pressed ? 0.95 : 1 }],
                             },
                         ]}
                         onPress={() => {
@@ -231,6 +240,7 @@ export default function ClassesScreen() {
                             {
                                 backgroundColor: isDark ? "#1C322F" : "#E5FAF6",
                                 opacity: pressed ? 0.8 : 1,
+                                transform: [{ scale: pressed ? 0.95 : 1 }],
                             },
                         ]}
                         onPress={() => {
@@ -277,7 +287,7 @@ export default function ClassesScreen() {
                     <View
                         style={[
                             styles.emptyCard,
-                            { backgroundColor: cardColor, borderColor },
+                            { backgroundColor: cardColor },
                         ]}
                     >
                         <ThemedText style={styles.emptyEmoji}>📭</ThemedText>
@@ -310,7 +320,6 @@ export default function ClassesScreen() {
                                     styles.classCard,
                                     {
                                         backgroundColor: colors.bg,
-                                        borderColor: colors.accent + "25",
                                         opacity: pressed ? 0.9 : 1,
                                         transform: [
                                             { scale: pressed ? 0.97 : 1 },
@@ -449,25 +458,25 @@ export default function ClassesScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        paddingHorizontal: 16,
-        gap: 14,
+        paddingHorizontal: Spacing.xl,
+        gap: Spacing.lg,
     },
     centered: {
         flex: 1,
         alignItems: "center",
         justifyContent: "center",
-        padding: 20,
-        gap: 12,
+        padding: Spacing.xl,
+        gap: Spacing.md,
     },
 
     /* header */
-    header: { gap: 4 },
+    header: { gap: Spacing.xs },
     headerRow: {
         flexDirection: "row",
         justifyContent: "space-between",
         alignItems: "flex-start",
-        gap: 10,
-        paddingHorizontal: 4,
+        gap: Spacing.md,
+        paddingHorizontal: Spacing.xs,
     },
     titleText: {
         fontSize: 28,
@@ -480,15 +489,16 @@ const styles = StyleSheet.create({
     },
     headerButtons: {
         flexDirection: "row",
-        gap: 8,
+        gap: Spacing.sm,
     },
     actionChip: {
         flexDirection: "row",
         alignItems: "center",
         gap: 5,
-        paddingHorizontal: 14,
-        paddingVertical: 10,
-        borderRadius: 12,
+        paddingHorizontal: Spacing.lg,
+        paddingVertical: Spacing.md,
+        borderRadius: Radii.lg,
+        minHeight: 44,
     },
     actionChipLabel: {
         fontSize: 13,
@@ -497,16 +507,16 @@ const styles = StyleSheet.create({
 
     /* error */
     error: { textAlign: "center" },
-    errorCard: { padding: 12 },
+    errorCard: { padding: Spacing.md },
 
     /* grid */
     listContent: {
-        gap: 12,
-        paddingBottom: 16,
+        gap: Spacing.md,
+        paddingBottom: CONTENT_BOTTOM_PAD,
         minHeight: "100%",
     },
     columnWrapper: {
-        gap: 12,
+        gap: Spacing.md,
     },
     gridItem: {
         flex: 1,
@@ -518,11 +528,11 @@ const styles = StyleSheet.create({
 
     /* class card */
     classCard: {
-        borderRadius: 20,
-        borderWidth: 1,
-        padding: 14,
-        gap: 8,
+        borderRadius: Radii.xxl,
+        padding: Spacing.lg,
+        gap: Spacing.sm,
         minHeight: 200,
+        ...Shadows.sm,
     },
     classCardHeader: {
         flexDirection: "row",
@@ -530,9 +540,9 @@ const styles = StyleSheet.create({
         alignItems: "flex-start",
     },
     emojiCircle: {
-        width: 42,
-        height: 42,
-        borderRadius: 14,
+        width: 44,
+        height: 44,
+        borderRadius: Radii.lg,
         alignItems: "center",
         justifyContent: "center",
     },
@@ -557,16 +567,16 @@ const styles = StyleSheet.create({
 
     /* empty */
     emptyCard: {
-        marginTop: 18,
-        borderWidth: 1,
-        borderRadius: 24,
-        padding: 32,
+        marginTop: Spacing.xl,
+        borderRadius: Radii.xxl,
+        padding: Spacing.xxxl,
         alignItems: "center",
-        gap: 8,
+        gap: Spacing.sm,
+        ...Shadows.md,
     },
-    emptyEmoji: { fontSize: 48, marginBottom: 4 },
+    emptyEmoji: { fontSize: 48, marginBottom: Spacing.xs },
     emptyText: { textAlign: "center", fontSize: 14, lineHeight: 20 },
 
     /* modals */
-    modalBody: { gap: 12 },
+    modalBody: { gap: Spacing.md },
 });

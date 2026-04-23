@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { Pressable, ScrollView, StyleSheet, Switch, View } from "react-native";
+import { Pressable, ScrollView, StyleSheet, View } from "react-native";
 import { Image } from "expo-image";
 import { LinearGradient } from "expo-linear-gradient";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
@@ -16,7 +16,14 @@ import { useThemeColor } from "@/hooks/use-theme-color";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { useAuth } from "@/providers/auth-provider";
 import { getUserProfile } from "@/lib/api";
-import { ClassAccentColors, getClassEmoji } from "@/constants/theme";
+import {
+    ClassAccentColors,
+    getClassEmoji,
+    Spacing,
+    Radii,
+    Shadows,
+    CONTENT_BOTTOM_PAD,
+} from "@/constants/theme";
 import type { ClassroomSummary } from "@/types/api";
 
 export default function ProfileScreen() {
@@ -26,7 +33,6 @@ export default function ProfileScreen() {
     const isDark = colorScheme === "dark";
 
     const cardColor = useThemeColor({}, "card");
-    const borderColor = useThemeColor({}, "border");
     const mutedColor = useThemeColor({}, "muted");
     const primaryColor = useThemeColor({}, "primary");
 
@@ -68,24 +74,24 @@ export default function ProfileScreen() {
                 <View style={styles.bodyPadding}>
                     <View style={styles.statsRow}>
                         <Skeleton
-                            height={80}
-                            borderRadius={16}
+                            height={88}
+                            borderRadius={20}
                             style={{ flex: 1 }}
                         />
                         <Skeleton
-                            height={80}
-                            borderRadius={16}
+                            height={88}
+                            borderRadius={20}
                             style={{ flex: 1 }}
                         />
                         <Skeleton
-                            height={80}
-                            borderRadius={16}
+                            height={88}
+                            borderRadius={20}
                             style={{ flex: 1 }}
                         />
                     </View>
                     <Skeleton width={130} height={22} borderRadius={6} />
-                    <Skeleton height={64} borderRadius={16} />
-                    <Skeleton height={64} borderRadius={16} />
+                    <Skeleton height={64} borderRadius={20} />
+                    <Skeleton height={64} borderRadius={20} />
                 </View>
             </ThemedView>
         );
@@ -108,7 +114,7 @@ export default function ProfileScreen() {
                     end={{ x: 1, y: 1 }}
                     style={[
                         styles.headerGradient,
-                        { paddingTop: insets.top + 24 },
+                        { paddingTop: insets.top + 32 },
                     ]}
                 >
                     {user.image ? (
@@ -233,7 +239,7 @@ export default function ProfileScreen() {
                         <View
                             style={[
                                 styles.emptyCard,
-                                { backgroundColor: cardColor, borderColor },
+                                { backgroundColor: cardColor },
                             ]}
                         >
                             <ThemedText style={styles.emptyEmoji}>
@@ -269,7 +275,6 @@ export default function ProfileScreen() {
                                             styles.classItem,
                                             {
                                                 backgroundColor: cardColor,
-                                                borderColor,
                                                 opacity: pressed ? 0.85 : 1,
                                                 transform: [
                                                     {
@@ -330,13 +335,29 @@ export default function ProfileScreen() {
                         Settings
                     </ThemedText>
 
-                    <View style={styles.settingsGroup}>
-                        <View style={[styles.settingsItem, { borderColor }]}>
-                            <MaterialIcons
-                                name="notifications-none"
-                                size={22}
-                                color={mutedColor}
-                            />
+                    <View
+                        style={[
+                            styles.settingsGroup,
+                            { backgroundColor: cardColor },
+                        ]}
+                    >
+                        <View style={styles.settingsItem}>
+                            <View
+                                style={[
+                                    styles.settingsIcon,
+                                    {
+                                        backgroundColor: isDark
+                                            ? "#22203A"
+                                            : "#F0EAFF",
+                                    },
+                                ]}
+                            >
+                                <MaterialIcons
+                                    name="notifications-none"
+                                    size={20}
+                                    color={primaryColor}
+                                />
+                            </View>
                             <ThemedText style={styles.settingsLabel}>
                                 Notifications
                             </ThemedText>
@@ -350,12 +371,25 @@ export default function ProfileScreen() {
                             </ThemedText>
                         </View>
 
-                        <View style={[styles.settingsItem, { borderColor }]}>
-                            <MaterialIcons
-                                name="info-outline"
-                                size={22}
-                                color={mutedColor}
-                            />
+                        <View style={styles.settingsDivider} />
+
+                        <View style={styles.settingsItem}>
+                            <View
+                                style={[
+                                    styles.settingsIcon,
+                                    {
+                                        backgroundColor: isDark
+                                            ? "#1C322F"
+                                            : "#E5FAF6",
+                                    },
+                                ]}
+                            >
+                                <MaterialIcons
+                                    name="info-outline"
+                                    size={20}
+                                    color={isDark ? "#6BE0D8" : "#4ECDC4"}
+                                />
+                            </View>
                             <ThemedText style={styles.settingsLabel}>
                                 About Attend Buddy
                             </ThemedText>
@@ -412,22 +446,26 @@ export default function ProfileScreen() {
 
 const styles = StyleSheet.create({
     container: { flex: 1 },
-    scrollContent: { paddingBottom: 40 },
-    bodyPadding: { paddingHorizontal: 20, gap: 18, marginTop: 20 },
+    scrollContent: { paddingBottom: CONTENT_BOTTOM_PAD },
+    bodyPadding: {
+        paddingHorizontal: Spacing.xl,
+        gap: Spacing.xl,
+        marginTop: Spacing.xxl,
+    },
 
     /* header gradient */
     headerGradient: {
-        paddingBottom: 28,
+        paddingBottom: Spacing.xxxl,
         alignItems: "center",
-        gap: 6,
-        borderBottomLeftRadius: 32,
-        borderBottomRightRadius: 32,
+        gap: Spacing.sm,
+        borderBottomLeftRadius: Radii.xxxl,
+        borderBottomRightRadius: Radii.xxxl,
     },
     avatar: {
-        width: 88,
-        height: 88,
-        borderRadius: 44,
-        marginBottom: 10,
+        width: 92,
+        height: 92,
+        borderRadius: 46,
+        marginBottom: Spacing.md,
         borderWidth: 3,
         borderColor: "rgba(255,255,255,0.35)",
     },
@@ -454,12 +492,12 @@ const styles = StyleSheet.create({
     /* stats */
     statsRow: {
         flexDirection: "row",
-        gap: 12,
+        gap: Spacing.md,
     },
     statCard: {
         flex: 1,
-        borderRadius: 18,
-        paddingVertical: 14,
+        borderRadius: Radii.xl,
+        paddingVertical: Spacing.lg,
         alignItems: "center",
         gap: 2,
     },
@@ -480,19 +518,20 @@ const styles = StyleSheet.create({
     },
 
     /* classes */
-    classList: { gap: 10 },
+    classList: { gap: Spacing.md },
     classItem: {
         flexDirection: "row",
         alignItems: "center",
-        borderWidth: 1,
-        borderRadius: 16,
-        padding: 14,
-        gap: 14,
+        borderRadius: Radii.xl,
+        padding: Spacing.lg,
+        gap: Spacing.lg,
+        minHeight: 68,
+        ...Shadows.sm,
     },
     classItemEmoji: {
-        width: 44,
-        height: 44,
-        borderRadius: 14,
+        width: 46,
+        height: 46,
+        borderRadius: Radii.lg,
         alignItems: "center",
         justifyContent: "center",
     },
@@ -500,22 +539,39 @@ const styles = StyleSheet.create({
 
     /* empty */
     emptyCard: {
-        borderWidth: 1,
-        borderRadius: 20,
-        padding: 24,
+        borderRadius: Radii.xxl,
+        padding: Spacing.xxl,
         alignItems: "center",
-        gap: 6,
+        gap: Spacing.sm,
+        ...Shadows.sm,
     },
     emptyEmoji: { fontSize: 36 },
 
     /* settings */
-    settingsGroup: { gap: 0 },
+    settingsGroup: {
+        borderRadius: Radii.xxl,
+        padding: Spacing.xs,
+        ...Shadows.sm,
+    },
     settingsItem: {
         flexDirection: "row",
         alignItems: "center",
-        gap: 12,
-        paddingVertical: 16,
-        borderBottomWidth: 1,
+        gap: Spacing.md,
+        paddingVertical: Spacing.md,
+        paddingHorizontal: Spacing.md,
+        minHeight: 56,
+    },
+    settingsIcon: {
+        width: 36,
+        height: 36,
+        borderRadius: Radii.md,
+        alignItems: "center",
+        justifyContent: "center",
+    },
+    settingsDivider: {
+        height: 1,
+        backgroundColor: "rgba(128, 128, 128, 0.1)",
+        marginHorizontal: Spacing.md,
     },
     settingsLabel: {
         flex: 1,
@@ -527,12 +583,12 @@ const styles = StyleSheet.create({
 
     /* sign out */
     signOutButton: {
-        borderRadius: 16,
-        minHeight: 52,
+        borderRadius: Radii.xl,
+        minHeight: 56,
         alignItems: "center",
         justifyContent: "center",
         flexDirection: "row",
-        gap: 8,
+        gap: Spacing.sm,
     },
     signOutText: {
         fontWeight: "700",

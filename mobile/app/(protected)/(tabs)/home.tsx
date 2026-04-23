@@ -18,7 +18,14 @@ import { useThemeColor } from "@/hooks/use-theme-color";
 import { useColorScheme } from "@/hooks/use-color-scheme";
 import { useAuth } from "@/providers/auth-provider";
 import { getUserProfile } from "@/lib/api";
-import { ClassAccentColors, getClassEmoji } from "@/constants/theme";
+import {
+    ClassAccentColors,
+    getClassEmoji,
+    Spacing,
+    Radii,
+    Shadows,
+    CONTENT_BOTTOM_PAD,
+} from "@/constants/theme";
 import type { ClassroomSummary } from "@/types/api";
 
 /* ------------------------------------------------------------------ */
@@ -53,7 +60,6 @@ export default function HomeScreen() {
     const cardColor = useThemeColor({}, "card");
     const mutedColor = useThemeColor({}, "muted");
     const primaryColor = useThemeColor({}, "primary");
-    const borderColor = useThemeColor({}, "border");
 
     const [classrooms, setClassrooms] = useState<ClassroomSummary[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -108,9 +114,9 @@ export default function HomeScreen() {
     if (isLoading) {
         return (
             <ThemedView
-                style={[styles.container, { paddingTop: insets.top + 16 }]}
+                style={[styles.container, { paddingTop: insets.top + 20 }]}
             >
-                <View style={styles.header}>
+                <View style={styles.skeletonContent}>
                     <Skeleton width={220} height={32} borderRadius={8} />
                     <Skeleton
                         width={160}
@@ -118,37 +124,46 @@ export default function HomeScreen() {
                         borderRadius={6}
                         style={{ marginTop: 8 }}
                     />
-                </View>
-                <Skeleton height={170} borderRadius={24} />
-                <View style={styles.quickActions}>
                     <Skeleton
-                        height={72}
-                        borderRadius={16}
-                        style={{ flex: 1 }}
+                        height={170}
+                        borderRadius={24}
+                        style={{ marginTop: 24 }}
                     />
+                    <View style={styles.quickActions}>
+                        <Skeleton
+                            height={80}
+                            borderRadius={20}
+                            style={{ flex: 1 }}
+                        />
+                        <Skeleton
+                            height={80}
+                            borderRadius={20}
+                            style={{ flex: 1 }}
+                        />
+                        <Skeleton
+                            height={80}
+                            borderRadius={20}
+                            style={{ flex: 1 }}
+                        />
+                    </View>
                     <Skeleton
-                        height={72}
-                        borderRadius={16}
-                        style={{ flex: 1 }}
+                        width={130}
+                        height={22}
+                        borderRadius={6}
+                        style={{ marginTop: 8 }}
                     />
-                    <Skeleton
-                        height={72}
-                        borderRadius={16}
-                        style={{ flex: 1 }}
-                    />
-                </View>
-                <Skeleton width={130} height={22} borderRadius={6} />
-                <View style={styles.classGrid}>
-                    <Skeleton
-                        height={190}
-                        borderRadius={20}
-                        style={{ flex: 1 }}
-                    />
-                    <Skeleton
-                        height={190}
-                        borderRadius={20}
-                        style={{ flex: 1 }}
-                    />
+                    <View style={styles.classGrid}>
+                        <Skeleton
+                            height={200}
+                            borderRadius={24}
+                            style={{ flex: 1 }}
+                        />
+                        <Skeleton
+                            height={200}
+                            borderRadius={24}
+                            style={{ flex: 1 }}
+                        />
+                    </View>
                 </View>
             </ThemedView>
         );
@@ -157,7 +172,9 @@ export default function HomeScreen() {
     /* ---------- render ---------- */
 
     return (
-        <ThemedView style={[styles.container, { paddingTop: insets.top + 8 }]}>
+        <ThemedView
+            style={[styles.container, { paddingTop: insets.top + 12 }]}
+        >
             <ScrollView
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={styles.scrollContent}
@@ -246,7 +263,7 @@ export default function HomeScreen() {
                             {
                                 backgroundColor: isDark ? "#22203A" : "#F0EAFF",
                                 opacity: pressed ? 0.8 : 1,
-                                transform: [{ scale: pressed ? 0.96 : 1 }],
+                                transform: [{ scale: pressed ? 0.95 : 1 }],
                             },
                         ]}
                         onPress={() =>
@@ -272,7 +289,7 @@ export default function HomeScreen() {
                             {
                                 backgroundColor: isDark ? "#1C322F" : "#E5FAF6",
                                 opacity: pressed ? 0.8 : 1,
-                                transform: [{ scale: pressed ? 0.96 : 1 }],
+                                transform: [{ scale: pressed ? 0.95 : 1 }],
                             },
                         ]}
                         onPress={() =>
@@ -300,7 +317,7 @@ export default function HomeScreen() {
                             {
                                 backgroundColor: isDark ? "#3A1C2A" : "#FFF0F5",
                                 opacity: pressed ? 0.8 : 1,
-                                transform: [{ scale: pressed ? 0.96 : 1 }],
+                                transform: [{ scale: pressed ? 0.95 : 1 }],
                             },
                         ]}
                         onPress={() =>
@@ -334,6 +351,8 @@ export default function HomeScreen() {
                         onPress={() =>
                             router.push("/(protected)/(tabs)/classes" as never)
                         }
+                        hitSlop={12}
+                        style={styles.seeAllButton}
                     >
                         <ThemedText
                             style={[styles.seeAll, { color: primaryColor }]}
@@ -347,7 +366,7 @@ export default function HomeScreen() {
                     <View
                         style={[
                             styles.emptyState,
-                            { backgroundColor: cardColor, borderColor },
+                            { backgroundColor: cardColor },
                         ]}
                     >
                         <ThemedText style={styles.emptyEmoji}>📭</ThemedText>
@@ -380,7 +399,6 @@ export default function HomeScreen() {
                                         styles.classCard,
                                         {
                                             backgroundColor: colors.bg,
-                                            borderColor: colors.accent + "25",
                                             opacity: pressed ? 0.9 : 1,
                                             transform: [
                                                 {
@@ -462,7 +480,12 @@ export default function HomeScreen() {
 
                 {/* ---- Motivational footer ---- */}
                 {classrooms.length > 0 ? (
-                    <View style={styles.motivationCard}>
+                    <View
+                        style={[
+                            styles.motivationCard,
+                            { backgroundColor: cardColor },
+                        ]}
+                    >
                         <ThemedText style={styles.motivationEmoji}>
                             🔥
                         </ThemedText>
@@ -497,14 +520,18 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     scrollContent: {
-        paddingHorizontal: 20,
-        paddingBottom: 32,
-        gap: 20,
+        paddingHorizontal: Spacing.xl,
+        paddingBottom: CONTENT_BOTTOM_PAD,
+        gap: Spacing.xxl,
+    },
+    skeletonContent: {
+        paddingHorizontal: Spacing.xl,
     },
 
     /* header */
     header: {
-        gap: 4,
+        gap: Spacing.xs,
+        paddingTop: Spacing.sm,
     },
     greeting: {
         fontSize: 28,
@@ -518,13 +545,9 @@ const styles = StyleSheet.create({
 
     /* overview card */
     overviewCard: {
-        borderRadius: 24,
-        padding: 22,
-        shadowColor: "#7C5CFC",
-        shadowOpacity: 0.15,
-        shadowRadius: 20,
-        shadowOffset: { width: 0, height: 8 },
-        elevation: 8,
+        borderRadius: Radii.xxl,
+        padding: Spacing.xxl,
+        ...Shadows.lg,
     },
     overviewContent: {
         flexDirection: "row",
@@ -532,7 +555,7 @@ const styles = StyleSheet.create({
     },
     overviewText: {
         flex: 1,
-        gap: 6,
+        gap: Spacing.sm,
     },
     overviewTitle: {
         fontSize: 18,
@@ -546,8 +569,8 @@ const styles = StyleSheet.create({
     overviewStats: {
         flexDirection: "row",
         alignItems: "center",
-        marginTop: 14,
-        gap: 16,
+        marginTop: Spacing.lg,
+        gap: Spacing.lg,
     },
     statItem: {
         alignItems: "center",
@@ -571,7 +594,7 @@ const styles = StyleSheet.create({
     overviewVisual: {
         justifyContent: "center",
         alignItems: "center",
-        marginLeft: 12,
+        marginLeft: Spacing.md,
     },
     overviewEmoji: {
         fontSize: 52,
@@ -580,18 +603,19 @@ const styles = StyleSheet.create({
     /* quick actions */
     quickActions: {
         flexDirection: "row",
-        gap: 12,
+        gap: Spacing.md,
     },
     quickAction: {
         flex: 1,
-        borderRadius: 16,
-        paddingVertical: 14,
+        borderRadius: Radii.xl,
+        paddingVertical: Spacing.lg,
         alignItems: "center",
         justifyContent: "center",
-        gap: 4,
+        gap: Spacing.sm,
+        minHeight: 80,
     },
     quickActionEmoji: {
-        fontSize: 22,
+        fontSize: 24,
     },
     quickActionLabel: {
         fontSize: 12,
@@ -608,6 +632,11 @@ const styles = StyleSheet.create({
         fontSize: 20,
         fontWeight: "700",
     },
+    seeAllButton: {
+        minHeight: 44,
+        justifyContent: "center",
+        paddingLeft: Spacing.sm,
+    },
     seeAll: {
         fontSize: 14,
         fontWeight: "600",
@@ -617,16 +646,16 @@ const styles = StyleSheet.create({
     classGrid: {
         flexDirection: "row",
         flexWrap: "wrap",
-        gap: 12,
+        gap: Spacing.md,
     },
     classCard: {
         width: "48%",
         flexGrow: 1,
-        borderRadius: 20,
-        borderWidth: 1,
-        padding: 16,
-        gap: 8,
-        minHeight: 190,
+        borderRadius: Radii.xxl,
+        padding: Spacing.lg,
+        gap: Spacing.sm,
+        minHeight: 200,
+        ...Shadows.sm,
     },
     classCardHeader: {
         flexDirection: "row",
@@ -634,9 +663,9 @@ const styles = StyleSheet.create({
         alignItems: "flex-start",
     },
     emojiCircle: {
-        width: 42,
-        height: 42,
-        borderRadius: 14,
+        width: 44,
+        height: 44,
+        borderRadius: Radii.lg,
         alignItems: "center",
         justifyContent: "center",
     },
@@ -665,15 +694,15 @@ const styles = StyleSheet.create({
 
     /* empty state */
     emptyState: {
-        borderWidth: 1,
-        borderRadius: 24,
-        padding: 32,
+        borderRadius: Radii.xxl,
+        padding: Spacing.xxxl,
         alignItems: "center",
-        gap: 8,
+        gap: Spacing.sm,
+        ...Shadows.md,
     },
     emptyEmoji: {
         fontSize: 48,
-        marginBottom: 4,
+        marginBottom: Spacing.xs,
     },
     emptyText: {
         textAlign: "center",
@@ -684,16 +713,19 @@ const styles = StyleSheet.create({
     /* motivation */
     motivationCard: {
         alignItems: "center",
-        gap: 4,
-        paddingVertical: 16,
+        gap: Spacing.xs,
+        paddingVertical: Spacing.xl,
+        borderRadius: Radii.xxl,
+        ...Shadows.sm,
     },
     motivationEmoji: {
         fontSize: 32,
-        marginBottom: 4,
+        marginBottom: Spacing.xs,
     },
     motivationText: {
         fontSize: 13,
         textAlign: "center",
         lineHeight: 18,
+        paddingHorizontal: Spacing.lg,
     },
 });

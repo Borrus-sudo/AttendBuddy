@@ -11,6 +11,7 @@ import { router } from "expo-router";
 
 import { ThemedText } from "@/components/themed-text";
 import { useThemeColor } from "@/hooks/use-theme-color";
+import { Spacing, Radii } from "@/constants/theme";
 
 type ScreenHeaderProps = {
     title: string;
@@ -92,14 +93,17 @@ export function ScreenHeader({
 
 const styles = StyleSheet.create({
     container: {
-        gap: 6,
+        gap: Spacing.sm,
+        minHeight: 64,
+        paddingBottom: Spacing.md,
     },
     backButton: {
         flexDirection: "row",
         alignItems: "center",
         alignSelf: "flex-start",
         gap: 2,
-        paddingVertical: 4,
+        paddingVertical: Spacing.xs,
+        minHeight: 44,
     },
     backLabel: {
         fontSize: 15,
@@ -109,23 +113,23 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         justifyContent: "space-between",
         alignItems: "flex-start",
-        gap: 10,
+        gap: Spacing.md,
     },
     left: {
         flex: 1,
+        gap: Spacing.xs,
     },
     title: {
-        fontSize: 30,
+        fontSize: 28,
         lineHeight: 34,
     },
     subtitle: {
-        marginTop: 3,
         fontSize: 14,
         lineHeight: 20,
     },
     right: {
         flexDirection: "row",
         alignItems: "center",
-        gap: 8,
+        gap: Spacing.sm,
     },
 });

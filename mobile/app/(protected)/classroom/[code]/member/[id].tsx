@@ -11,6 +11,7 @@ import { ProgressBar } from "@/components/ui/progress-bar";
 import { ScreenHeader } from "@/components/ui/screen-header";
 import { StatusPill } from "@/components/ui/status-pill";
 import { useThemeColor } from "@/hooks/use-theme-color";
+import { Spacing, Radii, CONTENT_BOTTOM_PAD } from "@/constants/theme";
 import { formatSessionLabel, getMemberAttendanceAnalytics } from "@/lib/api";
 import type { MemberAttendanceAnalytics } from "@/types/api";
 
@@ -99,7 +100,7 @@ export default function MemberDetailScreen() {
     const insets = useSafeAreaInsets();
 
     return (
-        <ThemedView style={[styles.container, { paddingTop: insets.top + 8 }]}>
+        <ThemedView style={[styles.container, { paddingTop: insets.top + 12 }]}>
             <ScreenHeader
                 showBack
                 title={analytics.member.name}
@@ -192,27 +193,27 @@ export default function MemberDetailScreen() {
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        paddingHorizontal: 16,
-        paddingTop: 16,
-        gap: 12,
+        paddingHorizontal: Spacing.xl,
+        paddingTop: Spacing.lg,
+        gap: Spacing.lg,
     },
     centered: {
         flex: 1,
         alignItems: "center",
         justifyContent: "center",
-        gap: 12,
-        paddingHorizontal: 16,
+        gap: Spacing.md,
+        paddingHorizontal: Spacing.xl,
     },
     statsGrid: {
-        marginTop: 10,
+        marginTop: Spacing.md,
         flexDirection: "row",
         flexWrap: "wrap",
-        gap: 8,
+        gap: Spacing.sm,
     },
     statItem: {
         width: "48%",
-        borderRadius: 12,
-        padding: 10,
+        borderRadius: Radii.lg,
+        padding: Spacing.md,
         backgroundColor: "rgba(51, 65, 85, 0.3)",
         gap: 2,
     },
@@ -222,16 +223,16 @@ const styles = StyleSheet.create({
         fontWeight: "700",
     },
     listContent: {
-        gap: 10,
-        paddingBottom: 20,
+        gap: Spacing.md,
+        paddingBottom: CONTENT_BOTTOM_PAD,
     },
     recentCard: {
-        paddingVertical: 12,
+        paddingVertical: Spacing.md,
     },
     recentRow: {
         flexDirection: "row",
         alignItems: "center",
         justifyContent: "space-between",
-        gap: 12,
+        gap: Spacing.md,
     },
 });
