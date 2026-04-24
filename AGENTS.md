@@ -14,6 +14,7 @@ Operational guide for agentic coding tools working in this repository.
 - DB schema: `db/schema.ts`.
 - DB migrations: `db/migrations/`.
 - Mobile client: Expo + React Native in `mobile/`.
+- Face matching microservice: Python + DeepFace in `face_matching/`.
 
 ## Rule Files (Cursor/Copilot)
 
@@ -34,6 +35,7 @@ If these files are added later, treat them as higher-priority local policy.
 - Run mobile Android target: `npm run android --prefix mobile`
 - Run mobile iOS target: `npm run ios --prefix mobile`
 - Run mobile web target: `npm run web --prefix mobile`
+- Run face matching server: `uvicorn server:app --host 127.0.0.1 --port 8000` (from `face_matching/`)
 
 ## Build, Lint, and Test Commands
 
@@ -92,6 +94,7 @@ Expected environment variables:
 - `APP_GOOGLE_CLIENT_SECRET`
 - `APP_FRONTEND_URL`
 - `APP_BACKEND_URL`
+- `FACE_MATCHING_SERVER`
 - `PORT`
 
 Notes:

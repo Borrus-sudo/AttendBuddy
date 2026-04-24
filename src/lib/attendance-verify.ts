@@ -5,12 +5,6 @@ function stableHash(input: string): string {
     return createHash("sha256").update(input).digest("hex");
 }
 
-function parseDataUrlBase64(value: string): Buffer {
-    const trimmed = value.trim();
-    const payload = trimmed.includes(",") ? trimmed.split(",")[1]! : trimmed;
-    return Buffer.from(payload, "base64");
-}
-
 async function fetchImageBuffer(url: string): Promise<Buffer> {
     const response = await fetch(url, {
         signal: AbortSignal.timeout(10_000),
@@ -47,44 +41,55 @@ export async function verifySelfieAgainstReference(input: {
         };
     }
 
-    let sourceBytes: Buffer;
     let targetBytes: Buffer;
 
     try {
-        sourceBytes = parseDataUrlBase64(selfieBase64);
         targetBytes = await fetchImageBuffer(referenceImageUrl);
-    } catch {
+    } catch (e: any) {
         return {
             ok: false,
             confidence: 0,
-            reason: "Invalid selfie image or profile photo URL.",
+            reason: `Could not fetch profile photo: ${e.message || "Unknown error"}`,
         };
     }
 
     try {
-        const selfieImage = await Jimp.read(sourceBytes);
-        const referenceImage = await Jimp.read(targetBytes);
+        const referenceBase64 = targetBytes.toString("base64");
+        const serverUrl = process.env.FACE_MATCHING_SERVER || "http://127.0.0.1:8000";
+        
+        const response = await fetch(`${serverUrl}/verify`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                selfie_base64: selfieBase64,
+                reference_image_base64: referenceBase64
+            }),
+            signal: AbortSignal.timeout(30_000)
+        });
 
-        const selfieHash = selfieImage.hash();
-        const referenceHash = referenceImage.hash();
-        const confidence = Math.max(
-            0,
-            Math.min(1, 1 - compareHashes(selfieHash, referenceHash)),
-        );
+        if (!response.ok) {
+            const errBody = await response.json().catch(() => null) as { reason?: string } | null;
+            return {
+                ok: false,
+                confidence: 0,
+                reason: errBody?.reason || "Face verification server returned an error.",
+            };
+        }
 
+        const data = await response.json() as { ok: boolean; confidence: number; reason?: string };
         return {
-            ok: confidence >= minScore,
-            confidence,
-            ...(confidence >= minScore
-                ? {}
-                : { reason: "Face does not match profile photo." }),
+            ok: Boolean(data.ok),
+            confidence: Number(data.confidence) || 0,
+            ...(data.ok ? {} : { reason: data.reason || "Face does not match profile photo." }),
         };
     } catch (e) {
-        console.log(e);
+        console.log("DeepFace Verification Error:", e);
         return {
             ok: false,
             confidence: 0,
-            reason: "Could not process images for local face matching.",
+            reason: "Could not communicate with the face matching server.",
         };
     }
 }

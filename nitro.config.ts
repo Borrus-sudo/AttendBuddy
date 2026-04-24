@@ -16,4 +16,7 @@ export default defineConfig({
             envPrefix: "APP_",
         },
     },
+    experimental: {
+        openAPI: true,
+    },
 });

@@ -10,3 +10,5 @@ dist
 db/local.db
 !.env.example
 _api
+.venv
+env

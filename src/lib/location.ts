@@ -1,4 +1,4 @@
-export const isGpsTrackingDisabled = () => false;
+export const isGpsTrackingDisabled = () => true;
 
 // 19°01'18.81"N 72°51'21.35"E
 const TARGET_LATITUDE = 19.0218916667;
