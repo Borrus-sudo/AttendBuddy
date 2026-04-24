@@ -1,10 +1,8 @@
 import { API_BASE_URL, isWeb } from "@/lib/config";
 import { getAuthCookie } from "@/lib/auth";
 import type {
-    AttendanceMemberStatus,
     AttendanceSessionDetailPayload,
     AttendanceSessionSummary,
-    AttendanceVerificationChallenge,
     ClassroomMember,
     ClassroomDetailPayload,
     ClassroomSummary,
@@ -259,23 +257,8 @@ export async function markAttendanceByToken(token: string): Promise<void> {
     );
 }
 
-export async function createAttendanceVerificationChallenge(
-    attendanceCode: string,
-): Promise<AttendanceVerificationChallenge> {
-    const response = await request<
-        SuccessEnvelope<AttendanceVerificationChallenge>
-    >("/api/session/verify/challenge", {
-        method: "POST",
-        body: { attendanceCode },
-    });
-
-    return response.payload;
-}
-
 export async function verifyAttendanceWithFace(input: {
     attendanceCode: string;
-    challengeId: string;
-    challengeToken: string;
     selfieBase64: string;
     latitude?: number;
     longitude?: number;

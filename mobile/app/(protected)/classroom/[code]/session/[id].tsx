@@ -43,14 +43,13 @@ import { useColorScheme } from "@/hooks/use-color-scheme";
 import { Spacing, Radii, Shadows, CONTENT_BOTTOM_PAD } from "@/constants/theme";
 import {
     formatSessionLabel,
-    createAttendanceVerificationChallenge,
     getAttendanceSessionDetail,
     reviewAttendanceRequest,
     setAttendancePresence,
     submitAttendanceRequest,
     verifyAttendanceWithFace,
 } from "@/lib/api";
-import * as Location from 'expo-location';
+import * as Location from "expo-location";
 import type {
     AttendanceMemberStatus,
     AttendanceSessionDetailPayload,
@@ -236,20 +235,20 @@ export default function SessionDetailScreen() {
         setIsSubmittingCode(true);
 
         try {
-            const { status } = await Location.requestForegroundPermissionsAsync();
-            if (status !== 'granted') {
-                throw new Error("Location permission is required to mark attendance.");
+            const { status } =
+                await Location.requestForegroundPermissionsAsync();
+            if (status !== "granted") {
+                throw new Error(
+                    "Location permission is required to mark attendance.",
+                );
             }
-            
+
             const location = await Location.getCurrentPositionAsync({
                 accuracy: Location.Accuracy.Balanced,
             });
 
-            const challenge = await createAttendanceVerificationChallenge(code);
             await verifyAttendanceWithFace({
                 attendanceCode: code,
-                challengeId: challenge.challengeId,
-                challengeToken: challenge.challengeToken,
                 selfieBase64: capturedSelfieBase64,
                 latitude: location.coords.latitude,
                 longitude: location.coords.longitude,
@@ -456,9 +455,7 @@ export default function SessionDetailScreen() {
 
             {isTeacher ? (
                 <AppCard style={styles.qrCard}>
-                    <ThemedText type="defaultSemiBold">
-                        Session Code
-                    </ThemedText>
+                    <ThemedText type="defaultSemiBold">Session Code</ThemedText>
                     {data.session.token ? (
                         <View style={styles.qrWrap}>
                             {/* <QRCode value={data.session.token} size={180} /> */}

@@ -81,12 +81,6 @@ export type AttendanceRequestItem = {
     reviewedAt: string | null;
 };
 
-export type AttendanceVerificationChallenge = {
-    challengeId: string;
-    challengeToken: string;
-    expiresAt: string;
-};
-
 export type AttendanceSessionDetailPayload = {
     session: AttendanceSessionSummary;
     role: "teacher" | "student";

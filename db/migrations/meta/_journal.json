@@ -15,6 +15,13 @@
             "when": 1776843260267,
             "tag": "0001_steady_paper_doll",
             "breakpoints": true
+        },
+        {
+            "idx": 2,
+            "version": "6",
+            "when": 1777008459313,
+            "tag": "0002_fresh_thunderbolt_ross",
+            "breakpoints": true
         }
     ]
 }

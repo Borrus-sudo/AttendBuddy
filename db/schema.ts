@@ -246,37 +246,6 @@ export const attendanceRequest = sqliteTable(
     ],
 );
 
-export const attendanceVerificationChallenge = sqliteTable(
-    "attendance_verification_challenge",
-    {
-        id: text("id").primaryKey(),
-        attendanceSessionId: text("attendance_session_id")
-            .notNull()
-            .references(() => attendanceSession.id, { onDelete: "cascade" }),
-        classroomCode: text("classroom_code")
-            .notNull()
-            .references(() => classroom.code, { onDelete: "cascade" }),
-        userId: text("user_id")
-            .notNull()
-            .references(() => user.id, { onDelete: "cascade" }),
-        tokenHash: text("token_hash").notNull(),
-        createdAt: integer("created_at", { mode: "timestamp_ms" })
-            .$defaultFn(() => new Date())
-            .notNull(),
-        expiresAt: integer("expires_at", { mode: "timestamp_ms" }).notNull(),
-        usedAt: integer("used_at", { mode: "timestamp_ms" }),
-    },
-    (table) => [
-        index("attendance_verify_challenge_session_idx").on(
-            table.attendanceSessionId,
-        ),
-        index("attendance_verify_challenge_user_idx").on(table.userId),
-        uniqueIndex("attendance_verify_challenge_token_hash_unique").on(
-            table.tokenHash,
-        ),
-    ],
-);
-
 export const attendanceVerificationAttempt = sqliteTable(
     "attendance_verification_attempt",
     {
@@ -290,11 +259,6 @@ export const attendanceVerificationAttempt = sqliteTable(
         userId: text("user_id")
             .notNull()
             .references(() => user.id, { onDelete: "cascade" }),
-        challengeId: text("challenge_id")
-            .notNull()
-            .references(() => attendanceVerificationChallenge.id, {
-                onDelete: "cascade",
-            }),
         isSuccess: integer("is_success", { mode: "boolean" })
             .default(false)
             .notNull(),

@@ -4,18 +4,12 @@ import { defineHandler } from "nitro";
 import { useRuntimeConfig } from "nitro/runtime-config";
 import { randomUUID } from "node:crypto";
 import * as z from "zod";
-
-import {
-    hashVerificationToken,
-    verifySelfieAgainstReference,
-} from "@/src/lib/attendance-verify";
+import { verifySelfieAgainstReference } from "@/src/lib/attendance-verify";
 import { db, schema } from "@/src/lib/db";
 import { verifyLocationCoordinates } from "@/src/lib/location";
 
 const Body = z.object({
     attendanceCode: z.string().min(1),
-    challengeId: z.string().min(1),
-    challengeToken: z.string().min(1),
     selfieBase64: z.string().min(100),
     latitude: z.number().optional(),
     longitude: z.number().optional(),
@@ -34,8 +28,7 @@ export default defineHandler(async (event) => {
         });
     }
 
-    const { attendanceCode, challengeId, challengeToken, selfieBase64, latitude, longitude } =
-        parsed.data;
+    const { attendanceCode, selfieBase64, latitude, longitude } = parsed.data;
 
     const locationCheck = verifyLocationCoordinates(latitude, longitude);
     if (!locationCheck.isValid) {
@@ -66,40 +59,6 @@ export default defineHandler(async (event) => {
     if (attendanceSession.expiresAt.getTime() < Date.now()) {
         throw HTTPError.status(400, "Bad Request", {
             message: "Attendance session has expired.",
-        });
-    }
-
-    const challengeRows = await db
-        .select()
-        .from(schema.attendanceVerificationChallenge)
-        .where(
-            and(
-                eq(schema.attendanceVerificationChallenge.id, challengeId),
-                eq(schema.attendanceVerificationChallenge.userId, userId),
-                eq(
-                    schema.attendanceVerificationChallenge.attendanceSessionId,
-                    attendanceSession.id,
-                ),
-                isNull(schema.attendanceVerificationChallenge.usedAt),
-                gte(
-                    schema.attendanceVerificationChallenge.expiresAt,
-                    new Date(),
-                ),
-            ),
-        );
-
-    if (challengeRows.length === 0) {
-        throw HTTPError.status(400, "Bad Request", {
-            message: "Verification challenge is invalid or expired.",
-        });
-    }
-
-    const challenge = challengeRows[0]!;
-    const tokenHash = hashVerificationToken(challengeToken);
-
-    if (challenge.tokenHash !== tokenHash) {
-        throw HTTPError.status(400, "Bad Request", {
-            message: "Verification challenge token does not match.",
         });
     }
 
@@ -158,16 +117,10 @@ export default defineHandler(async (event) => {
         attendanceSessionId: attendanceSession.id,
         classroomCode: attendanceSession.classroomCode,
         userId,
-        challengeId: challenge.id,
         isSuccess: verification.ok,
         confidence: Math.round(verification.confidence * 100),
         failureReason: verification.reason ?? null,
     });
-
-    await db
-        .update(schema.attendanceVerificationChallenge)
-        .set({ usedAt: new Date() })
-        .where(eq(schema.attendanceVerificationChallenge.id, challenge.id));
 
     if (!verification.ok) {
         throw HTTPError.status(400, "Bad Request", {
