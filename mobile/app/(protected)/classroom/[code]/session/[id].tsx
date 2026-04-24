@@ -28,6 +28,7 @@ import {
     MessageSquarePlus,
     ShieldAlert,
     History,
+    Scan,
 } from "lucide-react-native";
 
 import { ThemedText } from "@/components/themed-text";
@@ -37,6 +38,7 @@ import { AppCard } from "@/components/ui/app-card";
 import { AppListItem } from "@/components/ui/app-list-item";
 import { AppModal } from "@/components/ui/app-modal";
 import { ScreenHeader } from "@/components/ui/screen-header";
+import { WebQrScanner } from "@/components/qr/web-qr-scanner";
 import { StatusPill } from "@/components/ui/status-pill";
 import { useThemeColor } from "@/hooks/use-theme-color";
 import { useColorScheme } from "@/hooks/use-color-scheme";
@@ -94,6 +96,7 @@ export default function SessionDetailScreen() {
     const [isReviewingRequest, setIsReviewingRequest] = useState(false);
     const [showRequestModal, setShowRequestModal] = useState(false);
     const [isCameraReady, setIsCameraReady] = useState(false);
+    const [showScanner, setShowScanner] = useState(false);
     const cameraRef = useRef<CameraView | null>(null);
     const insets = useSafeAreaInsets();
 
@@ -458,7 +461,7 @@ export default function SessionDetailScreen() {
                     <ThemedText type="defaultSemiBold">Session Code</ThemedText>
                     {data.session.token ? (
                         <View style={styles.qrWrap}>
-                            {/* <QRCode value={data.session.token} size={180} /> */}
+                            <QRCode value={data.session.token} size={180} />
                             <ThemedText style={{ color: muted }}>
                                 Students use this code to mark attendance.
                             </ThemedText>
@@ -491,14 +494,34 @@ export default function SessionDetailScreen() {
                                 selfie.
                             </ThemedText>
 
-                            <TextInput
-                                value={attendanceCode}
-                                onChangeText={setAttendanceCode}
-                                placeholder="Enter session code"
-                                placeholderTextColor={muted}
-                                autoCapitalize="none"
-                                style={[styles.requestInput, { color: muted }]}
-                            />
+                            <View style={styles.codeInputWrap}>
+                                <TextInput
+                                    value={attendanceCode}
+                                    onChangeText={setAttendanceCode}
+                                    placeholder="Enter session code"
+                                    placeholderTextColor={muted}
+                                    autoCapitalize="none"
+                                    style={[styles.codeInput, { color: muted }]}
+                                />
+                                <Pressable
+                                    style={({ pressed }) => [
+                                        styles.scanButton,
+                                        { opacity: pressed ? 0.7 : 1 }
+                                    ]}
+                                    onPress={async () => {
+                                        if (!permission?.granted) {
+                                            const result = await requestPermission();
+                                            if (!result.granted) {
+                                                setError("Camera permission is required to scan QR code.");
+                                                return;
+                                            }
+                                        }
+                                        setShowScanner(true);
+                                    }}
+                                >
+                                    <Scan size={24} color={primary} />
+                                </Pressable>
+                            </View>
 
                             <View style={styles.mobileActionRow}>
                                 <AppButton
@@ -1029,6 +1052,56 @@ export default function SessionDetailScreen() {
                     ) : null}
                 </View>
             </AppModal>
+
+            {/* ---- QR Scanner Modal ---- */}
+            <Modal
+                visible={showScanner}
+                animationType="slide"
+                transparent={false}
+                onRequestClose={() => setShowScanner(false)}
+            >
+                <ThemedView style={[styles.scannerContainer, { paddingTop: insets.top }]}>
+                    <ScreenHeader title="Scan Session QR" onBack={() => setShowScanner(false)} showBack />
+                    <View style={styles.scannerViewport}>
+                        {Platform.OS === "web" ? (
+                            <WebQrScanner
+                                active={showScanner}
+                                onScan={(payload) => {
+                                    setAttendanceCode(payload);
+                                    setShowScanner(false);
+                                }}
+                            />
+                        ) : (
+                            <CameraView
+                                style={StyleSheet.absoluteFill}
+                                facing="back"
+                                onBarcodeScanned={({ data: resultData }) => {
+                                    if (resultData) {
+                                        setAttendanceCode(resultData);
+                                        setShowScanner(false);
+                                    }
+                                }}
+                                barcodeScannerSettings={{
+                                    barcodeTypes: ["qr"],
+                                }}
+                            />
+                        )}
+                        <View style={styles.scannerOverlay}>
+                            <View style={styles.scannerTarget} />
+                        </View>
+                    </View>
+                    <View style={styles.scannerFooter}>
+                        <ThemedText style={{ color: muted, textAlign: "center" }}>
+                            Point your camera at the QR code displayed by your teacher.
+                        </ThemedText>
+                        <AppButton
+                            label="Cancel"
+                            variant="secondary"
+                            onPress={() => setShowScanner(false)}
+                        />
+                    </View>
+                </ThemedView>
+            </Modal>
         </ThemedView>
     );
 }
@@ -1116,6 +1189,28 @@ const styles = StyleSheet.create({
         paddingVertical: Spacing.md,
         backgroundColor: "rgba(240, 241, 245, 0.6)",
         fontFamily: "Outfit-Regular",
+    },
+    codeInputWrap: {
+        flexDirection: "row",
+        alignItems: "stretch",
+        gap: Spacing.sm,
+    },
+    codeInput: {
+        flex: 1,
+        borderRadius: Radii.lg,
+        minHeight: 56,
+        paddingHorizontal: Spacing.lg,
+        backgroundColor: "rgba(240, 241, 245, 0.6)",
+        fontFamily: "Outfit-Regular",
+    },
+    scanButton: {
+        width: 56,
+        borderRadius: Radii.lg,
+        backgroundColor: "rgba(201, 153, 107, 0.12)",
+        alignItems: "center",
+        justifyContent: "center",
+        borderWidth: 1,
+        borderColor: "rgba(201, 153, 107, 0.2)",
     },
     mobileActionRow: {
         flexDirection: "row",
@@ -1300,5 +1395,34 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         alignItems: "center",
         gap: Spacing.sm,
+    },
+    /* ---- QR Scanner Modal ---- */
+    scannerContainer: {
+        flex: 1,
+    },
+    scannerViewport: {
+        flex: 1,
+        margin: Spacing.xl,
+        borderRadius: Radii.xl,
+        overflow: "hidden",
+        backgroundColor: "#000",
+        position: "relative",
+    },
+    scannerOverlay: {
+        ...StyleSheet.absoluteFillObject,
+        alignItems: "center",
+        justifyContent: "center",
+    },
+    scannerTarget: {
+        width: 240,
+        height: 240,
+        borderWidth: 2,
+        borderColor: "#C9996B",
+        borderRadius: Radii.lg,
+    },
+    scannerFooter: {
+        padding: Spacing.xl,
+        gap: Spacing.lg,
+        paddingBottom: CONTENT_BOTTOM_PAD + 20,
     },
 });

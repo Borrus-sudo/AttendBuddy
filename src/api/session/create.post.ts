@@ -81,7 +81,7 @@ export default defineHandler(async (event) => {
     }
 
     const now = Date.now();
-    const expiresAt = new Date(now + durationMinutes * 60 * 1000);
+    const expiresAt = new Date(now + durationMinutes * 1000);
     const attendanceSessionId = uuid();
     const attendanceToken = await getUniqueSessionCode();
 

@@ -993,7 +993,7 @@ export default function ClassroomScreen() {
                             {[15, 30, 45, 60].map((option) => (
                                 <AppButton
                                     key={option}
-                                    label={`${option}m`}
+                                    label={`${option}s`}
                                     variant={
                                         durationMinutes === option
                                             ? "primary"
