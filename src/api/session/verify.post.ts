@@ -10,12 +10,15 @@ import {
     verifySelfieAgainstReference,
 } from "@/src/lib/attendance-verify";
 import { db, schema } from "@/src/lib/db";
+import { verifyLocationCoordinates } from "@/src/lib/location";
 
 const Body = z.object({
     attendanceCode: z.string().min(1),
     challengeId: z.string().min(1),
     challengeToken: z.string().min(1),
     selfieBase64: z.string().min(100),
+    latitude: z.number().optional(),
+    longitude: z.number().optional(),
 });
 
 export default defineHandler(async (event) => {
@@ -31,8 +34,15 @@ export default defineHandler(async (event) => {
         });
     }
 
-    const { attendanceCode, challengeId, challengeToken, selfieBase64 } =
+    const { attendanceCode, challengeId, challengeToken, selfieBase64, latitude, longitude } =
         parsed.data;
+
+    const locationCheck = verifyLocationCoordinates(latitude, longitude);
+    if (!locationCheck.isValid) {
+        throw HTTPError.status(400, "Bad Request", {
+            message: locationCheck.message,
+        });
+    }
 
     const sessionRows = await db
         .select()

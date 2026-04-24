@@ -277,6 +277,8 @@ export async function verifyAttendanceWithFace(input: {
     challengeId: string;
     challengeToken: string;
     selfieBase64: string;
+    latitude?: number;
+    longitude?: number;
 }): Promise<void> {
     await request<SuccessEnvelope<{ message: string }>>("/api/session/verify", {
         method: "POST",

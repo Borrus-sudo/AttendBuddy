@@ -21,7 +21,7 @@
         "consola": "^3.4.2",
         "dotenv": "^17.4.0",
         "drizzle-orm": "^0.45.2",
-        "jimp": "^1.6.0",
+        "jimp": "^1.6.1",
         "tslib": "^2.8.1",
         "uuid": "^13.0.0",
         "zod": "^4.3.6"
@@ -30,7 +30,7 @@
         "@types/node": "^25.5.0",
         "drizzle-kit": "^0.31.10",
         "jiti": "^2.6.1",
-        "nitro": "latest",
+        "nitro": "^3.0.260311-beta",
         "oxfmt": "^0.43.0",
         "tsx": "^4.21.0",
         "typescript": "^6.0.2"

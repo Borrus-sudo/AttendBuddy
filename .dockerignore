@@ -18,6 +18,8 @@ dist
 .data
 db/local.db
 db/migrations/
+images/
+face_matching/
 
 # git
 .git
