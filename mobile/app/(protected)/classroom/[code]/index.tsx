@@ -879,6 +879,8 @@ export default function ClassroomScreen() {
                     </View>
 
                     <FlatList
+                        style={{ flex: 1 }}
+                        showsVerticalScrollIndicator={false}
                         data={
                             role === "teacher"
                                 ? sessions

@@ -445,11 +445,11 @@ export default function SessionDetailScreen() {
             {isTeacher ? (
                 <AppCard style={styles.qrCard}>
                     <ThemedText type="defaultSemiBold">
-                        Session QR Code
+                        Session Code
                     </ThemedText>
                     {data.session.token ? (
                         <View style={styles.qrWrap}>
-                            <QRCode value={data.session.token} size={180} />
+                            {/* <QRCode value={data.session.token} size={180} /> */}
                             <ThemedText style={{ color: muted }}>
                                 Students use this code to mark attendance.
                             </ThemedText>
@@ -670,6 +670,8 @@ export default function SessionDetailScreen() {
                     ) : null}
 
                     <FlatList
+                        style={{ flex: 1 }}
+                        showsVerticalScrollIndicator={false}
                         data={data.members}
                         keyExtractor={(item) => item.userId}
                         contentContainerStyle={styles.listContent}

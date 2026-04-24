@@ -19,7 +19,6 @@ export default function ProtectedLayout() {
         );
     }
 
-    // Not logged in → send to sign-in
     if (!user) {
         return <Redirect href="/(auth)/sign-in" />;
     }
